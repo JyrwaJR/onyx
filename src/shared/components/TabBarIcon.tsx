@@ -1,15 +1,11 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { ColorValue, StyleSheet } from 'react-native';
+import { Text, type ColorValue } from 'react-native';
 
-export const TabBarIcon = (props: {
-  name: React.ComponentProps<typeof FontAwesome>['name'];
+interface TabBarIconProps {
   color: ColorValue;
-}) => {
-  return <FontAwesome size={28} style={styles.tabBarIcon} {...props} />;
-};
+  size: number;
+  label: string;
+}
 
-export const styles = StyleSheet.create({
-  tabBarIcon: {
-    marginBottom: -3,
-  },
-});
+export function TabBarIcon({ color, size, label }: TabBarIconProps) {
+  return <Text style={{ color, fontSize: size, fontWeight: '600' }}>{label}</Text>;
+}

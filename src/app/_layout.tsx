@@ -1,23 +1,34 @@
-import '../global.css';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import '../../global.css';
+import { useEffect } from 'react';
+import { StatusBar } from 'expo-status-bar';
 import { Stack } from 'expo-router';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import * as SplashScreen from 'expo-splash-screen';
+import { QueryClientProvider } from '@tanstack/react-query';
 
-export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(drawer)',
-};
+import { queryClient } from '../shared/api/query-client';
+import { useConnectionStore } from '../features/connection/store/connection-store';
+
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const hydrated = useConnectionStore((s) => s.hydrated);
+
+  useEffect(() => {
+    if (hydrated) {
+      SplashScreen.hideAsync();
+    }
+  }, [hydrated]);
+
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <QueryClientProvider client={queryClient}>
       <SafeAreaProvider>
         <Stack>
-          <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ title: 'Modal', presentation: 'modal' }} />
+          <Stack.Screen name="(connection)" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         </Stack>
+        <StatusBar style="auto" />
       </SafeAreaProvider>
-    </GestureHandlerRootView>
+    </QueryClientProvider>
   );
 }
