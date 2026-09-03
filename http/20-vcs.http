@@ -3,19 +3,18 @@
 # Docs: https://opencode.ai/v2/docs/api
 # ============================================================
 
-@baseUrl = http://localhost:4096
 
 ### Get VCS base commit
-GET {{baseUrl}}/api/vcs/base
+GET {{BASE_URL}}/api/vcs/base
 
 ### Get VCS status
-GET {{baseUrl}}/api/vcs/status
+GET {{BASE_URL}}/api/vcs/status
 
 ### Get VCS branches
-GET {{baseUrl}}/api/vcs/branches
+GET {{BASE_URL}}/api/vcs/branches
 
 ### Get VCS diff
-GET {{baseUrl}}/api/vcs/diff
+GET {{BASE_URL}}/api/vcs/diff
 
 # Optional query params:
 # GET http://localhost:4096/api/vcs/diff?file=src/index.ts

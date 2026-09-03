@@ -3,27 +3,26 @@
 # Docs: https://opencode.ai/v2/docs/api
 # ============================================================
 
-@baseUrl = http://localhost:4096
 
 # ------------------------------------------------------------------
 # Migration
 # ------------------------------------------------------------------
 
 ### Get migration status
-GET {{baseUrl}}/api/experimental/migration/v1
+GET {{BASE_URL}}/api/experimental/migration/v1
 
 # ------------------------------------------------------------------
 # Session experimental endpoints
 # ------------------------------------------------------------------
 
 ### Read experimental session log
-GET {{baseUrl}}/api/experimental/session/{{sessionID}}/log
+GET {{BASE_URL}}/api/experimental/session/{{sessionID}}/log
 
 ### Read terminal output
-GET {{baseUrl}}/api/experimental/session/{{sessionID}}/terminal/read
+GET {{BASE_URL}}/api/experimental/session/{{sessionID}}/terminal/read
 
 ### Terminal operation (send keys / resize)
-POST {{baseUrl}}/api/experimental/session/{{sessionID}}/terminal
+POST {{BASE_URL}}/api/experimental/session/{{sessionID}}/terminal
 Content-Type: application/json
 
 {
@@ -36,7 +35,7 @@ Content-Type: application/json
 # ------------------------------------------------------------------
 
 ### Create persistent PTY
-POST {{baseUrl}}/api/experimental/persistent-pty
+POST {{BASE_URL}}/api/experimental/persistent-pty
 Content-Type: application/json
 
 {
@@ -48,10 +47,10 @@ Content-Type: application/json
 }
 
 ### Get persistent PTY
-GET {{baseUrl}}/api/experimental/persistent-pty/{{ptyID}}
+GET {{BASE_URL}}/api/experimental/persistent-pty/{{ptyID}}
 
 ### Update persistent PTY
-PUT {{baseUrl}}/api/experimental/persistent-pty/{{ptyID}}
+PUT {{BASE_URL}}/api/experimental/persistent-pty/{{ptyID}}
 Content-Type: application/json
 
 {
@@ -60,7 +59,7 @@ Content-Type: application/json
 }
 
 ### Connect to persistent PTY
-POST {{baseUrl}}/api/experimental/persistent-pty/{{ptyID}}/connect
+POST {{BASE_URL}}/api/experimental/persistent-pty/{{ptyID}}/connect
 Content-Type: application/json
 
 {
@@ -69,16 +68,16 @@ Content-Type: application/json
 }
 
 ### Remove persistent PTY
-DELETE {{baseUrl}}/api/experimental/persistent-pty/{{ptyID}}
+DELETE {{BASE_URL}}/api/experimental/persistent-pty/{{ptyID}}
 
 ### Shutdown all persistent PTYs
-POST {{baseUrl}}/api/experimental/persistent-pty/shutdown
+POST {{BASE_URL}}/api/experimental/persistent-pty/shutdown
 Content-Type: application/json
 
 {}
 
 ### Handoff persistent PTY (keep alive after client disconnects)
-POST {{baseUrl}}/api/experimental/persistent-pty/handoff
+POST {{BASE_URL}}/api/experimental/persistent-pty/handoff
 Content-Type: application/json
 
 {
@@ -86,4 +85,4 @@ Content-Type: application/json
 }
 
 ### List persistent PTYs
-GET {{baseUrl}}/api/experimental/persistent-pty
+GET {{BASE_URL}}/api/experimental/persistent-pty

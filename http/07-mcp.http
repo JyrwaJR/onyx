@@ -3,13 +3,12 @@
 # Docs: https://opencode.ai/v2/docs/api
 # ============================================================
 
-@baseUrl = http://localhost:4096
 
 ### List MCP servers
-GET {{baseUrl}}/api/mcp
+GET {{BASE_URL}}/api/mcp
 
 ### Add MCP server
-PUT {{baseUrl}}/api/mcp/{{server}}
+PUT {{BASE_URL}}/api/mcp/{{server}}
 Content-Type: application/json
 
 {
@@ -19,19 +18,19 @@ Content-Type: application/json
 }
 
 ### Remove MCP server
-DELETE {{baseUrl}}/api/mcp/{{server}}
+DELETE {{BASE_URL}}/api/mcp/{{server}}
 
 ### Connect MCP server
-POST {{baseUrl}}/api/mcp/{{server}}/connect
+POST {{BASE_URL}}/api/mcp/{{server}}/connect
 Content-Type: application/json
 
 {}
 
 ### Disconnect MCP server
-POST {{baseUrl}}/api/mcp/{{server}}/disconnect
+POST {{BASE_URL}}/api/mcp/{{server}}/disconnect
 Content-Type: application/json
 
 {}
 
 ### List MCP resources
-GET {{baseUrl}}/api/mcp/resource
+GET {{BASE_URL}}/api/mcp/resource

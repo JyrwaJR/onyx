@@ -3,10 +3,9 @@
 # Docs: https://opencode.ai/v2/docs/api
 # ============================================================
 
-@baseUrl = http://localhost:4096
 
 ### List debug locations
-GET {{baseUrl}}/api/debug/location
+GET {{BASE_URL}}/api/debug/location
 
 ### Evict debug location cache
-DELETE {{baseUrl}}/api/debug/location
+DELETE {{BASE_URL}}/api/debug/location

@@ -3,16 +3,15 @@
 # Docs: https://opencode.ai/v2/docs/api
 # ============================================================
 
-@baseUrl = http://localhost:4096
 
 ### List models
-GET {{baseUrl}}/api/model
+GET {{BASE_URL}}/api/model
 
 ### Get default model
-GET {{baseUrl}}/api/model/default
+GET {{BASE_URL}}/api/model/default
 
 ### Generate text
-POST {{baseUrl}}/api/generate
+POST {{BASE_URL}}/api/generate
 Content-Type: application/json
 
 {

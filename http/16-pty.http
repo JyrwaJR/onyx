@@ -3,10 +3,9 @@
 # Docs: https://opencode.ai/v2/docs/api
 # ============================================================
 
-@baseUrl = http://localhost:4096
 
 ### Create PTY
-POST {{baseUrl}}/api/pty
+POST {{BASE_URL}}/api/pty
 Content-Type: application/json
 
 {
@@ -17,13 +16,13 @@ Content-Type: application/json
 }
 
 ### List PTYs
-GET {{baseUrl}}/api/pty
+GET {{BASE_URL}}/api/pty
 
 ### Get PTY
-GET {{baseUrl}}/api/pty/{{ptyID}}
+GET {{BASE_URL}}/api/pty/{{ptyID}}
 
 ### Update PTY (resize / change env)
-PUT {{baseUrl}}/api/pty/{{ptyID}}
+PUT {{BASE_URL}}/api/pty/{{ptyID}}
 Content-Type: application/json
 
 {
@@ -32,10 +31,10 @@ Content-Type: application/json
 }
 
 ### Remove PTY
-DELETE {{baseUrl}}/api/pty/{{ptyID}}
+DELETE {{BASE_URL}}/api/pty/{{ptyID}}
 
 ### Connect to PTY
-POST {{baseUrl}}/api/pty/{{ptyID}}/connect
+POST {{BASE_URL}}/api/pty/{{ptyID}}/connect
 Content-Type: application/json
 
 {

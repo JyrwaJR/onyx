@@ -3,19 +3,18 @@
 # Docs: https://opencode.ai/v2/docs/api
 # ============================================================
 
-@baseUrl = http://localhost:4096
 
 ### List permission requests (global)
-GET {{baseUrl}}/api/permission/request
+GET {{BASE_URL}}/api/permission/request
 
 ### List saved permissions
-GET {{baseUrl}}/api/permission/saved
+GET {{BASE_URL}}/api/permission/saved
 
 ### Remove saved permission
-DELETE {{baseUrl}}/api/permission/saved/{{id}}
+DELETE {{BASE_URL}}/api/permission/saved/{{id}}
 
 ### Create permission request (in a session)
-POST {{baseUrl}}/api/session/{{sessionID}}/permission
+POST {{BASE_URL}}/api/session/{{sessionID}}/permission
 Content-Type: application/json
 
 {
@@ -26,13 +25,13 @@ Content-Type: application/json
 }
 
 ### List session permission requests
-GET {{baseUrl}}/api/session/{{sessionID}}/permission
+GET {{BASE_URL}}/api/session/{{sessionID}}/permission
 
 ### Get permission request
-GET {{baseUrl}}/api/session/{{sessionID}}/permission/{{requestID}}
+GET {{BASE_URL}}/api/session/{{sessionID}}/permission/{{requestID}}
 
 ### Reply to permission request
-POST {{baseUrl}}/api/session/{{sessionID}}/permission/{{requestID}}/reply
+POST {{BASE_URL}}/api/session/{{sessionID}}/permission/{{requestID}}/reply
 Content-Type: application/json
 
 {

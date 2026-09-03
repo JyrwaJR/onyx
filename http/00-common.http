@@ -4,16 +4,14 @@
 # Docs:     https://opencode.ai/v2/docs/api
 # ============================================================
 
-@baseUrl = http://localhost:4096
-
 ### Health — Check server health
-GET {{baseUrl}}/api/health
+GET {{BASE_URL}}/api/health
 
 ### Server — Get server information
-GET {{baseUrl}}/api/server
+GET {{BASE_URL}}/api/server
 
 ### Location — Get current location (paths to config/sessions)
-GET {{baseUrl}}/api/location
+GET {{BASE_URL}}/api/location
 
 ### Config — Get OpenCode config
-GET {{baseUrl}}/api/config
+GET {{BASE_URL}}/api/config

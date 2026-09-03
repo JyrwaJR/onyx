@@ -3,13 +3,12 @@
 # Docs: https://opencode.ai/v2/docs/api
 # ============================================================
 
-@baseUrl = http://localhost:4096
 
 ### List commands
-GET {{baseUrl}}/api/command
+GET {{BASE_URL}}/api/command
 
 ### List skills
-GET {{baseUrl}}/api/skill
+GET {{BASE_URL}}/api/skill
 
 ### List references (CLI flags, opencode instructions, docs)
-GET {{baseUrl}}/api/reference
+GET {{BASE_URL}}/api/reference

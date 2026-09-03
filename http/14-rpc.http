@@ -3,10 +3,9 @@
 # Docs: https://opencode.ai/v2/docs/api
 # ============================================================
 
-@baseUrl = http://localhost:4096
 
 ### Call RPC method
-POST {{baseUrl}}/api/rpc/{{rpcID}}/{{method}}
+POST {{BASE_URL}}/api/rpc/{{rpcID}}/{{method}}
 Content-Type: application/json
 
 {

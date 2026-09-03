@@ -3,10 +3,9 @@
 # Docs: https://opencode.ai/v2/docs/api
 # ============================================================
 
-@baseUrl = http://localhost:4096
 
 ### Create worktree
-POST {{baseUrl}}/api/worktree/{{projectID}}/create
+POST {{BASE_URL}}/api/worktree/{{projectID}}/create
 Content-Type: application/json
 
 {
@@ -14,16 +13,16 @@ Content-Type: application/json
 }
 
 ### List worktrees
-GET {{baseUrl}}/api/worktree/{{projectID}}
+GET {{BASE_URL}}/api/worktree/{{projectID}}
 
 ### Refresh worktree
-POST {{baseUrl}}/api/worktree/{{projectID}}/refresh
+POST {{BASE_URL}}/api/worktree/{{projectID}}/refresh
 Content-Type: application/json
 
 {}
 
 ### Remove worktree
-DELETE {{baseUrl}}/api/worktree/{{projectID}}/remove
+DELETE {{BASE_URL}}/api/worktree/{{projectID}}/remove
 Content-Type: application/json
 
 {

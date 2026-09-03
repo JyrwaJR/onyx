@@ -3,19 +3,18 @@
 # Docs: https://opencode.ai/v2/docs/api
 # ============================================================
 
-@baseUrl = http://localhost:4096
 
 ### List plugins
-GET {{baseUrl}}/api/plugin
+GET {{BASE_URL}}/api/plugin
 
 ### Wait for plugin activation
-POST {{baseUrl}}/api/plugin/await
+POST {{BASE_URL}}/api/plugin/await
 Content-Type: application/json
 
 {}
 
 ### Check plugin updates
-POST {{baseUrl}}/api/plugin/check
+POST {{BASE_URL}}/api/plugin/check
 Content-Type: application/json
 
 {
@@ -23,7 +22,7 @@ Content-Type: application/json
 }
 
 ### Update plugins
-POST {{baseUrl}}/api/plugin/update
+POST {{BASE_URL}}/api/plugin/update
 Content-Type: application/json
 
 {

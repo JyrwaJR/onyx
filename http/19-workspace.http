@@ -3,10 +3,9 @@
 # Docs: https://opencode.ai/v2/docs/api
 # ============================================================
 
-@baseUrl = http://localhost:4096
 
 ### Create workspace
-POST {{baseUrl}}/api/workspace
+POST {{BASE_URL}}/api/workspace
 Content-Type: application/json
 
 {
@@ -15,4 +14,4 @@ Content-Type: application/json
 }
 
 ### Destroy workspace
-DELETE {{baseUrl}}/api/workspace/{{workspaceID}}
+DELETE {{BASE_URL}}/api/workspace/{{workspaceID}}

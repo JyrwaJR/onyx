@@ -6,17 +6,16 @@
 # Use a real session id (e.g. from List sessions) in place of {{sessionID}}.
 # ============================================================
 
-@baseUrl = http://localhost:4096
 
 # ------------------------------------------------------------------
 # Session CRUD
 # ------------------------------------------------------------------
 
 ### List sessions
-GET {{baseUrl}}/api/session
+GET {{BASE_URL}}/api/session
 
 ### Create session
-POST {{baseUrl}}/api/session
+POST {{BASE_URL}}/api/session
 Content-Type: application/json
 
 {
@@ -26,10 +25,10 @@ Content-Type: application/json
 }
 
 ### Get session statistics
-GET {{baseUrl}}/api/session/stats
+GET {{BASE_URL}}/api/session/stats
 
 ### Import session
-POST {{baseUrl}}/api/session/import
+POST {{BASE_URL}}/api/session/import
 Content-Type: application/json
 
 {
@@ -41,19 +40,19 @@ Content-Type: application/json
 }
 
 ### Export session
-GET {{baseUrl}}/api/session/{{sessionID}}/export
+GET {{BASE_URL}}/api/session/{{sessionID}}/export
 
 ### List active sessions
-GET {{baseUrl}}/api/session/active
+GET {{BASE_URL}}/api/session/active
 
 ### Get session
-GET {{baseUrl}}/api/session/{{sessionID}}
+GET {{BASE_URL}}/api/session/{{sessionID}}
 
 ### Delete session
-DELETE {{baseUrl}}/api/session/{{sessionID}}
+DELETE {{BASE_URL}}/api/session/{{sessionID}}
 
 ### Fork session
-POST {{baseUrl}}/api/session/{{sessionID}}/fork
+POST {{BASE_URL}}/api/session/{{sessionID}}/fork
 Content-Type: application/json
 
 {
@@ -61,7 +60,7 @@ Content-Type: application/json
 }
 
 ### Switch session agent
-POST {{baseUrl}}/api/session/{{sessionID}}/agent
+POST {{BASE_URL}}/api/session/{{sessionID}}/agent
 Content-Type: application/json
 
 {
@@ -69,7 +68,7 @@ Content-Type: application/json
 }
 
 ### Switch session model
-POST {{baseUrl}}/api/session/{{sessionID}}/model
+POST {{BASE_URL}}/api/session/{{sessionID}}/model
 Content-Type: application/json
 
 {
@@ -77,7 +76,7 @@ Content-Type: application/json
 }
 
 ### Rename session
-POST {{baseUrl}}/api/session/{{sessionID}}/rename
+POST {{BASE_URL}}/api/session/{{sessionID}}/rename
 Content-Type: application/json
 
 {
@@ -85,7 +84,7 @@ Content-Type: application/json
 }
 
 ### Move session
-POST {{baseUrl}}/api/session/{{sessionID}}/move
+POST {{BASE_URL}}/api/session/{{sessionID}}/move
 Content-Type: application/json
 
 {
@@ -98,7 +97,7 @@ Content-Type: application/json
 # ------------------------------------------------------------------
 
 ### Send message (prompt the agent)
-POST {{baseUrl}}/api/session/{{sessionID}}/prompt
+POST {{BASE_URL}}/api/session/{{sessionID}}/prompt
 Content-Type: application/json
 
 {
@@ -110,7 +109,7 @@ Content-Type: application/json
 }
 
 ### Run a command in the session
-POST {{baseUrl}}/api/session/{{sessionID}}/command
+POST {{BASE_URL}}/api/session/{{sessionID}}/command
 Content-Type: application/json
 
 {
@@ -120,7 +119,7 @@ Content-Type: application/json
 }
 
 ### Activate a skill in the session
-POST {{baseUrl}}/api/session/{{sessionID}}/skill
+POST {{BASE_URL}}/api/session/{{sessionID}}/skill
 Content-Type: application/json
 
 {
@@ -128,7 +127,7 @@ Content-Type: application/json
 }
 
 ### Add a synthetic message
-POST {{baseUrl}}/api/session/{{sessionID}}/synthetic
+POST {{BASE_URL}}/api/session/{{sessionID}}/synthetic
 Content-Type: application/json
 
 {
@@ -139,7 +138,7 @@ Content-Type: application/json
 }
 
 ### Run a shell command in the session
-POST {{baseUrl}}/api/session/{{sessionID}}/shell
+POST {{BASE_URL}}/api/session/{{sessionID}}/shell
 Content-Type: application/json
 
 {
@@ -151,7 +150,7 @@ Content-Type: application/json
 # ------------------------------------------------------------------
 
 ### Compact session
-POST {{baseUrl}}/api/session/{{sessionID}}/compact
+POST {{BASE_URL}}/api/session/{{sessionID}}/compact
 Content-Type: application/json
 
 {
@@ -160,19 +159,19 @@ Content-Type: application/json
 }
 
 ### Wait for session (block until idle)
-POST {{baseUrl}}/api/session/{{sessionID}}/wait
+POST {{BASE_URL}}/api/session/{{sessionID}}/wait
 Content-Type: application/json
 
 {}
 
 ### Interrupt session execution
-POST {{baseUrl}}/api/session/{{sessionID}}/interrupt
+POST {{BASE_URL}}/api/session/{{sessionID}}/interrupt
 Content-Type: application/json
 
 {}
 
 ### Background blocking session tools
-POST {{baseUrl}}/api/session/{{sessionID}}/background
+POST {{BASE_URL}}/api/session/{{sessionID}}/background
 Content-Type: application/json
 
 {}
@@ -182,7 +181,7 @@ Content-Type: application/json
 # ------------------------------------------------------------------
 
 ### Stage session revert
-POST {{baseUrl}}/api/session/{{sessionID}}/revert/stage
+POST {{BASE_URL}}/api/session/{{sessionID}}/revert/stage
 Content-Type: application/json
 
 {
@@ -190,13 +189,13 @@ Content-Type: application/json
 }
 
 ### Clear staged revert
-POST {{baseUrl}}/api/session/{{sessionID}}/revert/clear
+POST {{BASE_URL}}/api/session/{{sessionID}}/revert/clear
 Content-Type: application/json
 
 {}
 
 ### Commit staged revert
-POST {{baseUrl}}/api/session/{{sessionID}}/revert/commit
+POST {{BASE_URL}}/api/session/{{sessionID}}/revert/commit
 Content-Type: application/json
 
 {}
@@ -206,16 +205,16 @@ Content-Type: application/json
 # ------------------------------------------------------------------
 
 ### Get session context
-GET {{baseUrl}}/api/session/{{sessionID}}/context
+GET {{BASE_URL}}/api/session/{{sessionID}}/context
 
 ### List session inbox (queued / pending tasks)
-GET {{baseUrl}}/api/session/{{sessionID}}/inbox
+GET {{BASE_URL}}/api/session/{{sessionID}}/inbox
 
 ### Cancel inbox input
-DELETE {{baseUrl}}/api/session/{{sessionID}}/inbox/{{inboxID}}
+DELETE {{BASE_URL}}/api/session/{{sessionID}}/inbox/{{inboxID}}
 
 ### Steer queued item (change its direction)
-POST {{baseUrl}}/api/session/{{sessionID}}/inbox/{{inboxID}}/steer
+POST {{BASE_URL}}/api/session/{{sessionID}}/inbox/{{inboxID}}/steer
 Content-Type: application/json
 
 {
@@ -226,7 +225,7 @@ Content-Type: application/json
 }
 
 ### Queue a steered item
-POST {{baseUrl}}/api/session/{{sessionID}}/inbox/{{inboxID}}/queue
+POST {{BASE_URL}}/api/session/{{sessionID}}/inbox/{{inboxID}}/queue
 Content-Type: application/json
 
 {
@@ -237,10 +236,10 @@ Content-Type: application/json
 }
 
 ### List instruction entries
-GET {{baseUrl}}/api/session/{{sessionID}}/instructions/entries
+GET {{BASE_URL}}/api/session/{{sessionID}}/instructions/entries
 
 ### Put instruction entry
-PUT {{baseUrl}}/api/session/{{sessionID}}/instructions/entries/{{key}}
+PUT {{BASE_URL}}/api/session/{{sessionID}}/instructions/entries/{{key}}
 Content-Type: application/json
 
 {
@@ -248,14 +247,14 @@ Content-Type: application/json
 }
 
 ### Remove instruction entry
-DELETE {{baseUrl}}/api/session/{{sessionID}}/instructions/entries/{{key}}
+DELETE {{BASE_URL}}/api/session/{{sessionID}}/instructions/entries/{{key}}
 
 # ------------------------------------------------------------------
 # Generate / messages
 # ------------------------------------------------------------------
 
 ### Generate text from session context
-POST {{baseUrl}}/api/session/{{sessionID}}/generate
+POST {{BASE_URL}}/api/session/{{sessionID}}/generate
 Content-Type: application/json
 
 {
@@ -264,17 +263,17 @@ Content-Type: application/json
 }
 
 ### Read the session log (SSE)
-GET {{baseUrl}}/api/session/{{sessionID}}/log
+GET {{BASE_URL}}/api/session/{{sessionID}}/log
 Accept: text/event-stream
 
 ### Get session messages
-GET {{baseUrl}}/api/session/{{sessionID}}/message
+GET {{BASE_URL}}/api/session/{{sessionID}}/message
 
 ### Get a specific message
-GET {{baseUrl}}/api/session/{{sessionID}}/message/{{messageID}}
+GET {{BASE_URL}}/api/session/{{sessionID}}/message/{{messageID}}
 
 ### Update assistant message content
-PATCH {{baseUrl}}/api/session/{{sessionID}}/message/{{messageID}}
+PATCH {{BASE_URL}}/api/session/{{sessionID}}/message/{{messageID}}
 Content-Type: application/json
 
 {
@@ -287,7 +286,7 @@ Content-Type: application/json
 }
 
 ### Set session environment
-PUT {{baseUrl}}/api/session/{{sessionID}}/environment
+PUT {{BASE_URL}}/api/session/{{sessionID}}/environment
 Content-Type: application/json
 
 {
@@ -297,7 +296,7 @@ Content-Type: application/json
 }
 
 ### View session (render snapshot)
-POST {{baseUrl}}/api/session/{{sessionID}}/view
+POST {{BASE_URL}}/api/session/{{sessionID}}/view
 Content-Type: application/json
 
 {

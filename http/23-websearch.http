@@ -3,13 +3,12 @@
 # Docs: https://opencode.ai/v2/docs/api
 # ============================================================
 
-@baseUrl = http://localhost:4096
 
 ### List websearch providers
-GET {{baseUrl}}/api/websearch/provider
+GET {{BASE_URL}}/api/websearch/provider
 
 ### Search the web
-POST {{baseUrl}}/api/websearch
+POST {{BASE_URL}}/api/websearch
 Content-Type: application/json
 
 {

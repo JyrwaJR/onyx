@@ -3,16 +3,15 @@
 # Docs: https://opencode.ai/v2/docs/api
 # ============================================================
 
-@baseUrl = http://localhost:4096
 
 ### List pending form requests (global)
-GET {{baseUrl}}/api/form/request
+GET {{BASE_URL}}/api/form/request
 
 ### List session forms
-GET {{baseUrl}}/api/session/{{sessionID}}/form
+GET {{BASE_URL}}/api/session/{{sessionID}}/form
 
 ### Create session form
-POST {{baseUrl}}/api/session/{{sessionID}}/form
+POST {{BASE_URL}}/api/session/{{sessionID}}/form
 Content-Type: application/json
 
 {
@@ -24,10 +23,10 @@ Content-Type: application/json
 }
 
 ### Get session form
-GET {{baseUrl}}/api/session/{{sessionID}}/form/{{formID}}
+GET {{BASE_URL}}/api/session/{{sessionID}}/form/{{formID}}
 
 ### Reply to session form
-POST {{baseUrl}}/api/session/{{sessionID}}/form/{{formID}}/reply
+POST {{BASE_URL}}/api/session/{{sessionID}}/form/{{formID}}/reply
 Content-Type: application/json
 
 {
@@ -35,10 +34,10 @@ Content-Type: application/json
 }
 
 ### Cancel form
-POST {{baseUrl}}/api/session/{{sessionID}}/form/{{formID}}/cancel
+POST {{BASE_URL}}/api/session/{{sessionID}}/form/{{formID}}/cancel
 Content-Type: application/json
 
 {}
 
 ### Get form state
-GET {{baseUrl}}/api/session/{{sessionID}}/form/{{formID}}/state
+GET {{BASE_URL}}/api/session/{{sessionID}}/form/{{formID}}/state

@@ -3,13 +3,12 @@
 # Docs: https://opencode.ai/v2/docs/api
 # ============================================================
 
-@baseUrl = http://localhost:4096
 
 ### List projects
-GET {{baseUrl}}/api/project
+GET {{BASE_URL}}/api/project
 
 ### Update project
-PATCH {{baseUrl}}/api/project/{{projectID}}
+PATCH {{BASE_URL}}/api/project/{{projectID}}
 Content-Type: application/json
 
 {
@@ -18,4 +17,4 @@ Content-Type: application/json
 }
 
 ### Get current project
-GET {{baseUrl}}/api/project/current
+GET {{BASE_URL}}/api/project/current
