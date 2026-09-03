@@ -1,15 +1,34 @@
 /**
  * @file Shared HTTP client constants.
  *
- * Defines the API base URL, authentication path list, and a helper to
- * check whether a URL targets an auth endpoint (bypassing token refresh).
+ * Defines the API base URL (configurable at runtime), authentication path list,
+ * and a helper to check whether a URL targets an auth endpoint.
  */
 
+/** Static fallback from environment variable. */
+const ENV_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:4096';
+
+/** Runtime-configurable base URL. Set by the connection flow. */
+let _dynamicBaseUrl: string | null = null;
+
 /**
- * Base URL for the API.
- * Defaults to localhost if `EXPO_PUBLIC_API_URL` is not provided.
+ * Returns the active API base URL.
+ * Priority: dynamic (set by user connection) > env var > localhost fallback.
  */
-export const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL as string;
+export function getApiBaseUrl(): string {
+  return _dynamicBaseUrl ?? ENV_BASE_URL;
+}
+
+/**
+ * Sets the API base URL at runtime. Called when the user connects to a server.
+ * @param url - The full base URL (e.g. "http://192.168.1.5:4096").
+ */
+export function setApiBaseUrl(url: string): void {
+  _dynamicBaseUrl = url.replace(/\/$/, '');
+}
+
+/** @deprecated Use getApiBaseUrl() instead. */
+export const API_BASE_URL = ENV_BASE_URL;
 
 /**
  * Paths that bypass the automatic token refresh logic.
