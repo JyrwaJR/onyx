@@ -1,36 +1,23 @@
 /**
- * @file Paginated project list with pull-to-refresh and infinite scroll.
+ * @file Project list with pull-to-refresh.
  *
  * Renders a FlatList of ProjectCard components with loading, error,
- * and empty states. Supports pull-to-refresh and infinite scroll pagination.
+ * and empty states. Supports pull-to-refresh.
  */
 
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import { FlatList, View, ActivityIndicator, Text, RefreshControl } from 'react-native';
 
 import { useProjects } from '../hooks/use-projects';
 import { ProjectCard } from './ProjectCard';
 
-const PAGE_SIZE = 20;
-
-/** Paginated project list with pull-to-refresh and infinite scroll. */
+/** Project list with pull-to-refresh. */
 export function ProjectList() {
-  const [page, setPage] = useState(1);
-  const { data, isLoading, isError, error, refetch, isFetching } = useProjects(page, PAGE_SIZE);
-
-  const projects = data?.data ?? [];
-  const pagination = data?.pagination;
+  const { data: projects, isLoading, isError, error, refetch, isFetching } = useProjects();
 
   const handleRefresh = useCallback(() => {
-    setPage(1);
     refetch();
   }, [refetch]);
-
-  const handleEndReached = useCallback(() => {
-    if (pagination && page < pagination.totalPages && !isFetching) {
-      setPage((prev) => prev + 1);
-    }
-  }, [pagination, page, isFetching]);
 
   if (isLoading) {
     return (
@@ -57,7 +44,7 @@ export function ProjectList() {
     );
   }
 
-  if (projects.length === 0) {
+  if (!projects || projects.length === 0) {
     return (
       <View className="flex-1 items-center justify-center px-6">
         <Text className="text-5xl">📭</Text>
@@ -76,18 +63,7 @@ export function ProjectList() {
       renderItem={({ item }) => <ProjectCard project={item} />}
       contentContainerStyle={{ padding: 16 }}
       ItemSeparatorComponent={() => <View className="h-3" />}
-      refreshControl={
-        <RefreshControl refreshing={isFetching && page === 1} onRefresh={handleRefresh} />
-      }
-      onEndReached={handleEndReached}
-      onEndReachedThreshold={0.5}
-      ListFooterComponent={
-        isFetching && page > 1 ? (
-          <View className="py-4">
-            <ActivityIndicator size="small" color="#4F46E5" />
-          </View>
-        ) : null
-      }
+      refreshControl={<RefreshControl refreshing={isFetching} onRefresh={handleRefresh} />}
     />
   );
 }

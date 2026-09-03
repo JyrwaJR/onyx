@@ -1,5 +1,6 @@
 import '../../global.css';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { View, Text } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Stack } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -9,20 +10,34 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '../shared/api/query-client';
 import { useConnectionStore } from '../features/connection/store/connection-store';
 
-SplashScreen.preventAutoHideAsync();
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function RootLayout() {
+  const [error, setError] = useState<string | null>(null);
+  const hydrate = useConnectionStore((s) => s.hydrate);
   const hydrated = useConnectionStore((s) => s.hydrated);
 
   useEffect(() => {
+    hydrate().catch((e) => setError(String(e)));
+  }, [hydrate]);
+
+  useEffect(() => {
     if (hydrated) {
-      SplashScreen.hideAsync();
+      SplashScreen.hideAsync().catch(() => {});
     }
   }, [hydrated]);
 
+  if (error) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+        <Text style={{ fontSize: 16, color: 'red', textAlign: 'center' }}>{error}</Text>
+      </View>
+    );
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
-      <SafeAreaProvider className="flex-1">
+      <SafeAreaProvider>
         <Stack>
           <Stack.Screen name="(connection)" options={{ headerShown: false }} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

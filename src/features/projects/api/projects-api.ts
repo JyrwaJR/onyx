@@ -2,6 +2,10 @@
  * @file API client functions for the projects feature.
  *
  * All functions use the shared HTTP client and return typed responses.
+ *
+ * NOTE: The OpenCode `/project` endpoint returns a plain `Project[]`
+ * array — pagination is not supported server-side, so `fetchProjects`
+ * returns the whole list.
  */
 
 import http from '@utils/http/client';
@@ -9,23 +13,13 @@ import { GET_PROJECTS, GET_PROJECT_BY_ID, FORK_PROJECT } from '../../../shared/a
 import type { Project } from '../../../shared/api/types';
 import type { ProjectListResponse } from '../types/project';
 
-interface FetchProjectsParams {
-  page?: number;
-  limit?: number;
-}
-
 /**
- * Fetches a paginated list of projects.
+ * Fetches the list of all projects.
  *
- * @param params - Optional pagination parameters (page, limit).
- * @returns Paginated list of projects with metadata.
+ * @returns Array of all projects from the server.
  */
-export async function fetchProjects(params?: FetchProjectsParams): Promise<ProjectListResponse> {
-  const page = params?.page ?? 1;
-  const limit = params?.limit ?? 20;
-  const response = await http.get<ProjectListResponse>(GET_PROJECTS, {
-    params: { page, limit },
-  });
+export async function fetchProjects(): Promise<ProjectListResponse> {
+  const response = await http.get<ProjectListResponse>(GET_PROJECTS);
   return response.data;
 }
 

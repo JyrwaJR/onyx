@@ -1,11 +1,12 @@
 /**
- * @file Paginated session list with pull-to-refresh and infinite scroll.
+ * @file Session list with pull-to-refresh.
  *
  * Renders a FlatList of SessionCard components with loading, error,
- * and empty states. Follows the same pattern as ProjectList.
+ * and empty states. The OpenCode `/session` endpoint returns a plain
+ * array, so there is no pagination/infinite scroll.
  */
 
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import { FlatList, View, ActivityIndicator, RefreshControl } from 'react-native';
 
 import { useSessions } from '../hooks/use-sessions';
@@ -13,34 +14,19 @@ import { SessionCard } from './SessionCard';
 import { EmptyState } from '../../../shared/components/EmptyState';
 import { ErrorView } from '../../../shared/components/ErrorView';
 
-const PAGE_SIZE = 20;
-
 interface SessionListProps {
   projectId: string;
 }
 
-/** Paginated session list with pull-to-refresh and infinite scroll. */
+/** Session list with pull-to-refresh, loading, error, and empty states. */
 export function SessionList({ projectId }: SessionListProps) {
-  const [page, setPage] = useState(1);
-  const { data, isLoading, isError, error, refetch, isFetching } = useSessions(
-    projectId,
-    page,
-    PAGE_SIZE
-  );
+  const { data, isLoading, isError, error, refetch, isFetching } = useSessions(projectId);
 
-  const sessions = data?.data ?? [];
-  const pagination = data?.pagination;
+  const sessions = data ?? [];
 
   const handleRefresh = useCallback(() => {
-    setPage(1);
     refetch();
   }, [refetch]);
-
-  const handleEndReached = useCallback(() => {
-    if (pagination && page < pagination.totalPages && !isFetching) {
-      setPage((prev) => prev + 1);
-    }
-  }, [pagination, page, isFetching]);
 
   if (isLoading) {
     return (
@@ -72,18 +58,7 @@ export function SessionList({ projectId }: SessionListProps) {
       renderItem={({ item }) => <SessionCard session={item} projectId={projectId} />}
       contentContainerStyle={{ padding: 16 }}
       ItemSeparatorComponent={() => <View className="h-3" />}
-      refreshControl={
-        <RefreshControl refreshing={isFetching && page === 1} onRefresh={handleRefresh} />
-      }
-      onEndReached={handleEndReached}
-      onEndReachedThreshold={0.5}
-      ListFooterComponent={
-        isFetching && page > 1 ? (
-          <View className="py-4">
-            <ActivityIndicator size="small" color="#4F46E5" />
-          </View>
-        ) : null
-      }
+      refreshControl={<RefreshControl refreshing={isFetching} onRefresh={handleRefresh} />}
     />
   );
 }

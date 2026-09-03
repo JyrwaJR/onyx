@@ -17,10 +17,10 @@ interface SessionCardProps {
   projectId: string;
 }
 
-function getRelativeTime(dateString: string): string {
-  const now = new Date();
-  const date = new Date(dateString);
-  const diffMs = now.getTime() - date.getTime();
+function getRelativeTime(ms?: number): string {
+  if (!ms) return '';
+  const now = Date.now();
+  const diffMs = now - ms;
   const diffSec = Math.floor(diffMs / 1000);
   const diffMin = Math.floor(diffSec / 60);
   const diffHr = Math.floor(diffMin / 60);
@@ -30,7 +30,7 @@ function getRelativeTime(dateString: string): string {
   if (diffMin < 60) return `${diffMin}m ago`;
   if (diffHr < 24) return `${diffHr}h ago`;
   if (diffDay < 7) return `${diffDay}d ago`;
-  return date.toLocaleDateString();
+  return new Date(ms).toLocaleDateString();
 }
 
 /** Card for displaying a session with navigation and long-press delete. */
@@ -62,7 +62,7 @@ export function SessionCard({ session, projectId }: SessionCardProps) {
       <Text className="text-base font-semibold text-gray-900" numberOfLines={1}>
         {session.title || 'Untitled'}
       </Text>
-      <Text className="mt-1 text-xs text-gray-400">{getRelativeTime(session.updatedAt)}</Text>
+      <Text className="mt-1 text-xs text-gray-400">{getRelativeTime(session.time.updated)}</Text>
     </TouchableOpacity>
   );
 }

@@ -1,7 +1,7 @@
 /**
  * @file Card component displaying a single project summary.
  *
- * Shows project title, path, and creation date. Tapping navigates
+ * Shows the project worktree path and creation date. Tapping navigates
  * to the project's sessions screen.
  */
 
@@ -12,6 +12,17 @@ import type { Project } from '../../../shared/api/types';
 
 interface ProjectCardProps {
   project: Project;
+}
+
+/**
+ * Derives the display title for a project from its worktree path.
+ * Uses the last path segment (e.g. `/Users/me/foo` → `foo`), or the
+ * full path when the last segment is empty (root project).
+ */
+function projectTitle(project: Project): string {
+  const segments = project.worktree.split('/').filter(Boolean);
+  const last = segments[segments.length - 1];
+  return last || project.worktree;
 }
 
 /** Card for displaying a project with navigation to its sessions. */
@@ -28,16 +39,12 @@ export function ProjectCard({ project }: ProjectCardProps) {
       className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
       activeOpacity={0.7}>
       <Text className="text-base font-semibold text-gray-900" numberOfLines={1}>
-        {project.title}
+        {projectTitle(project)}
       </Text>
       <Text className="mt-1 text-sm text-gray-500" numberOfLines={1}>
-        {project.path}
+        {project.worktree}
       </Text>
-      {project.createdAt && (
-        <Text className="mt-2 text-xs text-gray-400">
-          Created {new Date(project.createdAt).toLocaleDateString()}
-        </Text>
-      )}
+      {project.vcs && <Text className="mt-2 text-xs text-gray-400">{project.vcs} repository</Text>}
     </TouchableOpacity>
   );
 }

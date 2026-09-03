@@ -2,33 +2,26 @@
  * @file API client functions for the sessions feature.
  *
  * All functions use the shared HTTP client and return typed responses.
- * Sessions are scoped to a project via query parameters.
+ *
+ * NOTE: The OpenCode `/session` endpoint returns a plain `Session[]`
+ * array (no pagination envelope). `fetchSessions` returns the whole list,
+ * optionally filtered by `projectID`.
  */
 
 import http from '@utils/http/client';
-import { GET_SESSIONS, DELETE_SESSION } from '../../../shared/api/endpoints';
+import { GET_SESSIONS, DELETE_SESSION, GET_SESSION_BY_ID } from '../../../shared/api/endpoints';
 import type { Session } from '../../../shared/api/types';
 import type { SessionListResponse } from '../types/session';
 
-interface FetchSessionsParams {
-  projectId: string;
-  page?: number;
-  limit?: number;
-}
-
 /**
- * Fetches a paginated list of sessions for a project.
+ * Fetches the list of sessions, optionally filtered by project.
  *
- * @param params - Project ID and optional pagination parameters.
- * @returns Paginated list of sessions with metadata.
+ * @param projectId - Optional project ID to filter sessions by.
+ * @returns All sessions (optionally scoped to the project).
  */
-export async function fetchSessions({
-  projectId,
-  page = 1,
-  limit = 20,
-}: FetchSessionsParams): Promise<SessionListResponse> {
+export async function fetchSessions(projectId?: string): Promise<SessionListResponse> {
   const response = await http.get<SessionListResponse>(GET_SESSIONS, {
-    params: { projectID: projectId, page, limit },
+    params: projectId ? { projectID: projectId } : undefined,
   });
   return response.data;
 }
@@ -40,7 +33,7 @@ export async function fetchSessions({
  * @returns The session details.
  */
 export async function fetchSessionById(sessionId: string): Promise<Session> {
-  const response = await http.get<Session>(DELETE_SESSION(sessionId));
+  const response = await http.get<Session>(GET_SESSION_BY_ID(sessionId));
   return response.data;
 }
 
@@ -66,6 +59,6 @@ export async function updateSessionTitle({
   sessionId: string;
   title: string;
 }): Promise<Session> {
-  const response = await http.patch<Session>(DELETE_SESSION(sessionId), { title });
+  const response = await http.patch<Session>(GET_SESSION_BY_ID(sessionId), { title });
   return response.data;
 }

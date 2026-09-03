@@ -17,7 +17,7 @@ import { useConnectionStore } from '../store/connection-store';
 import { useHealthCheck } from '../hooks/use-health-check';
 import { serverUrlSchema, type ServerUrlFormData } from '../validators/server-url';
 
-const SUGGESTIONS = ['http://localhost:3000', 'http://localhost:3001'] as const;
+const SUGGESTIONS = ['http://localhost:4096'] as const;
 
 export default function ConnectionScreen() {
   const router = useRouter();

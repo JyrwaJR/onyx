@@ -12,16 +12,17 @@ import { fetchProjects, fetchProjectById, deleteProject, forkProject } from '../
 import type { ProjectListResponse } from '../types/project';
 
 /**
- * Fetches a paginated list of projects.
+ * Fetches the list of all projects.
  *
- * @param page - Current page number (1-indexed).
- * @param limit - Number of items per page (default 20).
+ * The OpenCode server returns all projects in a single array —
+ * no pagination envelope.
+ *
  * @returns Query result with project list data.
  */
-export function useProjects(page: number, limit = 20) {
+export function useProjects() {
   return useQuery<ProjectListResponse>({
-    queryKey: [...queryKeys.projects.all, page, limit],
-    queryFn: () => fetchProjects({ page, limit }),
+    queryKey: queryKeys.projects.all,
+    queryFn: () => fetchProjects(),
     staleTime: 30_000,
   });
 }

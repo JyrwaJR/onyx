@@ -14,19 +14,18 @@ import {
   updateSessionTitle,
 } from '../api/sessions-api';
 import type { SessionListResponse } from '../types/session';
+import type { Session } from '../../../shared/api/types';
 
 /**
- * Fetches a paginated list of sessions for a project.
+ * Fetches the list of sessions for a project.
  *
  * @param projectId - The project ID to list sessions for.
- * @param page - Current page number (1-indexed).
- * @param limit - Number of items per page (default 20).
- * @returns Query result with session list data.
+ * @returns Query result with the session list array.
  */
-export function useSessions(projectId: string, page: number, limit = 20) {
+export function useSessions(projectId: string) {
   return useQuery<SessionListResponse>({
-    queryKey: [...queryKeys.sessions.byProject(projectId), page, limit],
-    queryFn: () => fetchSessions({ projectId, page, limit }),
+    queryKey: queryKeys.sessions.byProject(projectId),
+    queryFn: () => fetchSessions(projectId),
     enabled: !!projectId,
     staleTime: 30_000,
   });
@@ -35,15 +34,14 @@ export function useSessions(projectId: string, page: number, limit = 20) {
 /**
  * Fetches a single session by ID.
  *
- * @param projectId - The project ID (for query key scoping).
  * @param sessionId - The session ID to fetch.
  * @returns Query result with session detail.
  */
-export function useSession(projectId: string, sessionId: string) {
-  return useQuery({
+export function useSession(sessionId: string) {
+  return useQuery<Session>({
     queryKey: queryKeys.sessions.detail(sessionId),
     queryFn: () => fetchSessionById(sessionId),
-    enabled: !!projectId && !!sessionId,
+    enabled: !!sessionId,
   });
 }
 
@@ -90,12 +88,7 @@ export function useUpdateSessionTitle(projectId: string) {
         { queryKey: queryKeys.sessions.byProject(projectId) },
         (old) => {
           if (!old) return old;
-          return {
-            ...old,
-            data: old.data.map((session) =>
-              session.id === sessionId ? { ...session, title } : session
-            ),
-          };
+          return old.map((session) => (session.id === sessionId ? { ...session, title } : session));
         }
       );
 

@@ -39,7 +39,7 @@ export function useHealthCheck(serverUrl: string): UseHealthCheckResult {
     staleTime: 0,
   });
 
-  const isHealthy = data?.ok === true;
+  const isHealthy = data?.healthy === true;
 
   let errorMessage: string | null = null;
   if (error) {

@@ -1,12 +1,11 @@
 /**
  * @file Session feature type definitions.
+ *
+ * The OpenCode `/session` endpoint returns a plain `Session[]` array
+ * (no pagination envelope). This type reflects that.
  */
 
 import type { Session } from '../../../shared/api/types';
-import type { PaginationMeta } from '@sharedType/pagination-meta';
 
-/** Paginated session list response from the API. */
-export interface SessionListResponse {
-  data: Session[];
-  pagination: PaginationMeta;
-}
+/** Session list response from the API — a plain array. */
+export type SessionListResponse = Session[];

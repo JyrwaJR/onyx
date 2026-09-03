@@ -38,11 +38,7 @@ export function MessageList({ messages, isLoading, onDelete }: MessageListProps)
 
   if (messages.length === 0) {
     return (
-      <EmptyState
-        icon="💬"
-        title="No messages yet"
-        subtitle="Send a message to start chatting"
-      />
+      <EmptyState icon="💬" title="No messages yet" subtitle="Send a message to start chatting" />
     );
   }
 
@@ -50,14 +46,10 @@ export function MessageList({ messages, isLoading, onDelete }: MessageListProps)
     <FlatList
       ref={flatListRef}
       data={messages}
-      keyExtractor={(item) => item.id}
-      renderItem={({ item }) => (
-        <MessageBubble message={item} onDelete={onDelete} />
-      )}
+      keyExtractor={(item) => item.info.id}
+      renderItem={({ item }) => <MessageBubble message={item} onDelete={onDelete} />}
       contentContainerStyle={{ padding: 16, paddingBottom: 8 }}
-      onContentSizeChange={() =>
-        flatListRef.current?.scrollToEnd({ animated: false })
-      }
+      onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: false })}
     />
   );
 }

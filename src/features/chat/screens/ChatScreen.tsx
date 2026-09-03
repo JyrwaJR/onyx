@@ -10,11 +10,14 @@ import { LoadingScreen } from '../../../shared/components/LoadingScreen';
 import { ErrorView } from '../../../shared/components/ErrorView';
 import { createSessionSSE, type SSEConnection } from '../../../shared/api/sse';
 import { queryKeys } from '../../../shared/api/query-keys';
-import type { ContentBlock, Message } from '../../../shared/api/types';
+import type { Message, MessagePart } from '../../../shared/api/types';
 
 /**
  * Main chat screen with SSE streaming and message management.
- * Receives sessionId and projectId from route params.
+ *
+ * Receives `sessionId` and `projectId` from route params. Streams real-time
+ * updates from the OpenCode session log stream and merges in-progress
+ * assistant messages with the fetched history.
  */
 export default function ChatScreen() {
   const { sessionId, projectId } = useLocalSearchParams<{
@@ -23,39 +26,25 @@ export default function ChatScreen() {
   }>();
   const queryClient = useQueryClient();
   const sseRef = useRef<SSEConnection | null>(null);
-  const [streamingMessages, setStreamingMessages] = useState<Map<string, ContentBlock[]>>(new Map());
+  const [streamingMessages, setStreamingMessages] = useState<Map<string, Message>>(new Map());
 
   const { data: messages, isLoading, isError, error } = useMessages(projectId, sessionId);
   const sendMessage = useSendMessage(projectId, sessionId);
   const deleteMessage = useDeleteMessage(projectId, sessionId);
 
   // Merge streaming messages with fetched messages
-  const allMessages: Message[] = [];
-  if (messages) {
-    allMessages.push(...messages);
-  }
-
-  // Add any in-progress streaming messages
-  streamingMessages.forEach((contentBlocks, msgId) => {
-    const existingIndex = allMessages.findIndex((m) => m.id === msgId);
+  const allMessages: Message[] = messages ? [...messages] : [];
+  streamingMessages.forEach((streamMsg, msgId) => {
+    const existingIndex = allMessages.findIndex((m) => m.info.id === msgId);
     if (existingIndex >= 0) {
-      allMessages[existingIndex] = {
-        ...allMessages[existingIndex],
-        content: contentBlocks,
-      };
+      allMessages[existingIndex] = streamMsg;
     } else {
-      allMessages.push({
-        id: msgId,
-        sessionId,
-        role: 'assistant',
-        content: contentBlocks,
-        createdAt: new Date().toISOString(),
-      });
+      allMessages.push(streamMsg);
     }
   });
 
   // Sort by creation time
-  allMessages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+  allMessages.sort((a, b) => (a.info.time.created ?? 0) - (b.info.time.created ?? 0));
 
   const handleSend = useCallback(
     (content: string) => {
@@ -77,33 +66,31 @@ export default function ChatScreen() {
 
     const handleEvent = (event: { type: string; data: string }) => {
       try {
-        const data = JSON.parse(event.data);
+        const payload = JSON.parse(event.data as string) as {
+          type?: string;
+          id?: string;
+          sessionID?: string;
+          role?: string;
+          time?: { created?: number };
+          parts?: Message['parts'];
+        };
 
-        if (event.type === 'message.updated' || event.type === 'message.created') {
-          const msgId = data.id;
-          if (msgId) {
-            setStreamingMessages((prev) => {
-              const next = new Map(prev);
-              if (data.content) {
-                next.set(msgId, data.content);
-              }
-              return next;
+        // Message updates arrive as complete message objects in the SSE stream.
+        if (payload.id && Array.isArray(payload.parts)) {
+          const msgId = payload.id;
+          setStreamingMessages((prev) => {
+            const next = new Map(prev);
+            next.set(msgId, {
+              info: {
+                id: payload.id as string,
+                sessionID: payload.sessionID as string,
+                role: (payload.role as Message['info']['role']) ?? 'assistant',
+                time: { created: payload.time?.created ?? Date.now() },
+              },
+              parts: payload.parts as MessagePart[],
             });
-          }
-        }
-
-        if (event.type === 'message.completed') {
-          const msgId = data.id;
-          if (msgId) {
-            setStreamingMessages((prev) => {
-              const next = new Map(prev);
-              next.delete(msgId);
-              return next;
-            });
-            queryClient.invalidateQueries({
-              queryKey: queryKeys.messages.bySession(sessionId),
-            });
-          }
+            return next;
+          });
         }
       } catch {
         // Ignore parse errors for non-JSON events
@@ -128,9 +115,7 @@ export default function ChatScreen() {
 
   if (isError) {
     return (
-      <ErrorView
-        message={error instanceof Error ? error.message : 'Failed to load messages.'}
-      />
+      <ErrorView message={error instanceof Error ? error.message : 'Failed to load messages.'} />
     );
   }
 
@@ -138,14 +123,8 @@ export default function ChatScreen() {
     <>
       <Stack.Screen options={{ title: 'Chat' }} />
       <View className="flex-1 bg-white">
-        <MessageList
-          messages={allMessages}
-          onDelete={handleDelete}
-        />
-        <MessageInput
-          onSend={handleSend}
-          sending={sendMessage.isPending}
-        />
+        <MessageList messages={allMessages} onDelete={handleDelete} />
+        <MessageInput onSend={handleSend} sending={sendMessage.isPending} />
       </View>
     </>
   );
