@@ -12,6 +12,12 @@ export const HEALTH_CHECK = '/api/health';
 /** List all projects. */
 export const GET_PROJECTS = '/api/project';
 
+/** Get project by ID. Template: `GET_PROJECT_BY_ID(projectId)`. */
+export const GET_PROJECT_BY_ID = (projectId: string) => `/api/project/${projectId}` as const;
+
+/** Fork a project by ID. Template: `FORK_PROJECT(projectId)`. */
+export const FORK_PROJECT = (projectId: string) => `/api/project/${projectId}/fork` as const;
+
 /** Get current active project. */
 export const GET_CURRENT_PROJECT = '/api/project/current';
 
