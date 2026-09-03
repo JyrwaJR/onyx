@@ -14,16 +14,20 @@ import type { Session } from '../../../shared/api/types';
 import type { SessionListResponse } from '../types/session';
 
 /**
- * Fetches the list of sessions, optionally filtered by project.
+ * Fetches the list of sessions for a project.
  *
- * @param projectId - Optional project ID to filter sessions by.
- * @returns All sessions (optionally scoped to the project).
+ * NOTE: The OpenCode server currently ignores the `?projectID=` query
+ * parameter and returns all sessions regardless. We fetch the full list
+ * (without the param) and filter client-side to the requested project.
+ *
+ * @param projectId - The project ID to filter sessions by.
+ * @returns Sessions scoped to the project.
  */
 export async function fetchSessions(projectId?: string): Promise<SessionListResponse> {
-  const response = await http.get<SessionListResponse>(GET_SESSIONS, {
-    params: projectId ? { projectID: projectId } : undefined,
-  });
-  return response.data;
+  const response = await http.get<SessionListResponse>(GET_SESSIONS);
+  const sessions = response.data;
+  if (!projectId) return sessions;
+  return sessions.filter((session) => session.projectID === projectId);
 }
 
 /**
