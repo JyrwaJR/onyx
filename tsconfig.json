@@ -4,7 +4,12 @@
     "strict": true,
 
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@utils/*": ["./src/shared/utils/*"],
+      "@features/*": ["./src/features/*"],
+      "@components/*": ["./src/shared/components/*"],
+      "@sharedType/*": ["./src/shared/types/*"],
+      "@assets/*": ["./src/shared/assets/*"]
     }
   },
   "include": [

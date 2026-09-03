@@ -2,8 +2,6 @@
 # OpenCode API — Common / Shared
 # Base URL: http://localhost:4096 (local OpenCode server)
 # Docs:     https://opencode.ai/v2/docs/api
-#
-# These endpoints are shared configuration/meta endpoints.
 # ============================================================
 
 @baseUrl = http://localhost:4096

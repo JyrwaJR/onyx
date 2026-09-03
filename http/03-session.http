@@ -263,7 +263,7 @@ Content-Type: application/json
   "context": {}
 }
 
-### Read the session log
+### Read the session log (SSE)
 GET {{baseUrl}}/api/session/{{sessionID}}/log
 Accept: text/event-stream
 

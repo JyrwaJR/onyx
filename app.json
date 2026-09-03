@@ -1,44 +1,45 @@
 {
   "expo": {
-    "name": "remote-code",
-    "slug": "remote-code",
+    "name": "Onyx",
+    "slug": "onyx",
     "version": "1.0.0",
-
     "scheme": "remote-code",
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/favicon.png"
+      "favicon": "./src/shared/assets/favicon.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/splash.png",
+          "image": "./src/shared/assets/splash.png",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,
-
       "tsconfigPaths": true
     },
-
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
-
+    "icon": "./src/shared/assets/icon.png",
     "userInterfaceStyle": "light",
-
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./src/shared/assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       }
     }
