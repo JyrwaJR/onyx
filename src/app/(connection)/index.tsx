@@ -5,11 +5,7 @@ import ConnectionScreen from '../../features/connection/screens/ConnectionScreen
 export default function ConnectionIndex() {
   const { serverUrl, hydrated } = useConnectionStore();
 
-  if (!hydrated) {
-    return null;
-  }
-
-  if (serverUrl) {
+  if (hydrated && serverUrl) {
     return <Redirect href="/(tabs)/projects" />;
   }
 
