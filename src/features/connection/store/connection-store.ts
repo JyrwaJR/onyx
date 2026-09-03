@@ -2,13 +2,13 @@
  * @file Zustand store for server connection state.
  *
  * Manages the current server URL, connection status, and error state.
- * Persists the server URL to MMKV via the persist middleware.
+ * Persists the server URL to AsyncStorage via the persist middleware.
  */
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
-import { zustandMMKVStorage } from '@utils/storage';
+import { zustandAsyncStorage } from '@utils/storage';
 import { setApiBaseUrl } from '@utils/http/constants';
 import http from '@utils/http/client';
 import { HEALTH_CHECK } from '../../../shared/api/endpoints';
@@ -23,16 +23,16 @@ interface ConnectionState {
   connectionStatus: ConnectionStatus;
   /** Error message from the last failed connection attempt. */
   error: string | null;
-  /** Whether the store has been hydrated from MMKV. */
+  /** Whether the store has been hydrated from AsyncStorage. */
   hydrated: boolean;
 
-  /** Set the server URL and persist it to MMKV. */
+  /** Set the server URL and persist it to AsyncStorage. */
   setServerUrl: (url: string) => void;
   /** Attempt to connect to the server: set base URL, ping, update status. */
   connect: () => Promise<void>;
   /** Reset connection status to idle. */
   disconnect: () => void;
-  /** Mark the store as hydrated after MMKV rehydration completes. */
+  /** Mark the store as hydrated after AsyncStorage rehydration completes. */
   setHydrated: (hydrated: boolean) => void;
 }
 
@@ -96,7 +96,7 @@ export const useConnectionStore = create<ConnectionState>()(
     }),
     {
       name: 'onyx-connection',
-      storage: createJSONStorage(() => zustandMMKVStorage),
+      storage: createJSONStorage(() => zustandAsyncStorage),
       partialize: (state) => ({ serverUrl: state.serverUrl }),
       onRehydrateStorage: () => (state) => {
         state?.setHydrated(true);

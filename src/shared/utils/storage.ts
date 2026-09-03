@@ -1,25 +1,29 @@
 /**
- * @file MMKV storage instance and Zustand persist adapter.
+ * @file AsyncStorage instance and Zustand persist adapter.
  *
- * Provides fast synchronous local storage backed by MMKV,
+ * Provides async local storage backed by @react-native-async-storage/async-storage,
  * with a Zustand-compatible adapter for the `persist` middleware.
  */
 
-import { MMKV } from 'react-native-mmkv';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StateStorage } from 'zustand/middleware';
 
-/** MMKV storage instance for fast synchronous local storage. */
-export const mmkvStorage = new MMKV({ id: 'onyx-storage' });
-
 /**
- * Zustand StateStorage adapter backed by MMKV.
+ * Zustand StateStorage adapter backed by AsyncStorage.
  * Use with `persist` middleware:
  * ```ts
- * storage: createJSONStorage(() => zustandMMKVStorage)
+ * storage: createJSONStorage(() => zustandAsyncStorage)
  * ```
  */
-export const zustandMMKVStorage: StateStorage = {
-  getItem: (name) => mmkvStorage.getString(name) ?? null,
-  setItem: (name, value) => mmkvStorage.set(name, value),
-  removeItem: (name) => mmkvStorage.delete(name),
+export const zustandAsyncStorage: StateStorage = {
+  getItem: async (name) => {
+    const value = await AsyncStorage.getItem(name);
+    return value ?? null;
+  },
+  setItem: async (name, value) => {
+    await AsyncStorage.setItem(name, value);
+  },
+  removeItem: async (name) => {
+    await AsyncStorage.removeItem(name);
+  },
 };
