@@ -4,6 +4,7 @@
  * Renders a header with the "Projects" title and the ProjectList component.
  */
 
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { ProjectList } from '../components/ProjectList';
 
 /**
@@ -13,8 +14,8 @@ import { ProjectList } from '../components/ProjectList';
  */
 export default function ProjectsScreen() {
   return (
-    <>
+    <SafeAreaView className="flex-1 bg-surface">
       <ProjectList />
-    </>
+    </SafeAreaView>
   );
 }

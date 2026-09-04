@@ -284,7 +284,7 @@ export function Loading({
           <View className="h-10 w-10 items-center justify-center rounded-full bg-secondary-container">
             <MaterialIcons name="lightbulb" size={20} color="#66645e" />
           </View>
-          <Text className="flex-1 text-xs leading-relaxed text-on-secondary-container">
+          <Text className="text-on-secondary-container flex-1 text-xs leading-relaxed">
             Local models run 100% offline. Ensure Ollama or llama.cpp backend stays awake in your
             background shell.
           </Text>
@@ -313,11 +313,6 @@ export function Loading({
           </Text>
         </View>
       </ScrollView>
-
-      {/* Safe Area Footer Indicator */}
-      <View className="max-w-mobile mx-auto w-full items-center py-3">
-        <View className="h-1 w-28 rounded-full bg-surface-variant" />
-      </View>
     </View>
   );
 }

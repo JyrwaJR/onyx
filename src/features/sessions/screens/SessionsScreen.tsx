@@ -6,12 +6,12 @@
  */
 
 import { useState } from 'react';
-import { View } from 'react-native';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 
 import { Fab } from '@/shared/components/ui/fab';
 import { SessionList } from '../components/SessionList';
 import { NewSessionForm } from '../components/NewSessionForm';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 /**
  * Sessions screen showing the list of sessions for a project.
@@ -21,22 +21,20 @@ import { NewSessionForm } from '../components/NewSessionForm';
  * @param projectId - The project ID from route params.
  */
 export default function SessionsScreen() {
-  const { projectId } = useLocalSearchParams<{ projectId: string }>();
+  const { projectId, dir } = useLocalSearchParams<{ projectId: string; dir: string }>();
   const [formVisible, setFormVisible] = useState(false);
 
   return (
     <>
-      <View className="flex-1 bg-surface">
-        <SessionList projectId={projectId} />
-
+      <SafeAreaView className="flex-1 bg-surface">
+        <SessionList dir={dir} projectId={projectId} />
         <Fab onPress={() => setFormVisible(true)} />
-
         <NewSessionForm
           projectId={projectId}
           visible={formVisible}
           onClose={() => setFormVisible(false)}
         />
-      </View>
+      </SafeAreaView>
     </>
   );
 }

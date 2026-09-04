@@ -40,7 +40,7 @@ export async function createSession(projectId: string, title?: string): Promise<
  */
 export async function fetchMessages(projectId: string, sessionId: string): Promise<V2Message[]> {
   const response = await http.get<ApiData<V2Message[]>>(GET_SESSION_MESSAGES(sessionId), {
-    params: { limit: 20 },
+    params: { limit: 20, order: 'desc' },
   });
   console.log(response.data);
   return response.data.data;

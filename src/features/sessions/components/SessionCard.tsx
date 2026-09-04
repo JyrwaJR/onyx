@@ -6,31 +6,16 @@
  * Long-press triggers a delete confirmation.
  */
 
-import { Text, TouchableOpacity, Alert } from 'react-native';
+import { Text, TouchableOpacity, Alert, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import type { Session } from '../../../shared/api/types';
 import { useDeleteSession } from '../hooks/use-sessions';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface SessionCardProps {
   session: Session;
   projectId: string;
-}
-
-function getRelativeTime(ms?: number): string {
-  if (!ms) return '';
-  const now = Date.now();
-  const diffMs = now - ms;
-  const diffSec = Math.floor(diffMs / 1000);
-  const diffMin = Math.floor(diffSec / 60);
-  const diffHr = Math.floor(diffMin / 60);
-  const diffDay = Math.floor(diffHr / 24);
-
-  if (diffMin < 1) return 'Just now';
-  if (diffMin < 60) return `${diffMin}m ago`;
-  if (diffHr < 24) return `${diffHr}h ago`;
-  if (diffDay < 7) return `${diffDay}d ago`;
-  return new Date(ms).toLocaleDateString();
 }
 
 /**
@@ -46,7 +31,7 @@ export function SessionCard({ session, projectId }: SessionCardProps) {
   const deleteSession = useDeleteSession(projectId);
 
   const handlePress = () => {
-    router.push(`/projects/${projectId}/sessions/${session.id}/chat` as never);
+    router.push(`/chat?sessionId=${session.id}&projectId=${projectId}` as never);
   };
 
   const handleLongPress = () => {
@@ -62,16 +47,25 @@ export function SessionCard({ session, projectId }: SessionCardProps) {
 
   return (
     <TouchableOpacity
+      key={session.id}
       onPress={handlePress}
       onLongPress={handleLongPress}
-      className="rounded-lg border border-outline-variant bg-surface-container p-4"
-      activeOpacity={0.7}>
-      <Text className="text-base font-semibold text-on-surface" numberOfLines={1}>
-        {session.title || 'Untitled'}
-      </Text>
-      <Text className="mt-1 text-xs text-outline-variant">
-        {getRelativeTime(session.time.updated)}
-      </Text>
+      activeOpacity={0.8}
+      className="flex-row items-center justify-between rounded-xl border border-[#dac1ba] bg-[#efe7e1] p-4 active:border-[#87736d]">
+      <View className="flex-1 flex-row items-center gap-3.5 pr-2">
+        <View className="shadow-xs h-10 w-10 items-center justify-center rounded-lg bg-white">
+          <MaterialIcons name={'terminal'} size={20} color="#8f482f" />
+        </View>
+
+        <View className="flex-1 justify-center">
+          <Text className="text-base font-medium text-[#1e1b18]" numberOfLines={1}>
+            {session.title}
+          </Text>
+          <Text className="mt-0.5 text-xs font-normal text-[#615e56]">{session.time.updated}</Text>
+        </View>
+      </View>
+
+      <MaterialIcons name="chevron-right" size={20} color="#54433e" />
     </TouchableOpacity>
   );
 }

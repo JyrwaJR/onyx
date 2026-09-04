@@ -22,10 +22,10 @@ import type { Session } from '../../../shared/api/types';
  * @param projectId - The project ID to list sessions for.
  * @returns Query result with the session list array.
  */
-export function useSessions(projectId: string) {
+export function useSessions(projectId: string, dir: string) {
   return useQuery<SessionListResponse>({
     queryKey: queryKeys.sessions.byProject(projectId),
-    queryFn: () => fetchSessions(projectId),
+    queryFn: () => fetchSessions(projectId, dir),
     enabled: !!projectId,
     staleTime: 30_000,
   });

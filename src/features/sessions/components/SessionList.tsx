@@ -11,10 +11,15 @@ import { FlatList, View, ActivityIndicator, RefreshControl } from 'react-native'
 
 import { useSessions } from '../hooks/use-sessions';
 import { SessionCard } from './SessionCard';
-import { ConnectionErrorScreen, NotFoundSessionsScreen } from '@/shared/components/screens';
+import {
+  ConnectionErrorScreen,
+  Loading,
+  NotFoundSessionsScreen,
+} from '@/shared/components/screens';
 
 interface SessionListProps {
   projectId: string;
+  dir: string;
 }
 
 /**
@@ -24,8 +29,8 @@ interface SessionListProps {
  *
  * @param projectId - The project ID to fetch sessions for.
  */
-export function SessionList({ projectId }: SessionListProps) {
-  const { data, isLoading, isError, error, refetch, isFetching } = useSessions(projectId);
+export function SessionList({ projectId, dir }: SessionListProps) {
+  const { data, isLoading, isError, refetch, isFetching } = useSessions(projectId, dir);
 
   const sessions = data ?? [];
 
@@ -34,11 +39,7 @@ export function SessionList({ projectId }: SessionListProps) {
   }, [refetch]);
 
   if (isLoading) {
-    return (
-      <View className="flex-1 items-center justify-center bg-surface">
-        <ActivityIndicator size="large" color="#8f482f" />
-      </View>
-    );
+    return <Loading />;
   }
 
   if (isError) {

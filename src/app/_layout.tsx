@@ -34,8 +34,8 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <SafeAreaProvider>
-        <Stack>
-          <Stack.Screen name="/(connection)" options={{ headerShown: false }} />
+        <Stack screenOptions={{ headerShown: false, headerBackVisible: true }}>
+          <Stack.Screen name="(connection)" />
         </Stack>
         <StatusBar style="auto" />
       </SafeAreaProvider>

@@ -32,7 +32,7 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
       <View className="flex-wrap items-end gap-2">
         <Input
           ref={inputRef}
-          className="max-h-[132px] min-h-11 flex-1"
+          className="max-h-[132px] min-h-11 w-[60%] flex-1"
           placeholder="Type a message..."
           multiline
           numberOfLines={1}

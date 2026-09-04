@@ -246,11 +246,6 @@ export function ConnectionErrorScreen({
           </Text>
         </View>
       </ScrollView>
-
-      {/* Safe Area Footer Handle */}
-      <View className="max-w-mobile mx-auto w-full items-center py-3">
-        <View className="h-1 w-28 rounded-full bg-surface-variant" />
-      </View>
     </View>
   );
 }

@@ -1,8 +1,8 @@
 import { useRef, useEffect } from 'react';
-import { FlatList, View, ActivityIndicator } from 'react-native';
+import { FlatList } from 'react-native';
 import type { V2Message } from '../../../shared/api/types';
 import { MessageBubble } from './MessageBubble';
-import { NotFoundSessionsScreen } from '../../../shared/components/screens';
+import { Loading, NotFoundSessionsScreen } from '../../../shared/components/screens';
 
 interface MessageListProps {
   messages: V2Message[];
@@ -29,11 +29,7 @@ export function MessageList({ messages, isLoading, onDelete }: MessageListProps)
   }, [messages.length]);
 
   if (isLoading) {
-    return (
-      <View className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" color="#8f482f" />
-      </View>
-    );
+    return <Loading />;
   }
 
   if (messages.length === 0) {
