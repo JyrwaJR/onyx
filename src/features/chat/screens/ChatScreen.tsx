@@ -54,6 +54,9 @@ export default function ChatScreen() {
   // Stable reference to the mutate function.
   const mutateRef = useRef(sendMessage.mutate);
 
+  // Ref for auto-scrolling to bottom
+  const scrollViewRef = useRef<ScrollView>(null);
+
   // --- Derived state ---
 
   const allMessages: V2Message[] = useMemo(() => {
@@ -91,6 +94,18 @@ export default function ChatScreen() {
   }, [messages, streaming]);
 
   const streamingIds = useMemo(() => new Set(streaming.keys()), [streaming]);
+
+  // Auto-scroll to the bottom whenever the message list changes size. This
+  // ensures the most recent messages are visible on first load and when new
+  // content (including streaming deltas) arrives.
+  useEffect(() => {
+    if (allMessages.length > 0) {
+      const timeoutId = setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: false });
+      }, 100);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [allMessages.length]);
 
   // --- Stable callbacks ---
 
@@ -157,10 +172,12 @@ export default function ChatScreen() {
 
           {/* Messages Stream */}
           <ScrollView
+            ref={scrollViewRef}
             className="flex-1 px-4 py-3"
             contentContainerStyle={{ paddingBottom: 24 }}
             showsVerticalScrollIndicator={false}
             onScroll={handleScroll}
+            onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: false })}
             scrollEventThrottle={400}>
             {isFetchingNextPage && (
               <View className="mb-4 items-center py-2">
