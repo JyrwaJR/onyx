@@ -33,7 +33,7 @@ interface ConnectionState {
   connect: () => Promise<void>;
   /** Reset connection status to idle. */
   disconnect: () => void;
-  /** Load persisted state from AsyncStorage. */
+  /** Load persisted state from AsyncStorage and reconfigure the HTTP client base URL. */
   hydrate: () => Promise<void>;
 }
 
@@ -98,6 +98,7 @@ export const useConnectionStore = create<ConnectionState>()((set, get) => ({
         const data = JSON.parse(raw);
         if (data.serverUrl) {
           set({ serverUrl: data.serverUrl, hydrated: true });
+          setApiBaseUrl(data.serverUrl);
           return;
         }
       }
