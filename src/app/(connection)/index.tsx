@@ -3,9 +3,9 @@ import ConnectionScreen from '@features/connection/screens/ConnectionScreen';
 import { useConnectionStore } from '@/shared/stores';
 
 export default function ConnectionIndex() {
-  const { serverUrl, hydrated } = useConnectionStore();
+  const { serverUrl } = useConnectionStore();
 
-  if (hydrated && serverUrl) {
+  if (serverUrl) {
     return <Redirect href="/projects" />;
   }
 
