@@ -1,0 +1,33 @@
+# ============================================================
+# File / Find — read, list, search files and symbols.
+# Docs: http://localhost:4096/doc
+# ============================================================
+
+### List files in a directory
+GET {{BASE_URL}}/file
+# Query params: path (required), directory, workspace
+# Example: GET http://localhost:4096/file?path=src
+
+### Read file content
+GET {{BASE_URL}}/file/content
+# Query params: path (required), directory, workspace
+# Example: GET http://localhost:4096/file/content?path=src/index.ts
+
+### Get file status (git status of a path)
+GET {{BASE_URL}}/file/status
+# Query params: directory, workspace
+
+### Find text (regex search)
+GET {{BASE_URL}}/find
+# Query params: pattern (required), directory, workspace
+# Example: GET http://localhost:4096/find?pattern=\\bTODO\\b
+
+### Find files by name
+GET {{BASE_URL}}/find/file
+# Query params: query (required), dirs (true|false), type (file|directory), limit (1-200), directory, workspace
+# Example: GET http://localhost:4096/find/file?query=index&type=file&limit=50
+
+### Find symbols
+GET {{BASE_URL}}/find/symbol
+# Query params: query (required), directory, workspace
+# Example: GET http://localhost:4096/find/symbol?query=handleSubmit

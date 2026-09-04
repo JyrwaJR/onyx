@@ -1,14 +1,13 @@
 # ============================================================
-# Agent — Manage & list agents
-# Docs: https://opencode.ai/v2/docs/api
+# Agent / Command / Skill — list agents, slash-commands, and skills.
+# Docs: http://localhost:4096/doc
 # ============================================================
 
-
 ### List agents
-GET {{BASE_URL}}/api/agent
+GET {{BASE_URL}}/agent
 
-### Get a specific agent
-GET {{BASE_URL}}/api/agent/{{agentID}}
+### List commands
+GET {{BASE_URL}}/command
 
-# Replace {{agentID}} with an actual agent id, e.g. "build".
-# GET http://localhost:4096/api/agent/build
+### List skills
+GET {{BASE_URL}}/skill

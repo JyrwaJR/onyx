@@ -1,0 +1,208 @@
+# ============================================================
+# Session — the primary interaction API (v1).
+# Docs: http://localhost:4096/doc
+#
+# SESSION_ID pattern: "^ses" (e.g. ses_f93c5a650ffesbFcX6a3QCJ7ej)
+# MESSAGE_ID pattern: "^msg"
+# PART_ID pattern:    "^prt"
+# Use a real session id (e.g. from List sessions) in place of {{SESSION_ID}}.
+# ============================================================
+
+# ------------------------------------------------------------------
+# Session CRUD
+# ------------------------------------------------------------------
+
+### List sessions
+GET {{BASE_URL}}/session
+
+### Create session
+POST {{BASE_URL}}/session
+Content-Type: application/json
+
+{
+  "title": "New session",
+  "agent": "build",
+  "model": {
+    "id": "gpt-4o",
+    "providerID": "openai"
+  }
+}
+
+### Get session status
+GET {{BASE_URL}}/session/status
+
+### Get session
+GET {{BASE_URL}}/session/{{SESSION_ID}}
+
+### Delete session
+DELETE {{BASE_URL}}/session/{{SESSION_ID}}
+
+### Update session (rename / metadata / permission)
+PATCH {{BASE_URL}}/session/{{SESSION_ID}}
+Content-Type: application/json
+
+{
+  "title": "Renamed session"
+}
+
+### Get session children (subagents)
+GET {{BASE_URL}}/session/{{SESSION_ID}}/children
+
+# ------------------------------------------------------------------
+# Session lifecycle
+# ------------------------------------------------------------------
+
+### Initialize session (set model before first message)
+POST {{BASE_URL}}/session/{{SESSION_ID}}/init
+Content-Type: application/json
+
+{
+  "modelID": "gpt-4o",
+  "providerID": "openai",
+  "messageID": "msg_optional"
+}
+
+### Abort session execution
+POST {{BASE_URL}}/session/{{SESSION_ID}}/abort
+
+### Fork session at a message boundary
+POST {{BASE_URL}}/session/{{SESSION_ID}}/fork
+Content-Type: application/json
+
+{
+  "messageID": "msg_optional"
+}
+
+### Revert a message
+POST {{BASE_URL}}/session/{{SESSION_ID}}/revert
+Content-Type: application/json
+
+{
+  "messageID": "msg_to_revert",
+  "partID": "prt_optional_part"
+}
+
+### Restore reverted messages
+POST {{BASE_URL}}/session/{{SESSION_ID}}/unrevert
+
+### Summarize session
+POST {{BASE_URL}}/session/{{SESSION_ID}}/summarize
+Content-Type: application/json
+
+{
+  "providerID": "openai",
+  "modelID": "gpt-4o",
+  "auto": false
+}
+
+### Share session
+POST {{BASE_URL}}/session/{{SESSION_ID}}/share
+
+### Unshare session
+DELETE {{BASE_URL}}/session/{{SESSION_ID}}/share
+
+# ------------------------------------------------------------------
+# Interact with a session
+# ------------------------------------------------------------------
+
+### Send an async message (non-blocking)
+POST {{BASE_URL}}/session/{{SESSION_ID}}/prompt_async
+Content-Type: application/json
+
+{
+  "parts": [
+    {
+      "type": "text",
+      "text": "Explain the codebase in a few sentences."
+    }
+  ],
+  "model": {
+    "providerID": "openai",
+    "modelID": "gpt-4o"
+  }
+}
+
+### Send message (parts-based, wait for reply)
+POST {{BASE_URL}}/session/{{SESSION_ID}}/message
+Content-Type: application/json
+
+{
+  "parts": [
+    {
+      "type": "text",
+      "text": "Explain the codebase in a few sentences."
+    }
+  ],
+  "agent": "build",
+  "model": {
+    "providerID": "openai",
+    "modelID": "gpt-4o"
+  }
+}
+
+### Run a slash command in the session
+POST {{BASE_URL}}/session/{{SESSION_ID}}/command
+Content-Type: application/json
+
+{
+  "command": "fix",
+  "arguments": "src/index.ts",
+  "agent": "build"
+}
+
+### Run a shell command in the session
+POST {{BASE_URL}}/session/{{SESSION_ID}}/shell
+Content-Type: application/json
+
+{
+  "command": "ls -la",
+  "agent": "build"
+}
+
+# ------------------------------------------------------------------
+# Messages
+# ------------------------------------------------------------------
+
+### Get session messages
+GET {{BASE_URL}}/session/{{SESSION_ID}}/message
+
+# Optional query params:
+# GET http://localhost:4096/session/{{SESSION_ID}}/message?limit=50&before=msg_id
+
+### Get a specific message
+GET {{BASE_URL}}/session/{{SESSION_ID}}/message/{{messageID}}
+
+### Delete a message
+DELETE {{BASE_URL}}/session/{{SESSION_ID}}/message/{{messageID}}
+
+### Get message diff
+GET {{BASE_URL}}/session/{{SESSION_ID}}/diff
+
+### Get session todos
+GET {{BASE_URL}}/session/{{SESSION_ID}}/todo
+
+### Delete a message part
+DELETE {{BASE_URL}}/session/{{SESSION_ID}}/message/{{messageID}}/part/{{partID}}
+
+### Update a message part
+PATCH {{BASE_URL}}/session/{{SESSION_ID}}/message/{{messageID}}/part/{{partID}}
+Content-Type: application/json
+
+{
+  "type": "text",
+  "text": "Updated assistant reply"
+}
+
+# ------------------------------------------------------------------
+# Permissions within a session
+# ------------------------------------------------------------------
+
+### Respond to a pending permission request
+POST {{BASE_URL}}/session/{{SESSION_ID}}/permissions/{{permissionID}}
+Content-Type: application/json
+
+{
+  "response": "once"
+}
+
+# response: "once" | "always" | "reject"
