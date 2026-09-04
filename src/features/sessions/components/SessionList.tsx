@@ -6,8 +6,8 @@
  * array, so there is no pagination/infinite scroll.
  */
 
-import { useCallback } from 'react';
-import { FlatList, View, ActivityIndicator, RefreshControl } from 'react-native';
+import { useCallback, useState } from 'react';
+import { FlatList, RefreshControl } from 'react-native';
 
 import { useSessions } from '../hooks/use-sessions';
 import { SessionCard } from './SessionCard';
@@ -16,6 +16,8 @@ import {
   Loading,
   NotFoundSessionsScreen,
 } from '@/shared/components/screens';
+import { NewSessionForm } from './NewSessionForm';
+import { Fab } from '@/shared/components/ui';
 
 interface SessionListProps {
   projectId: string;
@@ -31,6 +33,7 @@ interface SessionListProps {
  */
 export function SessionList({ projectId, dir }: SessionListProps) {
   const { data, isLoading, isError, refetch, isFetching } = useSessions(projectId, dir);
+  const [formVisible, setFormVisible] = useState(false);
 
   const sessions = data ?? [];
 
@@ -47,17 +50,33 @@ export function SessionList({ projectId, dir }: SessionListProps) {
   }
 
   if (sessions.length === 0) {
-    return <NotFoundSessionsScreen />;
+    return (
+      <>
+        <NotFoundSessionsScreen onCreateSession={() => setFormVisible(true)} />
+        <NewSessionForm
+          projectId={projectId}
+          visible={formVisible}
+          onClose={() => setFormVisible(false)}
+        />
+      </>
+    );
   }
 
   return (
-    <FlatList
-      data={sessions}
-      keyExtractor={(item) => item.id}
-      renderItem={({ item }) => <SessionCard session={item} projectId={projectId} />}
-      contentContainerStyle={{ padding: 16 }}
-      ItemSeparatorComponent={() => <View className="h-3" />}
-      refreshControl={<RefreshControl refreshing={isFetching} onRefresh={handleRefresh} />}
-    />
+    <>
+      <FlatList
+        data={sessions}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => <SessionCard session={item} projectId={projectId} />}
+        contentContainerClassName="gap-4 py-1"
+        refreshControl={<RefreshControl refreshing={isFetching} onRefresh={handleRefresh} />}
+      />
+      <Fab onPress={() => setFormVisible(true)} icon="plus" />
+      <NewSessionForm
+        projectId={projectId}
+        visible={formVisible}
+        onClose={() => setFormVisible(false)}
+      />
+    </>
   );
 }

@@ -6,7 +6,7 @@
  */
 
 import { useCallback } from 'react';
-import { FlatList, View, RefreshControl } from 'react-native';
+import { FlatList, RefreshControl } from 'react-native';
 
 import { useProjects } from '../hooks/use-projects';
 import { ProjectCard } from './ProjectCard';
@@ -45,8 +45,8 @@ export function ProjectList() {
       data={projects}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => <ProjectCard project={item} />}
-      contentContainerStyle={{ padding: 16 }}
-      ItemSeparatorComponent={() => <View className="h-3" />}
+      contentContainerClassName="gap-5 pt-1 pb-5"
+      showsVerticalScrollIndicator={false}
       refreshControl={<RefreshControl refreshing={isFetching} onRefresh={handleRefresh} />}
     />
   );

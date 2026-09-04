@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react';
-import { View, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { Input } from '@/shared/components/ui/input';
-import { cn } from '@/shared/lib/cn';
+import { View, TouchableOpacity, TextInput } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface MessageInputProps {
   onSend: (content: string) => void;
@@ -14,7 +13,7 @@ interface MessageInputProps {
  */
 export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
   const [text, setText] = useState('');
-  const inputRef = useRef<React.ComponentRef<typeof Input>>(null);
+  const inputRef = useRef<TextInput>(null);
 
   const handleSend = () => {
     const trimmed = text.trim();
@@ -28,41 +27,48 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
   const canSend = text.trim().length > 0 && !disabled && !sending;
 
   return (
-    <View className="border-t border-outline-variant bg-surface px-4 py-3">
-      <View className="flex-wrap items-end gap-2">
-        <Input
+    <View className="px-4 pt-1">
+      <View className="flex-row items-end justify-center gap-1 rounded-xl bg-[#ebe8e5] p-1.5">
+        <TouchableOpacity
+          className="h-9 w-9 items-center justify-center rounded-lg"
+          disabled
+          accessibilityLabel="Attach file">
+          <MaterialIcons name="attach-file" size={20} color="#5e5c54" />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          className="h-9 w-9 items-center justify-center rounded-lg"
+          disabled
+          accessibilityLabel="Slash commands">
+          <MaterialIcons name="terminal" size={20} color="#5e5c54" />
+        </TouchableOpacity>
+
+        <TextInput
+          className="h-full max-h-[120px] flex-1 px-1 py-1.5 text-sm text-[#1c1c1a]"
+          placeholder="Ask Onyx or type '/' for commands..."
+          placeholderTextColor="#5e5c54"
           ref={inputRef}
-          className="max-h-[132px] min-h-11 w-[60%] flex-1"
-          placeholder="Type a message..."
+          onSubmitEditing={() => handleSend()}
           multiline
-          numberOfLines={1}
-          maxLength={10000}
+          numberOfLines={4}
           value={text}
           onChangeText={setText}
-          editable={!disabled && !sending}
-          onSubmitEditing={handleSend}
         />
 
         <TouchableOpacity
-          onPress={handleSend}
+          className="h-9 w-9 items-center justify-center rounded-lg"
+          disabled
+          accessibilityLabel="Voice input">
+          <MaterialIcons name="mic" size={20} color="#5e5c54" />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => handleSend()}
           disabled={!canSend}
-          activeOpacity={0.7}
-          className={cn(
-            'h-11 w-11 shrink-0 items-center justify-center rounded-full',
-            canSend ? 'bg-primary' : 'bg-outline-variant'
-          )}>
-          {sending ? (
-            <ActivityIndicator size="small" color="#FFFFFF" />
-          ) : (
-            <View
-              className={cn(
-                'h-0 w-0',
-                'border-b-[6px] border-l-[8px] border-t-[6px]',
-                'border-b-transparent border-t-transparent',
-                canSend ? 'border-l-primary-on' : 'border-l-outline'
-              )}
-            />
-          )}
+          activeOpacity={0.8}
+          className="h-9 w-9 items-center justify-center rounded-xl bg-[#8f482f]"
+          accessibilityLabel="Send message">
+          <MaterialIcons name="arrow-upward" size={18} color="#ffffff" />
         </TouchableOpacity>
       </View>
     </View>

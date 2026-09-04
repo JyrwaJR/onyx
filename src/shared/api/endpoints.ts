@@ -51,7 +51,7 @@ export const GET_SESSION_MESSAGES = (sessionId: string) =>
 
 /**
  * Send a message to a session (V2 prompt). POST body:
- * `{ id: "msg_...", prompt: { type, text } }`. Template: `SEND_SESSION_PROMPT(sessionId)`.
+ * `{ prompt: "message text" }`. Template: `SEND_SESSION_PROMPT(sessionId)`.
  */
 export const SEND_SESSION_PROMPT = (sessionId: string) =>
   `/api/session/${sessionId}/prompt` as const;

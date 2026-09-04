@@ -35,13 +35,15 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.jyrwajr.onyx"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./src/shared/assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.jyrwajr.onyx"
     }
   }
 }

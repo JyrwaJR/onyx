@@ -5,7 +5,7 @@
  * (no pagination envelope). This type reflects that.
  */
 
-import type { Session } from '../../../shared/api/types';
+import type { SessionT } from '../../../shared/api/types';
 
 /** Session list response from the API — a plain array. */
-export type SessionListResponse = Session[];
+export type SessionListResponse = SessionT[];

@@ -9,16 +9,16 @@
 import { useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { MaterialIcons } from '@expo/vector-icons';
 
-import { useConnectionStore } from '../store/connection-store';
 import { useHealthCheck } from '../hooks/use-health-check';
 import { serverUrlSchema, type ServerUrlFormData } from '../validators/server-url';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ConnectionErrorScreen, Loading } from '@/shared/components/screens';
 import { cn } from '@/shared/lib/cn';
+import { useConnectionStore } from '@/shared/stores';
 
 /** Quick connect suggestion items. */
 interface SuggestionItem {
@@ -53,7 +53,7 @@ const SUGGESTIONS: SuggestionItem[] = [
 export default function ConnectionScreen() {
   const router = useRouter();
 
-  const { serverUrl, connectionStatus, error, hydrated, setServerUrl, connect, disconnect } =
+  const { serverUrl, connectionStatus, error, hydrated, setServerUrl, connect } =
     useConnectionStore();
 
   const { isHealthy } = useHealthCheck(connectionStatus === 'connected' ? serverUrl : '');
@@ -62,16 +62,14 @@ export default function ConnectionScreen() {
     control,
     handleSubmit,
     formState: { errors, isValid },
-    reset,
     setValue,
-    watch,
   } = useForm<ServerUrlFormData>({
     resolver: zodResolver(serverUrlSchema),
     defaultValues: { serverUrl: '' },
     mode: 'onChange',
   });
 
-  const currentUrl = watch('serverUrl');
+  const currentUrl = useWatch({ name: 'serverUrl', control });
 
   useEffect(() => {
     if (hydrated && serverUrl) {

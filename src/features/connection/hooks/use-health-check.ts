@@ -9,7 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import http from '@utils/http/client';
 import { HEALTH_CHECK } from '../../../shared/api/endpoints';
-import type { HealthResponse } from '../types/connection';
+import { HealthResponse } from '@/shared/api';
 
 interface UseHealthCheckResult {
   /** Whether the server is currently healthy. */

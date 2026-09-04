@@ -1,6 +1,6 @@
 import { Redirect } from 'expo-router';
-import { useConnectionStore } from '@features/connection/store/connection-store';
 import ConnectionScreen from '@features/connection/screens/ConnectionScreen';
+import { useConnectionStore } from '@/shared/stores';
 
 export default function ConnectionIndex() {
   const { serverUrl, hydrated } = useConnectionStore();
@@ -9,9 +9,5 @@ export default function ConnectionIndex() {
     return <Redirect href="/projects" />;
   }
 
-  return (
-    <>
-      <ConnectionScreen />
-    </>
-  );
+  return <ConnectionScreen />;
 }

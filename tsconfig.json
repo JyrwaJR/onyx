@@ -9,6 +9,8 @@
       "@features/*": ["./src/features/*"],
       "@components/*": ["./src/shared/components/*"],
       "@lib/*": ["./src/shared/lib/*"],
+      "@stores/*": ["./src/shared/stores/*"],
+      "@hooks/*": ["./src/shared/hooks/*"],
       "@sharedType/*": ["./src/shared/types/*"],
       "@assets/*": ["./src/shared/assets/*"]
     }

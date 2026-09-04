@@ -1,49 +1,49 @@
-import { useEffect, useRef, useCallback, useState } from 'react';
-import { View } from 'react-native';
+import { useEffect, useRef, useCallback, useState, useMemo } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  ActivityIndicator,
+} from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
-import { useQueryClient } from '@tanstack/react-query';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useMessages, useSendMessage, useDeleteMessage } from '../hooks/use-chat';
-import { MessageList } from '../components/MessageList';
-import { MessageInput } from '../components/MessageInput';
-import { createGlobalSSE, type SSEConnection } from '../../../shared/api/sse';
-import { queryKeys } from '../../../shared/api/query-keys';
+import { useMessages, useSendMessage } from '../hooks/use-chat';
+import { useSSE } from '../hooks/useSSE';
+import type { StreamingState } from '../types';
 import type { MessageContentBlock, V2Message } from '../../../shared/api/types';
-import { ConnectionErrorScreen, Loading } from '@/shared/components/screens';
-
-/**
- * Back button component for chat screen header.
- * Renders a left arrow with "Back" text in ink color.
- */
-
-/** A streaming assistant message being built from SSE deltas. */
-interface StreamingState {
-  text: string;
-  reasoning: string;
-}
+import { Loading } from '@/shared/components/screens';
+import { useSession } from '@/features/sessions';
+import { StackHeader } from '@components/ui/header';
+import { MessageInput } from '../components/MessageInput';
+import { ChatHeaderBar } from '../components/ChatHeaderBar';
+import { ContextBar } from '../components/ContextBar';
+import { UserMessage } from '../components/UserMessage';
+import { AssistantMessage } from '../components/AssistantMessage';
+import { Container } from '@/shared/components/layout/Container';
 
 /**
  * Main chat screen with SSE streaming and message management.
  *
  * Receives `sessionId` and `projectId` from route params. Subscribes to the
- * global V2 SSE event stream and builds up assistant messages incrementally
- * from `session.next.text.delta` / `session.next.reasoning.delta` events.
+ * global V2 SSE event stream and builds up assistant messages incrementally.
  */
 export default function ChatScreen() {
   const { sessionId, projectId } = useLocalSearchParams<{
     sessionId: string;
     projectId: string;
   }>();
-  const queryClient = useQueryClient();
-
-  const sseRef = useRef<SSEConnection | null>(null);
+  const { data, isFetching } = useSession(sessionId);
 
   const [streaming, setStreaming] = useState<Map<string, StreamingState>>(new Map());
+  const [isReasoningOpen, setIsReasoningOpen] = useState(true);
 
   const {
     data: messages,
     isLoading,
-    isError,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
@@ -51,140 +51,150 @@ export default function ChatScreen() {
 
   const sendMessage = useSendMessage(projectId, sessionId);
 
-  const deleteMessage = useDeleteMessage(projectId, sessionId);
+  // Stable reference to the mutate function.
+  const mutateRef = useRef(sendMessage.mutate);
 
-  // Materialize streaming messages into the V2 message list shape.
+  // --- Derived state ---
 
-  const allMessages: V2Message[] = messages ? [...messages] : [];
+  const allMessages: V2Message[] = useMemo(() => {
+    if (!messages && streaming.size === 0) return [];
 
-  streaming.forEach((state, msgId) => {
-    const existingIndex = allMessages.findIndex((m) => m.id === msgId);
-    const blocks: MessageContentBlock[] = [];
-    if (state.reasoning) {
-      blocks.push({ type: 'reasoning', id: 'reasoning-0', text: state.reasoning });
-    }
-    if (state.text) {
-      blocks.push({ type: 'text', id: 'text-0', text: state.text });
-    }
-    const existing = existingIndex >= 0 ? allMessages[existingIndex] : undefined;
-    const streamMsg: V2Message = {
-      id: msgId,
-      type: 'assistant',
-      time: { created: existing?.time?.created ?? 0 },
-      content: blocks,
-    };
-    if (existingIndex >= 0) {
-      allMessages[existingIndex] = streamMsg;
-    } else {
-      allMessages.push(streamMsg);
-    }
+    const merged: V2Message[] = messages ? [...messages] : [];
+
+    streaming.forEach((state, msgId) => {
+      const existingIndex = merged.findIndex((m) => m.id === msgId);
+      const blocks: MessageContentBlock[] = [];
+      if (state.reasoning) {
+        blocks.push({ type: 'reasoning', id: 'reasoning-0', text: state.reasoning });
+      }
+      if (state.text) {
+        blocks.push({ type: 'text', id: 'text-0', text: state.text });
+      }
+      const existing = existingIndex >= 0 ? merged[existingIndex] : undefined;
+      const streamMsg: V2Message = {
+        id: msgId,
+        type: 'assistant',
+        time: { created: existing?.time?.created ?? 0 },
+        content: blocks,
+      };
+      if (existingIndex >= 0) {
+        merged[existingIndex] = streamMsg;
+      } else {
+        merged.push(streamMsg);
+      }
+    });
+
+    merged.sort(
+      (a, b) => (a.time?.created ?? 0) - (b.time?.created ?? 0) || a.id.localeCompare(b.id)
+    );
+    return merged;
+  }, [messages, streaming]);
+
+  const streamingIds = useMemo(() => new Set(streaming.keys()), [streaming]);
+
+  // --- Stable callbacks ---
+
+  const handleSend = useCallback((content: string) => {
+    mutateRef.current(content);
+  }, []);
+
+  const handleToggleReasoning = useCallback(() => {
+    setIsReasoningOpen((prev) => !prev);
+  }, []);
+
+  const handleScroll = useCallback(
+    (e: { nativeEvent: { contentOffset: { y: number } } }) => {
+      if (e.nativeEvent.contentOffset.y < 50 && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    },
+    [hasNextPage, isFetchingNextPage, fetchNextPage]
+  );
+
+  // --- SSE subscription ---
+
+  useSSE(sessionId, ({ assistantMessageID, delta }) => {
+    setStreaming((prev) => {
+      const next = new Map(prev);
+      const cur = next.get(assistantMessageID) ?? { text: '', reasoning: '' };
+      next.set(assistantMessageID, { ...cur, text: cur.text + delta });
+      return next;
+    });
   });
 
-  // Sort by creation time (stable for already-stored messages).
-  allMessages.sort(
-    (a, b) => (a.time?.created ?? 0) - (b.time?.created ?? 0) || a.id.localeCompare(b.id)
-  );
+  // --- Loading / error guards ---
 
-  const handleSend = useCallback(
-    (content: string) => {
-      sendMessage.mutate(content);
-    },
-    [sendMessage]
-  );
+  if (isLoading) return <Loading />;
 
-  const handleDelete = useCallback(
-    (messageId: string) => {
-      deleteMessage.mutate(messageId);
-    },
-    [deleteMessage]
-  );
-
-  // Subscribe to the global V2 SSE event stream for this session.
-  useEffect(() => {
-    if (!sessionId) return;
-
-    const handleEvent = (event: { type: string; data: string }) => {
-      let payload: {
-        type?: string;
-        data?: {
-          sessionID?: string;
-          assistantMessageID?: string;
-          delta?: string;
-          text?: string;
-          part?: { type?: string };
-        };
-      };
-      try {
-        payload = JSON.parse(event.data) as typeof payload;
-      } catch {
-        return;
-      }
-      if (!payload || !payload.data) return;
-      const { sessionID, assistantMessageID, delta } = payload.data;
-      if (sessionID !== sessionId || !assistantMessageID) return;
-
-      const eventType = payload.type;
-      const msgId = assistantMessageID;
-
-      if (eventType === 'session.next.text.delta') {
-        setStreaming((prev) => {
-          const next = new Map(prev);
-          const cur = next.get(msgId) ?? { text: '', reasoning: '' };
-          next.set(msgId, { ...cur, text: cur.text + (delta ?? '') });
-          return next;
-        });
-      } else if (eventType === 'session.next.reasoning.delta') {
-        setStreaming((prev) => {
-          const next = new Map(prev);
-          const cur = next.get(msgId) ?? { text: '', reasoning: '' };
-          next.set(msgId, { ...cur, reasoning: cur.reasoning + (delta ?? '') });
-          return next;
-        });
-      } else if (eventType === 'session.next.step.ended') {
-        // A step finished; pull the durable message and drop the local stream.
-        setStreaming((prev) => {
-          const next = new Map(prev);
-          next.delete(msgId);
-          return next;
-        });
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.messages.bySession(sessionId),
-        });
-      }
-    };
-
-    const handleError = (err: Error) => {
-      console.warn('SSE error:', err.message);
-    };
-
-    sseRef.current = createGlobalSSE(handleEvent, handleError);
-
-    return () => {
-      sseRef.current?.close();
-      sseRef.current = null;
-    };
-  }, [sessionId, queryClient]);
-
-  if (isLoading) {
-    return <Loading />;
+  if (!projectId || !sessionId) {
+    return (
+      <>
+        <StackHeader title={isFetching ? 'Loading…' : data?.title} />
+        <Container>
+          <SafeAreaView
+            edges={['right', 'left', 'bottom']}
+            className="flex-1 items-center justify-center bg-[#fcf9f6]">
+            <MaterialIcons name="warning" size={48} color="#8f482f" />
+            <Text className="mt-4 text-base font-medium text-[#54433e]">Missing session info</Text>
+            <Text className="mt-2 text-sm text-[#5e5c54]">
+              projectId={projectId ?? 'undefined'} sessionId={sessionId ?? 'undefined'}
+            </Text>
+          </SafeAreaView>
+        </Container>
+      </>
+    );
   }
 
-  if (isError) {
-    return <ConnectionErrorScreen />;
-  }
-
+  // --- Render ---
   return (
     <>
-      <View className="flex-1 bg-surface">
-        <MessageList
-          messages={allMessages}
-          onDelete={handleDelete}
-          hasMore={hasNextPage ?? false}
-          isLoadingMore={isFetchingNextPage}
-          onLoadMore={() => fetchNextPage()}
-        />
-        <MessageInput onSend={handleSend} sending={sendMessage.isPending} />
-      </View>
+      <StackHeader title={isFetching ? 'Loading…' : data?.title} />
+      <SafeAreaView edges={['right', 'left', 'bottom']} className="flex-1 bg-[#fcf9f6]">
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          className="flex-1">
+          <ChatHeaderBar />
+
+          {/* Messages Stream */}
+          <ScrollView
+            className="flex-1 px-4 py-3"
+            contentContainerStyle={{ paddingBottom: 24 }}
+            showsVerticalScrollIndicator={false}
+            onScroll={handleScroll}
+            scrollEventThrottle={400}>
+            {isFetchingNextPage && (
+              <View className="mb-4 items-center py-2">
+                <ActivityIndicator size="small" color="#8f482f" />
+                <Text className="mt-1 text-xs text-[#5e5c54]">Loading older messages…</Text>
+              </View>
+            )}
+
+            {allMessages.map((message) =>
+              message.type === 'user' ? (
+                <UserMessage key={message.id} message={message} />
+              ) : (
+                <AssistantMessage
+                  key={message.id}
+                  message={message}
+                  isStreaming={streamingIds.has(message.id)}
+                  isReasoningOpen={isReasoningOpen}
+                  onToggleReasoning={handleToggleReasoning}
+                />
+              )
+            )}
+          </ScrollView>
+
+          {/* Bottom Input Area */}
+          <View className="border-t border-[#dac1ba]/30 bg-[#fcf9f6]/95 pb-2">
+            <ContextBar sessionId={sessionId} />
+            <MessageInput
+              disabled={sendMessage.isPaused}
+              sending={sendMessage.isPending}
+              onSend={handleSend}
+            />
+          </View>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
     </>
   );
 }

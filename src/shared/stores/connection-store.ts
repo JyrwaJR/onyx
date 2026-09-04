@@ -10,8 +10,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { setApiBaseUrl } from '@utils/http/constants';
 import http from '@utils/http/client';
-import { HEALTH_CHECK } from '../../../shared/api/endpoints';
-import type { HealthResponse } from '../types/connection';
+import { HEALTH_CHECK } from '@/shared/api/endpoints';
+import { HealthResponse } from '../api';
 
 const STORAGE_KEY = 'onyx-connection';
 

@@ -27,7 +27,7 @@ export interface Project {
 }
 
 /** Session summary (from list / create endpoints). */
-export interface Session {
+export interface SessionT {
   id: string;
   slug?: string;
   projectID: string;

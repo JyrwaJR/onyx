@@ -6,6 +6,8 @@
 import { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Container } from '../layout/Container';
 
 interface ConnectionErrorScreenProps {
   targetUrl?: string;
@@ -72,180 +74,195 @@ export function ConnectionErrorScreen({
   }, []);
 
   return (
-    <View className="flex-1 bg-surface">
-      {/* Main Content Area */}
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        showsVerticalScrollIndicator={false}
-        className="max-w-mobile mx-auto w-full px-6 py-4">
-        {/* Status Badge & Editorial Illustration Banner */}
-        <View className="my-6 items-center text-center">
-          {/* Tactile Severed Connection Glyph Container */}
-          <View className="relative mb-6 h-24 w-24 items-center justify-center rounded-full bg-error-container/30">
-            {/* Pulsing ring visual */}
-            <View className="absolute inset-0 rounded-full bg-error-container/20 opacity-60" />
+    <Container>
+      <SafeAreaView className="flex-1">
+        <View className="flex-1 bg-surface">
+          {/* Main Content Area */}
+          <ScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            showsVerticalScrollIndicator={false}
+            className="max-w-mobile mx-auto w-full px-6 py-4">
+            {/* Status Badge & Editorial Illustration Banner */}
+            <View className="my-6 items-center text-center">
+              {/* Tactile Severed Connection Glyph Container */}
+              <View className="relative mb-6 h-24 w-24 items-center justify-center rounded-full bg-error-container/30">
+                {/* Pulsing ring visual */}
+                <View className="absolute inset-0 rounded-full bg-error-container/20 opacity-60" />
 
-            <View className="h-16 w-16 items-center justify-center rounded-full bg-primary-fixed shadow-sm">
-              <MaterialIcons name="link-off" size={32} color="#8f482f" />
-            </View>
+                <View className="h-16 w-16 items-center justify-center rounded-full bg-primary-fixed shadow-sm">
+                  <MaterialIcons name="link-off" size={32} color="#8f482f" />
+                </View>
 
-            <View className="absolute -bottom-1 -right-1 h-7 w-7 items-center justify-center rounded-full bg-error shadow-sm">
-              <MaterialIcons name="priority-high" size={16} color="#ffffff" />
-            </View>
-          </View>
+                <View className="absolute -bottom-1 -right-1 h-7 w-7 items-center justify-center rounded-full bg-error shadow-sm">
+                  <MaterialIcons name="priority-high" size={16} color="#ffffff" />
+                </View>
+              </View>
 
-          {/* Editorial Typography Block */}
-          <Text className="mb-1 text-xs font-semibold uppercase tracking-wider text-primary">
-            Local Daemon Unreachable
-          </Text>
-          <Text className="mb-2 text-center font-display text-[28px] font-normal tracking-tight text-on-surface">
-            Unable to Connect to Agent Runtime
-          </Text>
-          <Text className="max-w-xs text-center font-body text-sm leading-relaxed text-on-surface-variant">
-            Onyx could not reach the local server at{' '}
-            <Text className="rounded bg-surface-container px-1 py-0.5 font-mono text-xs font-semibold text-on-surface">
-              {targetUrl}
-            </Text>
-            . Check if your daemon is active and firewall permits loopback connections.
-          </Text>
-        </View>
-
-        {/* Diagnostic Snapshot Bento Card */}
-        <View className="mb-6 rounded-xl border border-outline-variant/30 bg-surface-container-low p-4 shadow-sm">
-          <View className="mb-3 flex-row items-center justify-between">
-            <View className="flex-row items-center gap-1.5">
-              <MaterialIcons name="terminal" size={18} color="#54433e" />
-              <Text className="text-xs font-semibold text-on-surface">Diagnostic Telemetry</Text>
-            </View>
-            <View className="rounded-full bg-error-container px-2 py-0.5">
-              <Text className="text-on-error-container text-[11px] font-semibold">Failure</Text>
-            </View>
-          </View>
-
-          {/* Telemetry Key-Value Matrix */}
-          <View className="gap-1.5">
-            <View className="flex-row items-center justify-between rounded bg-surface-container-lowest px-3 py-2">
-              <Text className="font-mono text-xs text-secondary">Error Code</Text>
-              <Text className="font-mono text-xs font-medium text-error">{errorCode}</Text>
-            </View>
-
-            <View className="flex-row items-center justify-between rounded bg-surface-container-lowest px-3 py-2">
-              <Text className="font-mono text-xs text-secondary">Target Port</Text>
-              <Text className="font-mono text-xs font-medium text-on-surface">{targetPort}</Text>
-            </View>
-
-            <View className="flex-row items-center justify-between rounded bg-surface-container-lowest px-3 py-2">
-              <Text className="font-mono text-xs text-secondary">Process Status</Text>
-              <Text className="font-mono text-xs text-on-surface-variant">
-                Inactive / Terminated
+              {/* Editorial Typography Block */}
+              <Text className="mb-1 text-xs font-semibold uppercase tracking-wider text-primary">
+                Local Daemon Unreachable
+              </Text>
+              <Text className="mb-2 text-center font-display text-[28px] font-normal tracking-tight text-on-surface">
+                Unable to Connect to Agent Runtime
+              </Text>
+              <Text className="max-w-xs text-center font-body text-sm leading-relaxed text-on-surface-variant">
+                Onyx could not reach the local server at{' '}
+                <Text className="rounded bg-surface-container px-1 py-0.5 font-mono text-xs font-semibold text-on-surface">
+                  {targetUrl}
+                </Text>
+                . Check if your daemon is active and firewall permits loopback connections.
               </Text>
             </View>
 
-            <View className="flex-row items-center justify-between rounded bg-surface-container-lowest px-3 py-2">
-              <Text className="font-mono text-xs text-secondary">Last Ping</Text>
-              <Text className="font-mono text-xs text-on-surface">{lastPingTime}</Text>
-            </View>
-          </View>
-
-          {/* Quick Terminal Assist Hint */}
-          <View className="mt-3 flex-row items-start gap-2 rounded bg-surface-container p-2.5">
-            <MaterialIcons name="tips-and-updates" size={18} color="#8f482f" className="mt-0.5" />
-            <Text className="flex-1 font-mono text-[12px] leading-relaxed text-on-surface-variant">
-              Run <Text className="font-semibold text-primary">onyx serve --verbose</Text> in your
-              terminal to restart the agent daemon with tracing.
-            </Text>
-          </View>
-        </View>
-
-        {/* Primary & Secondary Action Zone */}
-        <View className="mb-6 gap-2.5">
-          {/* Retry Connection Button */}
-          <TouchableOpacity
-            onPress={handleRetry}
-            disabled={isRetrying}
-            className={`h-12 w-full flex-row items-center justify-center gap-2 rounded-xl shadow-md active:opacity-90 ${
-              retryFailed ? 'bg-error' : 'bg-primary'
-            }`}
-            activeOpacity={0.9}>
-            {isRetrying ? (
-              <>
-                <ActivityIndicator size="small" color="#ffffff" />
-                <Text className="text-sm font-semibold text-primary-on">Pinging Daemon...</Text>
-              </>
-            ) : (
-              <>
-                <MaterialIcons name="refresh" size={20} color="#ffffff" />
-                <Text className="text-sm font-semibold text-primary-on">
-                  {retryFailed ? 'Connection Failed (ECONNREFUSED)' : 'Retry Connection'}
-                </Text>
-              </>
-            )}
-          </TouchableOpacity>
-
-          {/* Toggle Diagnostic Logs */}
-          <TouchableOpacity
-            onPress={() => setShowLogs((prev) => !prev)}
-            className="h-12 w-full flex-row items-center justify-center gap-2 rounded-xl bg-surface-container active:bg-surface-container-high"
-            activeOpacity={0.8}>
-            <MaterialIcons name="assignment-late" size={20} color="#605e58" />
-            <Text className="text-sm font-semibold text-on-surface">
-              {showLogs ? 'Hide Diagnostic Logs' : 'View Diagnostic Logs'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Collapsible Log Drawer Preview */}
-        {showLogs && (
-          <View className="mb-6 rounded-xl bg-inverse-surface p-4 shadow-sm">
-            <View className="mb-2 flex-row items-center justify-between">
-              <View className="flex-row items-center gap-2">
-                <View className="h-2 w-2 rounded-full bg-error" />
-                <Text className="font-mono text-xs font-semibold text-inverse-on-surface">
-                  stderr.log — onyx-daemon
-                </Text>
+            {/* Diagnostic Snapshot Bento Card */}
+            <View className="mb-6 rounded-xl border border-outline-variant/30 bg-surface-container-low p-4 shadow-sm">
+              <View className="mb-3 flex-row items-center justify-between">
+                <View className="flex-row items-center gap-1.5">
+                  <MaterialIcons name="terminal" size={18} color="#54433e" />
+                  <Text className="text-xs font-semibold text-on-surface">
+                    Diagnostic Telemetry
+                  </Text>
+                </View>
+                <View className="rounded-full bg-error-container px-2 py-0.5">
+                  <Text className="text-on-error-container text-[11px] font-semibold">Failure</Text>
+                </View>
               </View>
 
+              {/* Telemetry Key-Value Matrix */}
+              <View className="gap-1.5">
+                <View className="flex-row items-center justify-between rounded bg-surface-container-lowest px-3 py-2">
+                  <Text className="font-mono text-xs text-secondary">Error Code</Text>
+                  <Text className="font-mono text-xs font-medium text-error">{errorCode}</Text>
+                </View>
+
+                <View className="flex-row items-center justify-between rounded bg-surface-container-lowest px-3 py-2">
+                  <Text className="font-mono text-xs text-secondary">Target Port</Text>
+                  <Text className="font-mono text-xs font-medium text-on-surface">
+                    {targetPort}
+                  </Text>
+                </View>
+
+                <View className="flex-row items-center justify-between rounded bg-surface-container-lowest px-3 py-2">
+                  <Text className="font-mono text-xs text-secondary">Process Status</Text>
+                  <Text className="font-mono text-xs text-on-surface-variant">
+                    Inactive / Terminated
+                  </Text>
+                </View>
+
+                <View className="flex-row items-center justify-between rounded bg-surface-container-lowest px-3 py-2">
+                  <Text className="font-mono text-xs text-secondary">Last Ping</Text>
+                  <Text className="font-mono text-xs text-on-surface">{lastPingTime}</Text>
+                </View>
+              </View>
+
+              {/* Quick Terminal Assist Hint */}
+              <View className="mt-3 flex-row items-start gap-2 rounded bg-surface-container p-2.5">
+                <MaterialIcons
+                  name="tips-and-updates"
+                  size={18}
+                  color="#8f482f"
+                  className="mt-0.5"
+                />
+                <Text className="flex-1 font-mono text-[12px] leading-relaxed text-on-surface-variant">
+                  Run <Text className="font-semibold text-primary">onyx serve --verbose</Text> in
+                  your terminal to restart the agent daemon with tracing.
+                </Text>
+              </View>
+            </View>
+
+            {/* Primary & Secondary Action Zone */}
+            <View className="mb-6 gap-2.5">
+              {/* Retry Connection Button */}
               <TouchableOpacity
-                onPress={handleCopyLogs}
-                className="flex-row items-center gap-1 active:opacity-70">
-                <MaterialIcons name="content-copy" size={14} color="#ffb59d" />
-                <Text className="text-inverse-primary font-mono text-[11px] font-medium">
-                  {isCopied ? 'Copied!' : 'Copy'}
+                onPress={handleRetry}
+                disabled={isRetrying}
+                className={`h-12 w-full flex-row items-center justify-center gap-2 rounded-xl shadow-md active:opacity-90 ${
+                  retryFailed ? 'bg-error' : 'bg-primary'
+                }`}
+                activeOpacity={0.9}>
+                {isRetrying ? (
+                  <>
+                    <ActivityIndicator size="small" color="#ffffff" />
+                    <Text className="text-sm font-semibold text-primary-on">Pinging Daemon...</Text>
+                  </>
+                ) : (
+                  <>
+                    <MaterialIcons name="refresh" size={20} color="#ffffff" />
+                    <Text className="text-sm font-semibold text-primary-on">
+                      {retryFailed ? 'Connection Failed (ECONNREFUSED)' : 'Retry Connection'}
+                    </Text>
+                  </>
+                )}
+              </TouchableOpacity>
+
+              {/* Toggle Diagnostic Logs */}
+              <TouchableOpacity
+                onPress={() => setShowLogs((prev) => !prev)}
+                className="h-12 w-full flex-row items-center justify-center gap-2 rounded-xl bg-surface-container active:bg-surface-container-high"
+                activeOpacity={0.8}>
+                <MaterialIcons name="assignment-late" size={20} color="#605e58" />
+                <Text className="text-sm font-semibold text-on-surface">
+                  {showLogs ? 'Hide Diagnostic Logs' : 'View Diagnostic Logs'}
                 </Text>
               </TouchableOpacity>
             </View>
 
-            {/* Log Output Code Block */}
-            <View className="rounded bg-surface-variant/10 p-2">
-              <Text className="font-mono text-[11px] leading-relaxed text-inverse-on-surface">
-                [12:44:02.112] INF Starting Onyx runtime v0.9.4{'\n'}
-                [12:44:02.115] DBG Attempting socket bind on 127.0.0.1:4096{'\n'}
-                [12:44:02.188] ERR SocketException: OS Error 111 (Connection refused){'\n'}
-                [12:44:02.190] FTL Host loopback unreachable. Terminating service host.
+            {/* Collapsible Log Drawer Preview */}
+            {showLogs && (
+              <View className="mb-6 rounded-xl bg-inverse-surface p-4 shadow-sm">
+                <View className="mb-2 flex-row items-center justify-between">
+                  <View className="flex-row items-center gap-2">
+                    <View className="h-2 w-2 rounded-full bg-error" />
+                    <Text className="font-mono text-xs font-semibold text-inverse-on-surface">
+                      stderr.log — onyx-daemon
+                    </Text>
+                  </View>
+
+                  <TouchableOpacity
+                    onPress={handleCopyLogs}
+                    className="flex-row items-center gap-1 active:opacity-70">
+                    <MaterialIcons name="content-copy" size={14} color="#ffb59d" />
+                    <Text className="text-inverse-primary font-mono text-[11px] font-medium">
+                      {isCopied ? 'Copied!' : 'Copy'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Log Output Code Block */}
+                <View className="rounded bg-surface-variant/10 p-2">
+                  <Text className="font-mono text-[11px] leading-relaxed text-inverse-on-surface">
+                    [12:44:02.112] INF Starting Onyx runtime v0.9.4{'\n'}
+                    [12:44:02.115] DBG Attempting socket bind on 127.0.0.1:4096{'\n'}
+                    [12:44:02.188] ERR SocketException: OS Error 111 (Connection refused){'\n'}
+                    [12:44:02.190] FTL Host loopback unreachable. Terminating service host.
+                  </Text>
+                </View>
+              </View>
+            )}
+
+            {/* Warm Minimalist Helpful Guidance Links */}
+            <View className="items-center justify-center gap-2 pt-2 text-center">
+              <TouchableOpacity
+                onPress={onOpenTroubleshooting}
+                className="flex-row items-center gap-1.5 active:opacity-70">
+                <MaterialIcons name="menu-book" size={18} color="#8f482f" />
+                <Text className="text-sm font-semibold text-primary underline">
+                  Open Local Server Troubleshooting Guide
+                </Text>
+              </TouchableOpacity>
+
+              <Text className="text-[13px] text-secondary">
+                Need help? Verify configurations in{' '}
+                <Text
+                  onPress={onOpenNetworkSettings}
+                  className="font-medium text-on-surface underline">
+                  Network Settings
+                </Text>
               </Text>
             </View>
-          </View>
-        )}
-
-        {/* Warm Minimalist Helpful Guidance Links */}
-        <View className="items-center justify-center gap-2 pt-2 text-center">
-          <TouchableOpacity
-            onPress={onOpenTroubleshooting}
-            className="flex-row items-center gap-1.5 active:opacity-70">
-            <MaterialIcons name="menu-book" size={18} color="#8f482f" />
-            <Text className="text-sm font-semibold text-primary underline">
-              Open Local Server Troubleshooting Guide
-            </Text>
-          </TouchableOpacity>
-
-          <Text className="text-[13px] text-secondary">
-            Need help? Verify configurations in{' '}
-            <Text onPress={onOpenNetworkSettings} className="font-medium text-on-surface underline">
-              Network Settings
-            </Text>
-          </Text>
+          </ScrollView>
         </View>
-      </ScrollView>
-    </View>
+      </SafeAreaView>
+    </Container>
   );
 }

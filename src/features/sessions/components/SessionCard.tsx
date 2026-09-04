@@ -9,12 +9,12 @@
 import { Text, TouchableOpacity, Alert, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import type { Session } from '../../../shared/api/types';
+import type { SessionT } from '../../../shared/api/types';
 import { useDeleteSession } from '../hooks/use-sessions';
 import { MaterialIcons } from '@expo/vector-icons';
 
 interface SessionCardProps {
-  session: Session;
+  session: SessionT;
   projectId: string;
 }
 
@@ -53,7 +53,7 @@ export function SessionCard({ session, projectId }: SessionCardProps) {
       activeOpacity={0.8}
       className="flex-row items-center justify-between rounded-xl border border-[#dac1ba] bg-[#efe7e1] p-4 active:border-[#87736d]">
       <View className="flex-1 flex-row items-center gap-3.5 pr-2">
-        <View className="shadow-xs h-10 w-10 items-center justify-center rounded-lg bg-white">
+        <View className="h-10 w-10 items-center justify-center rounded-lg bg-white">
           <MaterialIcons name={'terminal'} size={20} color="#8f482f" />
         </View>
 

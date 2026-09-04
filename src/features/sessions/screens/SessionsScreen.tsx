@@ -5,13 +5,12 @@
  * and the SessionList component. Receives projectId from route params.
  */
 
-import { useState } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 
-import { Fab } from '@/shared/components/ui/fab';
 import { SessionList } from '../components/SessionList';
-import { NewSessionForm } from '../components/NewSessionForm';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Container } from '@/shared/components/layout/Container';
+import { StackHeader } from '@components/ui/header';
 
 /**
  * Sessions screen showing the list of sessions for a project.
@@ -22,19 +21,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
  */
 export default function SessionsScreen() {
   const { projectId, dir } = useLocalSearchParams<{ projectId: string; dir: string }>();
-  const [formVisible, setFormVisible] = useState(false);
 
   return (
     <>
-      <SafeAreaView className="flex-1 bg-surface">
-        <SessionList dir={dir} projectId={projectId} />
-        <Fab onPress={() => setFormVisible(true)} />
-        <NewSessionForm
-          projectId={projectId}
-          visible={formVisible}
-          onClose={() => setFormVisible(false)}
-        />
-      </SafeAreaView>
+      <StackHeader title="Sessions" />
+      <Container>
+        <SafeAreaView edges={['left', 'right']} className="flex-1">
+          <SessionList dir={dir} projectId={projectId} />
+        </SafeAreaView>
+      </Container>
     </>
   );
 }

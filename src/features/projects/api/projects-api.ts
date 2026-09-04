@@ -20,7 +20,8 @@ import type { ProjectListResponse } from '../types/project';
  */
 export async function fetchProjects(): Promise<ProjectListResponse> {
   const response = await http.get<ProjectListResponse>(GET_PROJECTS);
-  return response.data;
+  // reverse sort
+  return response.data.reverse();
 }
 
 /**

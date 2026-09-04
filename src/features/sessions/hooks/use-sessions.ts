@@ -14,7 +14,7 @@ import {
   updateSessionTitle,
 } from '../api/sessions-api';
 import type { SessionListResponse } from '../types/session';
-import type { Session } from '../../../shared/api/types';
+import type { SessionT } from '../../../shared/api/types';
 
 /**
  * Fetches the list of sessions for a project.
@@ -38,7 +38,7 @@ export function useSessions(projectId: string, dir: string) {
  * @returns Query result with session detail.
  */
 export function useSession(sessionId: string) {
-  return useQuery<Session>({
+  return useQuery<SessionT>({
     queryKey: queryKeys.sessions.detail(sessionId),
     queryFn: () => fetchSessionById(sessionId),
     enabled: !!sessionId,

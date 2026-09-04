@@ -35,8 +35,10 @@ export const API_BASE_URL = ENV_BASE_URL;
 /**
  * Paths that bypass the automatic token refresh logic.
  * Errors on these paths are returned directly to the caller.
+ * These are authentication-related endpoints that should not trigger
+ * the token refresh flow (e.g., login, token refresh itself).
  */
-export const AUTH_PATHS = [''] as const;
+export const AUTH_PATHS = ['/auth/login', '/auth/refresh'] as const;
 
 /**
  * Checks if a given URL is one of the authentication-related paths.

@@ -10,7 +10,7 @@
 
 import http from '@utils/http/client';
 import { GET_SESSIONS, DELETE_SESSION, GET_SESSION_BY_ID } from '../../../shared/api/endpoints';
-import type { Session } from '../../../shared/api/types';
+import type { SessionT } from '../../../shared/api/types';
 import type { SessionListResponse } from '../types/session';
 
 /**
@@ -45,8 +45,8 @@ export async function fetchSessions(
  * @param sessionId - The session ID to fetch.
  * @returns The session details.
  */
-export async function fetchSessionById(sessionId: string): Promise<Session> {
-  const response = await http.get<Session>(GET_SESSION_BY_ID(sessionId));
+export async function fetchSessionById(sessionId: string): Promise<SessionT> {
+  const response = await http.get<SessionT>(GET_SESSION_BY_ID(sessionId));
   return response.data;
 }
 
@@ -71,7 +71,7 @@ export async function updateSessionTitle({
 }: {
   sessionId: string;
   title: string;
-}): Promise<Session> {
-  const response = await http.patch<Session>(GET_SESSION_BY_ID(sessionId), { title });
+}): Promise<SessionT> {
+  const response = await http.patch<SessionT>(GET_SESSION_BY_ID(sessionId), { title });
   return response.data;
 }

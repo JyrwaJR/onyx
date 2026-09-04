@@ -185,15 +185,16 @@ export function NotFoundSessionsScreen({
           <View className="mb-6 gap-3">
             {/* Terracotta Primary Action */}
 
-            <Button
-              onPress={handleCreateSession}
-              activeOpacity={0.9}
-              variant={'primary'}
-              size={'lg'}>
-              <MaterialIcons name="add" size={20} color="#ffffff" />
-              <Text className="text-sm font-semibold text-white">Create New Session</Text>
-            </Button>
-
+            {onCreateSession && (
+              <Button
+                onPress={handleCreateSession}
+                activeOpacity={0.9}
+                variant={'primary'}
+                size={'lg'}>
+                <MaterialIcons name="add" size={20} color="#ffffff" />
+                <Text className="text-sm font-semibold text-white">Create New Session</Text>
+              </Button>
+            )}
             {/* Secondary Dashed Repository Card */}
             <TouchableOpacity
               onPress={handleImportRepo}

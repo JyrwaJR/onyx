@@ -45,12 +45,9 @@ export function NewSessionForm({ projectId, visible, onClose }: NewSessionFormPr
   });
 
   const onSubmit = (data: NewSessionFormData) => {
-    const title = data.title?.trim() || undefined;
     reset();
     onClose();
-    router.push(
-      `/projects/${projectId}/sessions/new${title ? `?title=${encodeURIComponent(title)}` : ''}` as never
-    );
+    router.push(`/sessions`);
   };
 
   const handleCancel = () => {
