@@ -1,22 +1,39 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { queryKeys } from '../../../shared/api/query-keys';
 import { createSession, fetchMessages, deleteMessage, sendMessage } from '../api/chat-api';
 import type { V2Message } from '../../../shared/api/types';
 
 /**
- * Fetches messages for a session.
+ * Fetches messages for a session using infinite query with cursor-based pagination.
+ *
+ * Returns messages in ascending chronological order (oldest first).
+ * Use `fetchNextPage` to load older messages when the cursor indicates more pages.
  *
  * @param projectId - The project ID (for API scoping).
  * @param sessionId - The session to fetch messages for.
- * @returns Query result with message list data.
+ * @returns Query result with paginated message list data.
  */
 export function useMessages(projectId: string, sessionId: string) {
-  return useQuery<V2Message[]>({
+  const query = useInfiniteQuery({
     queryKey: queryKeys.messages.bySession(sessionId),
-    queryFn: () => fetchMessages(projectId, sessionId),
+    queryFn: ({ pageParam }) =>
+      fetchMessages(projectId, sessionId, pageParam as string | undefined),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => lastPage.cursor?.next ?? undefined,
     enabled: !!projectId && !!sessionId,
   });
+
+  // Flatten pages and reverse to get ascending chronological order.
+  // API returns newest-first (desc), so we reverse each page then concatenate.
+  const messages = query.data
+    ? query.data.pages.flatMap((page) => [...page.messages].reverse())
+    : undefined;
+
+  return {
+    ...query,
+    data: messages,
+  };
 }
 
 /**

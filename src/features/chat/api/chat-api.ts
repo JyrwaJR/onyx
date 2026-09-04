@@ -31,19 +31,41 @@ export async function createSession(projectId: string, title?: string): Promise<
   return response.data.data;
 }
 
+/** Result from fetching messages with cursor-based pagination. */
+export interface FetchMessagesResult {
+  /** Messages in descending chronological order (newest first). */
+  messages: V2Message[];
+  /** Pagination cursor. Pass `next` value as cursor to fetch older messages. */
+  cursor: { previous: string | null; next: string | null } | null;
+}
+
 /**
- * Fetches all messages for a session (V2 format).
+ * Fetches messages for a session (V2 format) with cursor-based pagination.
+ *
+ * Returns messages in descending order (newest first) by default.
+ * Pass the `cursor.next` value from a previous call to fetch older messages.
  *
  * @param projectId - The project ID.
  * @param sessionId - The session to fetch messages for.
- * @returns Array of V2 messages sorted by creation time.
+ * @param cursor - Optional cursor value for fetching the next page.
+ * @returns Messages array and pagination cursor.
  */
-export async function fetchMessages(projectId: string, sessionId: string): Promise<V2Message[]> {
+export async function fetchMessages(
+  projectId: string,
+  sessionId: string,
+  cursor?: string
+): Promise<FetchMessagesResult> {
+  const params: Record<string, string> = { order: 'desc' };
+  if (cursor) {
+    params.cursor = cursor;
+  }
   const response = await http.get<ApiData<V2Message[]>>(GET_SESSION_MESSAGES(sessionId), {
-    params: { limit: 20, order: 'desc' },
+    params,
   });
-  console.log(response.data);
-  return response.data.data;
+  return {
+    messages: response.data.data,
+    cursor: response.data.cursor ?? null,
+  };
 }
 
 /**
