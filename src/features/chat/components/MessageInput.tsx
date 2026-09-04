@@ -28,16 +28,16 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
 
   return (
     <View className="px-4 pt-1">
-      <View className="flex-row items-end justify-center gap-1 rounded-xl bg-[#ebe8e5] p-1.5">
+      <View className="flex-row items-end justify-center gap-1 rounded-md border border-primary-fixed bg-[#ebe8e5] p-1.5">
         <TouchableOpacity
-          className="h-9 w-9 items-center justify-center rounded-lg"
+          className="h-9 w-9 items-center justify-center rounded-md"
           disabled
           accessibilityLabel="Attach file">
           <MaterialIcons name="attach-file" size={20} color="#5e5c54" />
         </TouchableOpacity>
 
         <TouchableOpacity
-          className="h-9 w-9 items-center justify-center rounded-lg"
+          className="h-9 w-9 items-center justify-center rounded-md"
           disabled
           accessibilityLabel="Slash commands">
           <MaterialIcons name="terminal" size={20} color="#5e5c54" />
@@ -56,7 +56,7 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
         />
 
         <TouchableOpacity
-          className="h-9 w-9 items-center justify-center rounded-lg"
+          className="h-9 w-9 items-center justify-center rounded-md"
           disabled
           accessibilityLabel="Voice input">
           <MaterialIcons name="mic" size={20} color="#5e5c54" />
