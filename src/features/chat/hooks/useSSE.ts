@@ -11,7 +11,7 @@ export type OnDelta = (event: {
 }) => void;
 
 /**
- * Subscribes to the global V2 SSE event stream for a given session.
+ * Subscribes to the global v1 SSE event stream for a given session.
  *
  * Handles `session.next.text.delta`, `session.next.reasoning.delta`, and
  * `session.next.step.ended` events. Automatically invalidates the messages
@@ -22,8 +22,11 @@ export type OnDelta = (event: {
  */
 export function useSSE(sessionId: string | undefined, onDelta: OnDelta) {
   const queryClient = useQueryClient();
+  // Keep the latest callback without re-subscribing to SSE on every render.
   const onDeltaRef = useRef(onDelta);
-  onDeltaRef.current = onDelta;
+  useEffect(() => {
+    onDeltaRef.current = onDelta;
+  }, [onDelta]);
 
   useEffect(() => {
     if (!sessionId) return;
@@ -31,7 +34,7 @@ export function useSSE(sessionId: string | undefined, onDelta: OnDelta) {
     const handleEvent = (event: { type: string; data: string }) => {
       let payload: {
         type?: string;
-        data?: {
+        properties?: {
           sessionID?: string;
           assistantMessageID?: string;
           delta?: string;
@@ -42,8 +45,9 @@ export function useSSE(sessionId: string | undefined, onDelta: OnDelta) {
       } catch {
         return;
       }
-      if (!payload?.data) return;
-      const { sessionID, assistantMessageID, delta } = payload.data;
+      // v1 events carry their fields in `properties` (not `data`).
+      if (!payload?.properties) return;
+      const { sessionID, assistantMessageID, delta } = payload.properties;
       if (sessionID !== sessionId || !assistantMessageID) return;
 
       const eventType = payload.type;

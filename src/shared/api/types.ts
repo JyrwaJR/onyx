@@ -29,7 +29,7 @@ export type SessionT = {
     additions: number;
     deletions: number;
     files: number;
-    diffs?: Array<any>;
+    diffs?: any[];
   };
   share?: {
     url: string;
@@ -89,8 +89,9 @@ export interface V2Message {
   finish?: 'stop' | 'length' | 'error';
   cost?: number;
   tokens?: {
-    input: number;
-    output: number;
+    total?: number;
+    input?: number;
+    output?: number;
     reasoning?: number;
     cache?: { read: number; write: number };
   };
@@ -104,7 +105,17 @@ export interface ApiData<T> {
 
 /** A single content part within a legacy message (from the parts array). */
 export type MessagePart =
-  | { id: string; sessionID: string; messageID: string; type: 'text'; text: string }
+  | {
+      id: string;
+      sessionID: string;
+      messageID: string;
+      type: 'text';
+      text: string;
+      synthetic?: boolean;
+      ignored?: boolean;
+      time?: TimeSpan;
+      metadata?: Record<string, unknown>;
+    }
   | {
       id: string;
       sessionID: string;
@@ -118,6 +129,7 @@ export type MessagePart =
         output?: unknown;
         title?: string;
       };
+      metadata?: Record<string, unknown>;
     }
   | {
       id: string;
@@ -125,20 +137,28 @@ export type MessagePart =
       messageID: string;
       type: 'reasoning';
       text: string;
+      time?: { start: number; end?: number };
+      metadata?: Record<string, unknown>;
     };
 
-/** Message metadata returned as `info` in GET /session/:id/message. */
+/**
+ * Message metadata returned as `info` in `GET /session/:id/message`.
+ *
+ * Shape matches the verified v1 OpenCode schemas: `UserMessage` and
+ * `AssistantMessage`. Note that v1 carries `modelID`/`providerID`/
+ * `variant` (not a nested `model` object), plus `cost`, `tokens`, and
+ * `finish` on assistant messages.
+ */
 export interface MessageInfo {
   id: string;
   sessionID: string;
   role: 'user' | 'assistant' | 'system';
   time: TimeSpan;
   agent?: string;
-  model?: {
-    id: string;
-    providerID: string;
-    variant?: string;
-  };
+  parentID?: string;
+  modelID?: string;
+  providerID?: string;
+  variant?: string;
   summary?: {
     additions?: number;
     deletions?: number;
@@ -151,12 +171,89 @@ export interface MessageInfo {
       status?: string;
     }[];
   };
+  cost?: number;
+  tokens?: V2Message['tokens'];
+  finish?: string;
 }
 
-/** A single legacy chat message (from GET /session/:id/message). */
+/** A single chat message returned by `GET /session/:id/message`. */
 export interface Message {
   info: MessageInfo;
   parts: MessagePart[];
+}
+
+/**
+ * Maps a v1 `Message` (`{ info, parts }`) to the app-internal `V2Message`
+ * shape used by the chat UI.
+ *
+ * - User messages: joins all text parts into the top-level `text` field.
+ * - Assistant messages: builds an ordered `content` block list from text,
+ *   reasoning, and tool parts. Non-renderable part types (step-start,
+ *   step-finish, file, snapshot, patch, agent, retry, compaction, subtask)
+ *   are dropped.
+ * - `modelID` (v1) is mapped onto `model.id` (V2 render type).
+ *
+ * @param message - The raw v1 message from the API.
+ * @returns The mapped V2 message.
+ */
+export function mapV1MessageToV2Message(message: Message): V2Message {
+  const contentBlocks: MessageContentBlock[] = [];
+
+  for (const part of message.parts) {
+    if (part.type === 'text') {
+      contentBlocks.push({ type: 'text', id: part.id, text: part.text });
+    } else if (part.type === 'reasoning') {
+      const block: MessageContentBlock & { type: 'reasoning' } = {
+        type: 'reasoning',
+        id: part.id,
+        text: part.text,
+      };
+      // v1 exposes reasoning timing as `{ start, end }`; the render type
+      // uses `TimeSpan` (`created`/`updated`).
+      if (part.time) {
+        block.time = { created: part.time.start, updated: part.time.end };
+      }
+      contentBlocks.push(block);
+    } else if (part.type === 'tool') {
+      contentBlocks.push({
+        type: 'tool',
+        id: part.id,
+        callID: part.callID,
+        tool: part.tool,
+        state: part.state,
+      });
+    }
+  }
+
+  const base: Omit<V2Message, 'type' | 'text' | 'content'> = {
+    id: message.info.id,
+    agent: message.info.agent,
+    model: message.info.modelID
+      ? {
+          id: message.info.modelID,
+          providerID: message.info.providerID ?? '',
+          variant: message.info.variant,
+        }
+      : undefined,
+    time: message.info.time,
+    finish: message.info.finish as V2Message['finish'],
+    cost: message.info.cost,
+    tokens: message.info.tokens,
+  };
+
+  if (message.info.role === 'user') {
+    const text = message.parts
+      .filter((part): part is Extract<MessagePart, { type: 'text' }> => part.type === 'text')
+      .map((part) => part.text)
+      .join('\n');
+    return { ...base, type: 'user', text };
+  }
+
+  if (message.info.role === 'system') {
+    return { ...base, type: 'system', text: '' };
+  }
+
+  return { ...base, type: 'assistant', content: contentBlocks };
 }
 
 /** Content block types used internally for rendering (derived from MessagePart). */

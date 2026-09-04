@@ -4,11 +4,12 @@
  * Manages the state of in-flight token refresh attempts and queues
  * requests that arrive while a refresh is in progress so they can be
  * retried once the new token is available.
+ *
+ * The v1 OpenCode API has no token-refresh endpoint, so refreshToken
+ * always throws and the failure propagates through the queue.
  */
 
-import { API_BASE_URL } from './constants';
 import type { QueueItem } from '@/shared/types/api';
-import apiClient from './client';
 
 /** Flag indicating if a token refresh request is currently in flight. */
 export let isRefreshing = false;
@@ -38,43 +39,16 @@ export const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue.length = 0;
 };
 
-type RefreshResponse = {
-  access_token: string;
-  refresh_token: string;
-};
-
 /**
  * Performs a token refresh request using the stored refresh token.
  *
- * TODO: Retrieve the refresh token from secure storage before making the
- *       request, and persist the new access/refresh tokens after a successful
- *       response.
+ * The v1 OpenCode API does not expose a token-refresh endpoint, so this
+ * always fails. The interceptor treats the failure as a terminal auth
+ * error and rejects the queued requests.
  *
- * @throws If the refresh request fails.
- * @returns The new access token.
+ * @throws {Error} Always — no refresh endpoint available on the v1 API.
+ * @returns Never resolves; rejects with an error.
  */
 export const refreshToken = async (): Promise<string> => {
-  const refreshTokenValue = ''; // TODO: read from secure storage
-
-  if (!refreshTokenValue) {
-    throw new Error('No refresh token available');
-  }
-
-  const response = await apiClient.post<{ data?: RefreshResponse }>(
-    `${API_BASE_URL}/auth/refresh`,
-    { token: refreshTokenValue }
-  );
-
-  const newAccessToken = response.data.data?.access_token ?? '';
-
-  if (newAccessToken) {
-    // TODO: persist to secure storage
-  }
-
-  const newRefreshToken = response.data?.data?.refresh_token ?? '';
-  if (newRefreshToken) {
-    // TODO: persist to secure storage
-  }
-
-  return newAccessToken;
+  throw new Error('Token refresh is not supported by the OpenCode v1 API');
 };

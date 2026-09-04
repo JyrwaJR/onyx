@@ -8,7 +8,7 @@
 import { Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import type { Project } from '../../../shared/api/types';
+import type { Project } from '../types/project';
 import { MaterialIcons } from '@expo/vector-icons';
 
 interface ProjectCardProps {

@@ -2,12 +2,13 @@
  * @file SSE client wrapper for real-time event streaming.
  *
  * Uses `react-native-sse` to create a Server-Sent Events connection to the
- * OpenCode server's global V2 event stream (`/api/event`).
+ * OpenCode server's global v1 event stream (`/event`).
  *
- * The V2 event stream carries session progress events such as
- * `message.part.updated` (durable parts), `session.next.text.delta`,
- * `session.next.reasoning.delta` (live streaming deltas), and completion
- * events like `session.next.step.ended`.
+ * The v1 stream emits `Event` objects serialized as JSON with the shape
+ * `{ id, type, properties: { timestamp?, sessionID?, assistantMessageID?,
+ * textID?, delta? } }`. Event types include `session.next.text.delta`,
+ * `session.next.reasoning.delta` (live streaming deltas), and
+ * `session.next.step.ended` (completion).
  */
 
 import EventSource from 'react-native-sse';
@@ -23,7 +24,7 @@ export interface SSEConnection {
 }
 
 /**
- * Creates an SSE connection to the global V2 event stream.
+ * Creates an SSE connection to the global v1 event stream.
  * Receives all session events (including live streaming deltas).
  *
  * @param onEvent - Callback fired for each SSE event.

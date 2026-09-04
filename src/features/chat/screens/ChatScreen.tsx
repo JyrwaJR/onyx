@@ -47,9 +47,9 @@ export default function ChatScreen() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useMessages(projectId, sessionId);
+  } = useMessages(sessionId);
 
-  const sendMessage = useSendMessage(projectId, sessionId);
+  const sendMessage = useSendMessage(sessionId);
 
   // Stable reference to the mutate function.
   const mutateRef = useRef(sendMessage.mutate);
@@ -187,7 +187,7 @@ export default function ChatScreen() {
             )}
 
             {allMessages.map((message) =>
-              message.type === 'user' ? (
+              message?.type === 'user' ? (
                 <UserMessage key={message.id} message={message} />
               ) : (
                 <AssistantMessage
@@ -203,7 +203,7 @@ export default function ChatScreen() {
 
           {/* Bottom Input Area */}
           <View className="border-t border-[#dac1ba]/30 bg-[#fcf9f6]/95 pb-2">
-            <ContextBar sessionId={sessionId} />
+            <ContextBar />
             <MessageInput
               disabled={sendMessage.isPaused}
               sending={sendMessage.isPending}

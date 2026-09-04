@@ -1,130 +1,126 @@
 import http from '@utils/http/client';
+import { isAxiosError } from 'axios';
 import {
   CREATE_SESSION,
-  GET_SESSION_MESSAGES,
-  SEND_SESSION_PROMPT,
+  DELETE_SESSION_MESSAGE,
   GET_SESSION_BY_ID,
+  GET_SESSION_MESSAGES,
+  SEND_SESSION_MESSAGE,
 } from '../../../shared/api/endpoints';
-import type { ApiData, SessionT, V2Message } from '../../../shared/api/types';
+import { mapV1MessageToV2Message } from '../../../shared/api/types';
+import type { Message, SessionT, V2Message } from '../../../shared/api/types';
 
 /**
- * Creates a new session for a project.
+ * Creates a new session.
  *
- * Uses V2 `POST /api/session` per the OpenCode OpenAPI spec.
- * Body: `{ id?, agent?, model?, location?, metadata? }` (no title in create).
- * If a title is provided, the session is renamed via POST /api/session/:id/rename
- * immediately after creation.
+ * Uses the bare v1 `POST /session` endpoint. The title is set in the
+ * request body at creation time — v1 has no separate rename endpoint.
  *
- * @param projectId - The project to create the session in.
- * @param title - Optional session title (set via rename after creation).
+ * @param title - Optional session title.
  * @returns The newly created session.
  */
-export async function createSession(projectId: string, title?: string): Promise<SessionT> {
-  const response = await http.post<ApiData<SessionT>>(
-    CREATE_SESSION,
-    {},
-    { params: { projectID: projectId } }
-  );
-  const session = response.data.data;
-
-  // If a title was provided, rename the session after creation
-  if (title) {
-    const renameResponse = await http.post<ApiData<SessionT>>(`/api/session/${session.id}/rename`, {
-      title,
-    });
-    return renameResponse.data.data;
-  }
-
-  return session;
+export async function createSession(title?: string): Promise<SessionT> {
+  const response = await http.post<SessionT>(CREATE_SESSION, title ? { title } : {});
+  return response.data;
 }
 
 /** Default number of messages to load per page. */
-export const MESSAGES_PAGE_SIZE = 20;
+export const MESSAGES_PAGE_SIZE = 50;
 
-/** Result from fetching messages with cursor-based pagination. */
+/** Result from fetching a page of messages. */
 export interface FetchMessagesResult {
-  /** Messages in descending chronological order (newest first). */
+  /** Messages in ascending chronological order (oldest first within the page). */
   messages: V2Message[];
-  /** Pagination cursor. Pass `next` value as cursor to fetch older messages. */
-  cursor: { previous: string | null; next: string | null } | null;
+  /**
+   * Pagination cursor for loading older messages: the oldest message ID in
+   * this page. Pass it as `before` to fetch the previous page. `null` when
+   * no older messages exist (or when the fallback full fetch was used).
+   */
+  before: string | null;
+  /**
+   * True when the server rejected the `before` cursor (HTTP 400) and this
+   * call fell back to fetching the complete message list without pagination.
+   */
+  usedFallback: boolean;
 }
 
 /**
- * Fetches messages for a session (V2 format) with cursor-based pagination.
+ * Fetches messages for a session using the v1 `GET /session/:id/message`
+ * endpoint.
  *
- * Returns the most recent `limit` messages in descending order (newest first)
- * by default. Pass the `cursor.next` value from a previous call to fetch
- * older messages.
+ * The v1 server returns a plain `Message[]` array in ascending order and
+ * only supports `limit` + `before` cursoring; it rejects `before` with
+ * HTTP 400 on versions where the field is unimplemented. When that happens
+ * this function falls back to fetching the complete list (no pagination),
+ * which is a superset of any previously loaded pages.
  *
- * @param projectId - The project ID.
  * @param sessionId - The session to fetch messages for.
- * @param cursor - Optional cursor value for fetching the next page.
- * @param limit - Maximum messages per page (default 20).
- * @returns Messages array and pagination cursor.
+ * @param before - Optional oldest message ID to page before (older messages).
+ * @param limit - Maximum messages per page (default 50).
+ * @returns The page of mapped messages plus the next `before` cursor.
  */
 export async function fetchMessages(
-  projectId: string,
   sessionId: string,
-  cursor?: string,
+  before?: string,
   limit: number = MESSAGES_PAGE_SIZE
 ): Promise<FetchMessagesResult> {
-  const params: Record<string, string | number> = {
-    order: 'desc',
-    limit,
-  };
-  if (cursor) {
-    params.cursor = cursor;
+  const params: Record<string, string | number> = { limit };
+  if (before) {
+    params.before = before;
   }
 
-  console.log(
-    `[chat-api] fetchMessages session=${sessionId} limit=${limit} cursor=${cursor ?? 'none'}`
-  );
+  try {
+    const response = await http.get<Message[]>(GET_SESSION_MESSAGES(sessionId), { params });
+    const messages = response.data.map(mapV1MessageToV2Message);
 
-  const response = await http.get<ApiData<V2Message[]>>(GET_SESSION_MESSAGES(sessionId), {
-    params,
-  });
-
-  console.log(`[chat-api] fetchMessages got ${response.data.data?.length ?? 0} messages`);
-
-  return {
-    messages: response.data.data,
-    cursor: response.data.cursor ?? null,
-  };
+    return {
+      messages,
+      before: messages.length === limit ? (messages[0]?.id ?? null) : null,
+      usedFallback: false,
+    };
+  } catch (error) {
+    // The v1 server rejects the `before` cursor with HTTP 400 on versions
+    // where paging is not implemented. Fall back to the full message list.
+    if (isAxiosError(error) && error.response?.status === 400 && before) {
+      const response = await http.get<Message[]>(GET_SESSION_MESSAGES(sessionId));
+      return {
+        messages: response.data.map(mapV1MessageToV2Message),
+        before: null,
+        usedFallback: true,
+      };
+    }
+    throw error;
+  }
 }
 
 /**
  * Deletes a specific message from a session.
  *
- * @param projectId - The project ID.
+ * Uses the bare v1 `DELETE /session/:id/message/:messageID` endpoint.
+ *
  * @param sessionId - The session ID.
  * @param messageId - The message to delete.
  */
-export async function deleteMessage(
-  projectId: string,
-  sessionId: string,
-  messageId: string
-): Promise<void> {
-  await http.delete(`${GET_SESSION_MESSAGES(sessionId)}/${messageId}`, {
-    params: { projectID: projectId },
-  });
+export async function deleteMessage(sessionId: string, messageId: string): Promise<void> {
+  await http.delete(DELETE_SESSION_MESSAGE(sessionId, messageId));
 }
 
 /**
  * Sends a message to a session, triggering the AI agent.
  *
- * Uses the V2 `POST /api/session/:id/prompt` endpoint with a `PromptInput`
- * body per the OpenCode OpenAPI spec:
+ * Uses the v1 `POST /session/:id/message` endpoint with a `{ parts }`
+ * message body:
  *
  * ```json
- * { "prompt": { "text": "message content" } }
+ * { "parts": [{ "type": "text", "text": "message content" }] }
  * ```
  *
  * @param sessionId - The session to send the message to.
  * @param content - The message text content.
  */
 export async function sendMessage(sessionId: string, content: string): Promise<void> {
-  await http.post(SEND_SESSION_PROMPT(sessionId), {
-    prompt: { text: content },
+  await http.post(SEND_SESSION_MESSAGE(sessionId), {
+    parts: [{ type: 'text', text: content }],
   });
 }
 
@@ -135,6 +131,6 @@ export async function sendMessage(sessionId: string, content: string): Promise<v
  * @returns The session details.
  */
 export async function fetchSession(sessionId: string): Promise<SessionT> {
-  const response = await http.get<ApiData<SessionT>>(GET_SESSION_BY_ID(sessionId));
-  return response.data.data;
+  const response = await http.get<SessionT>(GET_SESSION_BY_ID(sessionId));
+  return response.data;
 }
