@@ -69,7 +69,8 @@ export type MessageContentBlock =
         output?: unknown;
         title?: string;
       };
-    };
+    }
+  | { type: 'selection'; id: string; question: string; options: string[] };
 
 /**
  * A single V2 chat message (from GET /api/session/:id/message).
