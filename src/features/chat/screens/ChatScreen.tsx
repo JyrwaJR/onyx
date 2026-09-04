@@ -24,8 +24,8 @@ function BackButton() {
       onPress={() => router.back()}
       className="flex-row items-center pl-2"
       activeOpacity={0.7}>
-      <Text className="text-lg text-ink">←</Text>
-      <Text className="ml-1 text-base font-medium text-ink">Back</Text>
+      <Text className="text-ink text-lg">←</Text>
+      <Text className="text-ink ml-1 text-base font-medium">Back</Text>
     </TouchableOpacity>
   );
 }
@@ -55,6 +55,17 @@ export default function ChatScreen() {
   const { data: messages, isLoading, isError, error } = useMessages(projectId, sessionId);
   const sendMessage = useSendMessage(projectId, sessionId);
   const deleteMessage = useDeleteMessage(projectId, sessionId);
+
+  // Temporary debug logging: confirm params resolve and query state transitions.
+  useEffect(() => {
+    console.log('[ChatScreen] params ->', { projectId, sessionId });
+    console.log('[ChatScreen] query ->', {
+      messages: messages?.length,
+      isLoading,
+      isError,
+      error: error?.message ?? null,
+    });
+  }, [projectId, sessionId, messages, isLoading, isError, error]);
 
   // Materialize streaming messages into the V2 message list shape.
   const allMessages: V2Message[] = messages ? [...messages] : [];
@@ -194,7 +205,7 @@ export default function ChatScreen() {
           headerShadowVisible: false,
         }}
       />
-      <View className="flex-1 bg-canvas">
+      <View className="bg-canvas flex-1">
         <MessageList messages={allMessages} onDelete={handleDelete} />
         <MessageInput onSend={handleSend} sending={sendMessage.isPending} />
       </View>

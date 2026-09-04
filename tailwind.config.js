@@ -6,21 +6,25 @@ module.exports = {
   theme: {
     extend: {
       // ═══════════════════════════════════════════════════════════════════
-      // Colors — Anthropic Claude Design System
+      // Colors — Merged: Original Claude tokens + Stitch MD3 tokens
       // ═══════════════════════════════════════════════════════════════════
       colors: {
-        // ── Brand & Accent ──────────────────────────────────────────────
+        // ── Brand & Accent (Original) ───────────────────────────────────
         primary: {
           DEFAULT: '#cc785c',
           active: '#a9583e',
           disabled: '#e6dfd8',
+          // Stitch MD3 additions
+          container: '#ad5f45',
+          fixed: '#ffdbd0',
+          'fixed-dim': '#ffb59d',
         },
         accent: {
           teal: '#5db8a6',
           amber: '#e8a55a',
         },
 
-        // ── Surface ────────────────────────────────────────────────────
+        // ── Surface — Original tokens (preserved) ───────────────────────
         canvas: '#faf9f5',
         'surface-soft': '#f5f0e8',
         'surface-card': '#efe9de',
@@ -35,7 +39,7 @@ module.exports = {
           soft: '#ebe6df',
         },
 
-        // ── Text ───────────────────────────────────────────────────────
+        // ── Text — Original tokens (preserved) ──────────────────────────
         ink: '#141413',
         body: {
           DEFAULT: '#3d3d3a',
@@ -45,16 +49,93 @@ module.exports = {
           DEFAULT: '#6c6a64',
           soft: '#8e8b82',
         },
-        'on-primary': '#ffffff',
+        'on-primary': {
+          DEFAULT: '#ffffff',
+        },
         'on-dark': {
           DEFAULT: '#faf9f5',
           soft: '#a09d96',
         },
 
-        // ── Semantic ───────────────────────────────────────────────────
+        // ── Semantic — Original tokens (preserved) ──────────────────────
         success: '#5db872',
         warning: '#d4a017',
-        error: '#c64545',
+        error: {
+          DEFAULT: '#c64545',
+          // Stitch MD3 additions
+          container: '#ffdad6',
+        },
+
+        // ═════════════════════════════════════════════════════════════════
+        // Stitch MD3 — Material Design 3 Tokens
+        // ═════════════════════════════════════════════════════════════════
+
+        // ── Stitch Surface ──────────────────────────────────────────────
+        surface: {
+          DEFAULT: '#fcf9f6',
+          dim: '#dcd9d7',
+          bright: '#fcf9f6',
+          container: {
+            lowest: '#ffffff',
+            low: '#f6f3f1',
+            DEFAULT: '#f0edeb',
+            high: '#ebe8e5',
+            highest: '#e5e2e0',
+          },
+          variant: '#e5e2e0',
+          tint: '#924a31',
+        },
+        'on-surface': {
+          DEFAULT: '#1c1c1a',
+          variant: '#54433e',
+        },
+        'inverse-surface': '#31302f',
+        'inverse-on-surface': '#f3f0ee',
+
+        // ── Stitch Outline ──────────────────────────────────────────────
+        outline: {
+          DEFAULT: '#87736d',
+          variant: '#dac1ba',
+        },
+
+        // ── Stitch Background ───────────────────────────────────────────
+        background: {
+          DEFAULT: '#fcf9f6',
+        },
+
+        // ── Stitch Secondary ────────────────────────────────────────────
+        secondary: {
+          DEFAULT: '#605e58',
+          container: '#e6e2da',
+          fixed: '#e6e2da',
+          'fixed-dim': '#cac6bf',
+        },
+        'on-secondary': {
+          DEFAULT: '#ffffff',
+          container: '#66645e',
+          fixed: '#1c1c17',
+          'fixed-variant': '#484741',
+        },
+
+        // ── Stitch Tertiary ─────────────────────────────────────────────
+        tertiary: {
+          DEFAULT: '#5e5c54',
+          container: '#77746c',
+          fixed: '#e7e2d8',
+          'fixed-dim': '#cac6bc',
+        },
+        'on-tertiary': {
+          DEFAULT: '#ffffff',
+          container: '#fffbff',
+          fixed: '#1d1c15',
+          'fixed-variant': '#49473f',
+        },
+
+        // ── Stitch on-primary-container (for MD3 surfaces) ──────────────
+        'on-primary-container': '#fffbff',
+
+        // ── Stitch inverse ──────────────────────────────────────────────
+        'inverse-primary': '#ffb59d',
       },
 
       // ═══════════════════════════════════════════════════════════════════
@@ -62,15 +143,25 @@ module.exports = {
       // ═══════════════════════════════════════════════════════════════════
       fontFamily: {
         display: [
+          'EB Garamond',
           'Tiempos Headline',
           'Cormorant Garamond',
-          'EB Garamond',
           'Garamond',
           'Times New Roman',
           'serif',
         ],
         sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
         mono: ['JetBrains Mono', 'SF Mono', 'Fira Code', 'Consolas', 'monospace'],
+        // Stitch font aliases
+        body: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        'body-lg': ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        'headline-lg': ['EB Garamond', 'serif'],
+        'headline-md': ['EB Garamond', 'serif'],
+        'headline-display': ['EB Garamond', 'serif'],
+        label: ['Inter', 'sans-serif'],
+        'label-sm': ['Inter', 'sans-serif'],
+        'label-md': ['Inter', 'sans-serif'],
+        code: ['JetBrains Mono', 'SF Mono', 'Fira Code', 'Consolas', 'monospace'],
       },
 
       // ═══════════════════════════════════════════════════════════════════
@@ -166,7 +257,7 @@ module.exports = {
       },
 
       // ═══════════════════════════════════════════════════════════════════
-      // Component Variants — Pre-defined component classes
+      // Animations
       // ═══════════════════════════════════════════════════════════════════
       keyframes: {
         'fade-in': {
@@ -177,10 +268,15 @@ module.exports = {
           '0%': { transform: 'translateY(8px)', opacity: '0' },
           '100%': { transform: 'translateY(0)', opacity: '1' },
         },
+        pulse: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.5' },
+        },
       },
       animation: {
         'fade-in': 'fade-in 0.3s ease-out',
         'slide-up': 'slide-up 0.3s ease-out',
+        pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
     },
   },

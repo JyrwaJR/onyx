@@ -15,15 +15,23 @@ function newMessageId(): string {
 /**
  * Creates a new session for a project.
  *
+ * Uses V2 `POST /api/session` with `{ data: { title } }` body per http/03-session.http.
+ * Project association is passed as a query parameter.
+ *
  * @param projectId - The project to create the session in.
  * @param title - Optional session title.
  * @returns The newly created session.
  */
 export async function createSession(projectId: string, title?: string): Promise<Session> {
-  const response = await http.post<ApiData<Session>>(CREATE_SESSION, {
-    projectID: projectId,
-    title: title || undefined,
-  });
+  const response = await http.post<ApiData<Session>>(
+    CREATE_SESSION,
+    {
+      data: { title: title || undefined },
+    },
+    {
+      params: { projectID: projectId },
+    }
+  );
   return response.data.data;
 }
 
@@ -35,9 +43,14 @@ export async function createSession(projectId: string, title?: string): Promise<
  * @returns Array of V2 messages sorted by creation time.
  */
 export async function fetchMessages(projectId: string, sessionId: string): Promise<V2Message[]> {
+  console.log('[fetchMessages] requesting', GET_SESSION_MESSAGES(sessionId), 'with', {
+    projectId,
+    sessionId,
+  });
   const response = await http.get<ApiData<V2Message[]>>(GET_SESSION_MESSAGES(sessionId), {
     params: { projectID: projectId },
   });
+  console.log('[fetchMessages] response.data:', JSON.stringify(response.data).slice(0, 500));
   return response.data.data;
 }
 
@@ -62,7 +75,7 @@ export async function deleteMessage(
  * Sends a message to a session, triggering the AI agent.
  *
  * Uses the V2 `/api/session/:id/prompt` endpoint with a `msg_` prefixed id.
- * Returns the admitted message/prompt metadata.
+ * Body format per http/03-session.http: `{ id, data: { type: "user", text } }`.
  *
  * @param sessionId - The session to send the message to.
  * @param content - The message text content.
@@ -70,7 +83,7 @@ export async function deleteMessage(
 export async function sendMessage(sessionId: string, content: string): Promise<void> {
   await http.post(SEND_SESSION_PROMPT(sessionId), {
     id: newMessageId(),
-    prompt: { type: 'text', text: content },
+    data: { type: 'user', text: content },
   });
 }
 

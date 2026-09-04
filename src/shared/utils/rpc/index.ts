@@ -6,7 +6,7 @@
  * related operations behind a single endpoint.
  */
 
-import type { ApiResponse } from '@/src/shared/types/api';
+import type { ApiResponse } from '@/shared/types/api';
 import { http } from '../http';
 
 /** A generic RPC request payload. */
@@ -33,7 +33,7 @@ export type RpcRequest<TParams = unknown> = {
  */
 export const rpc = async <TResult, TParams = unknown>(
   method: string,
-  params?: TParams,
+  params?: TParams
 ): Promise<ApiResponse<TResult>> => {
   return http.post<TResult>('/rpc', {
     method,

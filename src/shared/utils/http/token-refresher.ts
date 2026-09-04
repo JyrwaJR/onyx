@@ -7,7 +7,7 @@
  */
 
 import { API_BASE_URL } from './constants';
-import type { QueueItem } from '@/src/shared/types/api';
+import type { QueueItem } from '@/shared/types/api';
 import apiClient from './client';
 
 /** Flag indicating if a token refresh request is currently in flight. */
@@ -62,7 +62,7 @@ export const refreshToken = async (): Promise<string> => {
 
   const response = await apiClient.post<{ data?: RefreshResponse }>(
     `${API_BASE_URL}/auth/refresh`,
-    { token: refreshTokenValue },
+    { token: refreshTokenValue }
   );
 
   const newAccessToken = response.data.data?.access_token ?? '';

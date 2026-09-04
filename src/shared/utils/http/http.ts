@@ -6,7 +6,7 @@
  */
 
 import { AxiosRequestConfig } from 'axios';
-import { ApiResponse } from '@/src/shared/types/api';
+import { ApiResponse } from '@sharedType/api';
 import { handleResponse, handleAxiosError } from './response';
 import apiClient from './client';
 
@@ -54,7 +54,7 @@ export const http = {
   post: async <T>(
     url: string,
     data?: object,
-    config?: AxiosRequestConfig,
+    config?: AxiosRequestConfig
   ): Promise<ApiResponse<T>> => {
     try {
       const response = await apiClient.post(url, data, config);
@@ -75,7 +75,7 @@ export const http = {
   put: async <T>(
     url: string,
     data?: object,
-    config?: AxiosRequestConfig,
+    config?: AxiosRequestConfig
   ): Promise<ApiResponse<T>> => {
     try {
       const response = await apiClient.put(url, data, config);

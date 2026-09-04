@@ -47,7 +47,7 @@ export const DELETE_SESSION = (sessionId: string) => `/session/${sessionId}` as 
  * Template: `GET_SESSION_MESSAGES(sessionId)`.
  */
 export const GET_SESSION_MESSAGES = (sessionId: string) =>
-  `/api/session/${sessionId}/message` as const;
+  `/api/session/${sessionId}/message?limit=10` as const;
 
 /**
  * Send a message to a session (V2 prompt). POST body:
