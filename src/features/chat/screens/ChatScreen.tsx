@@ -19,6 +19,7 @@ import { Loading } from '@/shared/components/screens';
 import { useSession } from '@/features/sessions';
 import { StackHeader } from '@components/ui/header';
 import { MessageInput } from '../components/MessageInput';
+import { ChatSelection } from '../components/ChatSelection';
 import { ChatHeaderBar } from '../components/ChatHeaderBar';
 import { ContextBar } from '../components/ContextBar';
 import { UserMessage } from '../components/UserMessage';
@@ -83,6 +84,11 @@ export default function ChatScreen() {
   const { data, isFetching } = useSession(sessionId);
 
   const [streaming, setStreaming] = useState<Map<string, StreamingState>>(new Map());
+  const [activeInteraction, setActiveInteraction] = useState<{
+    type: 'selection';
+    question: string;
+    options: string[];
+  } | null>(null);
   const [isReasoningOpen, setIsReasoningOpen] = useState(true);
 
   // User messages rendered optimistically before the server confirms them.
@@ -287,11 +293,22 @@ export default function ChatScreen() {
           {/* Bottom Input Area */}
           <View className="border-t border-[#dac1ba]/30 bg-[#fcf9f6]/95 pb-2">
             <ContextBar />
-            <MessageInput
-              disabled={sendMessage.isPaused}
-              sending={sendMessage.isPending}
-              onSend={handleSend}
-            />
+            {activeInteraction ? (
+              <ChatSelection
+                question={activeInteraction.question}
+                options={activeInteraction.options}
+                onSelect={(option) => {
+                  handleSend(option);
+                  setActiveInteraction(null);
+                }}
+              />
+            ) : (
+              <MessageInput
+                disabled={sendMessage.isPaused}
+                sending={sendMessage.isPending}
+                onSend={handleSend}
+              />
+            )}
           </View>
         </KeyboardAvoidingView>
       </SafeAreaView>
