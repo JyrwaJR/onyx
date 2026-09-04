@@ -3,9 +3,8 @@
  * agent sessions, offering quick-start blueprints and repository import triggers.
  */
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Animated } from 'react-native';
-import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Button } from '../ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -50,10 +49,13 @@ export function NotFoundSessionsScreen({
   onImportRepository,
   onSelectBlueprint,
 }: NoActiveSessionsScreenProps) {
-  // Toast Notification State & Animation
+  // Toast Notification State & Animation.
+  // Animated values are created once via lazy state initializers so the
+  // instances are stable across renders while still being usable during
+  // render (they are bound to Animated.View style props below).
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const toastOpacity = useRef(new Animated.Value(0)).current;
-  const toastTranslateY = useRef(new Animated.Value(10)).current;
+  const [toastOpacity] = useState(() => new Animated.Value(0));
+  const [toastTranslateY] = useState(() => new Animated.Value(10));
 
   const showToast = useCallback(
     (msg: string) => {
@@ -93,7 +95,7 @@ export function NotFoundSessionsScreen({
   const handleCreateSession = useCallback(() => {
     // showToast('Opening a fresh notebook session...');
     onCreateSession?.();
-  }, [onCreateSession, showToast]);
+  }, [onCreateSession]);
 
   const handleImportRepo = useCallback(() => {
     showToast('Selecting local directory...');
@@ -248,7 +250,7 @@ export function NotFoundSessionsScreen({
                       className="flex-1 text-[13px] font-medium text-on-surface"
                       numberOfLines={1}
                       ellipsizeMode="tail">
-                      "{item.text}"
+                      &quot;{item.text}&quot;
                     </Text>
                   </View>
                   <MaterialIcons name="north-east" size={16} color="#dac1ba" />
