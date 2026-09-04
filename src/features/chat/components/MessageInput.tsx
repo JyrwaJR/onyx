@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Input } from '@/shared/components/ui/input';
-import { cn } from '@lib/cn';
+import { cn } from '@/shared/lib/cn';
 
 interface MessageInputProps {
   onSend: (content: string) => void;

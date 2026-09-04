@@ -10,6 +10,7 @@ GET {{BASE_URL}}/api/project
 ### Update project
 PATCH {{BASE_URL}}/api/project/{{projectID}}
 Content-Type: application/json
+Accept: application/json
 
 {
   "title": "My project",

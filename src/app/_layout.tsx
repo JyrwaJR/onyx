@@ -7,8 +7,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
 import { QueryClientProvider } from '@tanstack/react-query';
 
-import { queryClient } from '../shared/api/query-client';
-import { useConnectionStore } from '../features/connection/store/connection-store';
+import { queryClient } from '@/shared/api/query-client';
+import { useConnectionStore } from '@features/connection/store/connection-store';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 

@@ -7,9 +7,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 
-import { queryKeys } from '../../../shared/api/query-keys';
-import { fetchProjects, fetchProjectById, deleteProject, forkProject } from '../api/projects-api';
+import { queryKeys } from '@/shared/api/query-keys';
+import { fetchProjectById, deleteProject, forkProject } from '../api/projects-api';
 import type { ProjectListResponse } from '../types/project';
+import { http } from '@/shared/utils/http';
+import { GET_PROJECTS } from '@/shared/api';
 
 /**
  * Fetches the list of all projects.
@@ -20,10 +22,10 @@ import type { ProjectListResponse } from '../types/project';
  * @returns Query result with project list data.
  */
 export function useProjects() {
-  return useQuery<ProjectListResponse>({
+  return useQuery({
     queryKey: queryKeys.projects.all,
-    queryFn: () => fetchProjects(),
-    staleTime: 30_000,
+    queryFn: () => http.post<ProjectListResponse>(GET_PROJECTS),
+    select: (data) => data.data,
   });
 }
 
