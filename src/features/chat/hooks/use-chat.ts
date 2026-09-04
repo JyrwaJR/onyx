@@ -2,6 +2,8 @@ import { useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-q
 import { useRouter } from 'expo-router';
 import { queryKeys } from '../../../shared/api/query-keys';
 import { createSession, fetchMessages, deleteMessage, sendMessage } from '../api/chat-api';
+import { NewSessionFormData } from '@/features/sessions/validators/new-session';
+import { V2Message } from '../../../shared/api/types';
 
 /**
  * Fetches messages for a session using an infinite query with
@@ -57,17 +59,20 @@ export function useMessages(sessionId: string) {
  * invalidate the session list cache and build the chat route).
  * @returns Mutation object for creating a session.
  */
-export function useCreateSession(projectId: string) {
+export function useCreateSession() {
   const router = useRouter();
-  const queryClient = useQueryClient();
 
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ title }: { title?: string }) => createSession(title),
+    mutationFn: ({ title, directory }: NewSessionFormData) => createSession(title, directory),
     onSuccess: (session) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.sessions.byProject(projectId),
-      });
-      router.push(`/chat?sessionId=${session.id}&projectId=${projectId}` as never);
+      if (session.projectID) {
+        router.push(`/chat?sessionId=${session.id}&projectId=${session.projectID}` as never);
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.sessions.byProject(session.projectID),
+        });
+        return session;
+      }
     },
   });
 }
@@ -102,7 +107,42 @@ export function useSendMessage(sessionId: string) {
 
   return useMutation({
     mutationFn: (content: string) => sendMessage(sessionId, content),
-    onSuccess: () => {
+    onMutate: async (content) => {
+      // Cancel outgoing refetches (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({ queryKey: queryKeys.messages.bySession(sessionId) });
+
+      // Snapshot the previous value
+      const previousMessages = queryClient.getQueryData(queryKeys.messages.bySession(sessionId));
+
+      // Optimistically update to the new value
+      const tempMessage: V2Message = {
+        id: `temp-${Date.now()}`,
+        type: 'user',
+        text: content,
+        status: 'sending',
+        time: { created: Date.now() },
+      };
+
+      // Update the cache
+      queryClient.setQueryData(queryKeys.messages.bySession(sessionId), (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          pages: old.pages.map((page: any, i: number) => {
+            if (i === 0) {
+              return { ...page, messages: [tempMessage, ...page.messages] };
+            }
+            return page;
+          }),
+        };
+      });
+
+      return { previousMessages };
+    },
+    onError: (err, content, context) => {
+      queryClient.setQueryData(queryKeys.messages.bySession(sessionId), context?.previousMessages);
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.messages.bySession(sessionId),
       });
