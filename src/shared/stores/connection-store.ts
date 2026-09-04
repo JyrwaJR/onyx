@@ -38,7 +38,7 @@ interface ConnectionState {
 }
 
 export const useConnectionStore = create<ConnectionState>()((set, get) => ({
-  serverUrl: '',
+  serverUrl: 'http://localhost:4096',
   connectionStatus: 'idle',
   error: null,
   hydrated: false,
