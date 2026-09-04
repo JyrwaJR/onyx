@@ -1,3 +1,259 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * Anthropic Claude Design System — CSS Custom Properties (shadcn style)
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * Following shadcn/ui convention:
+ * - All colors as HSL values in CSS variables
+ * - Reference via hsl(var(--variable-name))
+ * - Semantic naming for easy theming
+ */
+
+@layer base {
+  :root {
+    /* ── Brand & Accent ──────────────────────────────────────────────── */
+    --color-primary: 16 55% 58%; /* #cc785c - Coral */
+    --color-primary-rgb: 204, 120, 92;
+    --color-primary-active: 16 55% 48%; /* #a9583e */
+    --color-primary-disabled: 28 20% 88%; /* #e6dfd8 */
+
+    --color-accent-teal: 162 40% 54%; /* #5db8a6 */
+    --color-accent-amber: 34 75% 63%; /* #e8a55a */
+
+    /* ── Surface ─────────────────────────────────────────────────────── */
+    --color-canvas: 45 40% 97%; /* #faf9f5 - Cream canvas */
+    --color-surface-soft: 38 30% 94%; /* #f5f0e8 */
+    --color-surface-card: 36 28% 91%; /* #efe9de */
+    --color-surface-cream-strong: 36 26% 88%; /* #e8e0d2 */
+
+    --color-surface-dark: 30 10% 9%; /* #181715 */
+    --color-surface-dark-elevated: 28 8% 13%; /* #252320 */
+    --color-surface-dark-soft: 30 10% 11%; /* #1f1e1b */
+
+    --color-hairline: 28 20% 88%; /* #e6dfd8 */
+    --color-hairline-soft: 30 18% 90%; /* #ebe6df */
+
+    /* ── Text ────────────────────────────────────────────────────────── */
+    --color-ink: 60 6% 8%; /* #141413 */
+    --color-body: 60 5% 23%; /* #3d3d3a */
+    --color-body-strong: 60 6% 14%; /* #252523 */
+    --color-muted: 40 8% 42%; /* #6c6a64 */
+    --color-muted-soft: 40 7% 53%; /* #8e8b82 */
+
+    --color-on-primary: 0 0% 100%; /* #ffffff */
+    --color-on-dark: 45 40% 97%; /* #faf9f5 */
+    --color-on-dark-soft: 30 6% 63%; /* #a09d96 */
+
+    /* ── Semantic ────────────────────────────────────────────────────── */
+    --color-success: 138 30% 54%; /* #5db872 */
+    --color-warning: 42 78% 46%; /* #d4a017 */
+    --color-error: 0 62% 53%; /* #c64545 */
+
+    /* ── Border Radius ──────────────────────────────────────────────── */
+    --radius-xs: 4px;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-pill: 9999px;
+
+    /* ── Spacing ────────────────────────────────────────────────────── */
+    --spacing-xxs: 4px;
+    --spacing-xs: 8px;
+    --spacing-sm: 12px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --spacing-xxl: 48px;
+    --spacing-section: 96px;
+
+    /* ── Shadows ────────────────────────────────────────────────────── */
+    --shadow-subtle: 0 1px 3px rgba(20, 20, 19, 0.08);
+
+    /* ── Font Families ──────────────────────────────────────────────── */
+    --font-display:
+      'Tiempos Headline', 'Cormorant Garamond', 'EB Garamond', Garamond, 'Times New Roman', serif;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', Consolas, monospace;
+  }
+}
+
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * Component Utility Classes
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
+
+@layer components {
+  /* ── Buttons ────────────────────────────────────────────────────────── */
+
+  .btn-primary {
+    @apply font-button min-h-[40px] rounded-md bg-primary px-5 py-3 text-on-primary;
+  }
+
+  .btn-primary:active {
+    @apply bg-primary-active;
+  }
+
+  .btn-primary[disabled] {
+    @apply cursor-not-allowed bg-primary-disabled;
+  }
+
+  .btn-secondary {
+    @apply font-button min-h-[40px] rounded-md border border-hairline bg-canvas px-5 py-3 text-ink;
+  }
+
+  .btn-secondary-on-dark {
+    @apply font-button min-h-[40px] rounded-md bg-surface-dark-elevated px-5 py-3 text-on-dark;
+  }
+
+  .btn-text {
+    @apply font-button bg-transparent text-primary;
+  }
+
+  .btn-icon-circular {
+    @apply flex h-9 w-9 items-center justify-center rounded-full border border-hairline bg-canvas;
+  }
+
+  .text-link {
+    @apply font-sans text-primary;
+  }
+
+  .text-link:active {
+    @apply underline;
+  }
+
+  /* ── Cards ──────────────────────────────────────────────────────────── */
+
+  .feature-card {
+    @apply rounded-lg bg-surface-card p-xl;
+  }
+
+  .product-mockup-card-dark {
+    @apply rounded-lg bg-surface-dark p-xl;
+  }
+
+  .code-window-card {
+    @apply rounded-lg bg-surface-dark p-lg;
+  }
+
+  .code-window-card-inner {
+    @apply rounded-md bg-surface-dark-soft;
+  }
+
+  .model-comparison-card {
+    @apply rounded-lg border border-hairline bg-canvas p-xl;
+  }
+
+  .pricing-tier-card {
+    @apply rounded-lg border border-hairline bg-canvas p-xl;
+  }
+
+  .pricing-tier-card-featured {
+    @apply rounded-lg bg-surface-dark p-xl text-on-dark;
+  }
+
+  .callout-card-coral {
+    @apply rounded-lg bg-primary p-xxl text-on-primary;
+  }
+
+  .connector-tile {
+    @apply rounded-lg border border-hairline bg-canvas p-5;
+  }
+
+  /* ── Inputs ─────────────────────────────────────────────────────────── */
+
+  .text-input {
+    @apply font-body-md min-h-[40px] rounded-md border border-hairline bg-canvas px-3.5 py-2.5 text-ink;
+  }
+
+  .text-input:focus {
+    @apply border-primary ring-2 ring-primary/15;
+  }
+
+  /* ── Badges ─────────────────────────────────────────────────────────── */
+
+  .badge-pill {
+    @apply font-caption rounded-pill bg-surface-card px-3 py-1 text-ink;
+  }
+
+  .badge-coral {
+    @apply font-caption-upper rounded-pill bg-primary px-3 py-1 text-on-primary;
+  }
+
+  /* ── Category Tabs ─────────────────────────────────────────────────── */
+
+  .category-tab {
+    @apply font-nav-link rounded-md bg-transparent px-3.5 py-2 text-muted;
+  }
+
+  .category-tab-active {
+    @apply font-nav-link rounded-md bg-surface-card px-3.5 py-2 text-ink;
+  }
+
+  /* ── CTA Bands ─────────────────────────────────────────────────────── */
+
+  .cta-band-coral {
+    @apply rounded-lg bg-primary p-16 text-on-primary;
+  }
+
+  .cta-band-dark {
+    @apply rounded-lg bg-surface-dark p-16 text-on-dark;
+  }
+
+  /* ── Footer ─────────────────────────────────────────────────────────── */
+
+  .footer {
+    @apply bg-surface-dark py-16 text-on-dark-soft;
+  }
+
+  /* ── Top Navigation ────────────────────────────────────────────────── */
+
+  .top-nav {
+    @apply flex h-16 items-center bg-canvas px-lg;
+  }
+
+  /* ── Cookie Consent ────────────────────────────────────────────────── */
+
+  .cookie-consent-card {
+    @apply rounded-lg bg-surface-dark p-lg text-on-dark;
+  }
+
+  /* ── Display Typography ────────────────────────────────────────────── */
+
+  .display-xl {
+    @apply font-display text-display-xl;
+  }
+
+  .display-lg {
+    @apply font-display text-display-lg;
+  }
+
+  .display-md {
+    @apply font-display text-display-md;
+  }
+
+  .display-sm {
+    @apply font-display text-display-sm;
+  }
+}
+
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * Utility Classes
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
+}
