@@ -1,13 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { queryKeys } from '../../../shared/api/query-keys';
-import {
-  createSession,
-  fetchMessages,
-  deleteMessage,
-  sendMessage,
-} from '../api/chat-api';
-import type { Message } from '../../../shared/api/types';
+import { createSession, fetchMessages, deleteMessage, sendMessage } from '../api/chat-api';
+import type { V2Message } from '../../../shared/api/types';
 
 /**
  * Fetches messages for a session.
@@ -17,7 +12,7 @@ import type { Message } from '../../../shared/api/types';
  * @returns Query result with message list data.
  */
 export function useMessages(projectId: string, sessionId: string) {
-  return useQuery<Message[]>({
+  return useQuery<V2Message[]>({
     queryKey: queryKeys.messages.bySession(sessionId),
     queryFn: () => fetchMessages(projectId, sessionId),
     enabled: !!projectId && !!sessionId,
@@ -35,15 +30,12 @@ export function useCreateSession(projectId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ title }: { title?: string }) =>
-      createSession(projectId, title),
+    mutationFn: ({ title }: { title?: string }) => createSession(projectId, title),
     onSuccess: (session) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.sessions.byProject(projectId),
       });
-      router.push(
-        `/(tabs)/projects/${projectId}/sessions/${session.id}/chat` as never
-      );
+      router.push(`/(tabs)/projects/${projectId}/sessions/${session.id}/chat` as never);
     },
   });
 }
@@ -59,8 +51,7 @@ export function useDeleteMessage(projectId: string, sessionId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (messageId: string) =>
-      deleteMessage(projectId, sessionId, messageId),
+    mutationFn: (messageId: string) => deleteMessage(projectId, sessionId, messageId),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.messages.bySession(sessionId),

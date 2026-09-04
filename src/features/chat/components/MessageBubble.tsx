@@ -1,10 +1,10 @@
 import { View, Text, TouchableOpacity, Alert } from 'react-native';
-import type { Message, MessagePart } from '../../../shared/api/types';
+import type { MessageContentBlock, V2Message } from '../../../shared/api/types';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { ToolCallBlock } from './ToolCallBlock';
 
 interface MessageBubbleProps {
-  message: Message;
+  message: V2Message;
   onDelete?: (messageId: string) => void;
 }
 
@@ -21,16 +21,16 @@ function getRelativeTime(ms?: number): string {
   return new Date(ms).toLocaleDateString();
 }
 
-function renderPart(part: MessagePart, index: number) {
-  switch (part.type) {
+function renderBlock(block: MessageContentBlock, index: number) {
+  switch (block.type) {
     case 'text':
-      return <MarkdownRenderer key={index} content={part.text} />;
+      return <MarkdownRenderer key={index} content={block.text} />;
     case 'tool':
-      return <ToolCallBlock key={index} part={part} />;
+      return <ToolCallBlock key={index} block={block} />;
     case 'reasoning':
       return (
         <View key={index} className="my-1 rounded bg-surface-soft p-2">
-          <Text className="text-xs italic text-muted-soft">{part.text}</Text>
+          <Text className="text-xs italic text-muted-soft">{block.text}</Text>
         </View>
       );
     default:
@@ -48,7 +48,12 @@ function renderPart(part: MessagePart, index: number) {
  * @param onDelete - Optional callback for deleting user messages.
  */
 export function MessageBubble({ message, onDelete }: MessageBubbleProps) {
-  const isUser = message.info.role === 'user';
+  const isUser = message.type === 'user';
+  const blocks: MessageContentBlock[] = isUser
+    ? message.text
+      ? [{ type: 'text', id: 'text-0', text: message.text }]
+      : []
+    : (message.content ?? []);
 
   const handleLongPress = () => {
     if (!isUser || !onDelete) return;
@@ -57,7 +62,7 @@ export function MessageBubble({ message, onDelete }: MessageBubbleProps) {
       {
         text: 'Delete',
         style: 'destructive',
-        onPress: () => onDelete(message.info.id),
+        onPress: () => onDelete(message.id),
       },
     ]);
   };
@@ -68,14 +73,14 @@ export function MessageBubble({ message, onDelete }: MessageBubbleProps) {
       activeOpacity={isUser ? 0.7 : 1}
       className={`mb-3 max-w-[85%] ${isUser ? 'self-end' : 'self-start'}`}>
       <View className={`rounded-2xl px-4 py-3 ${isUser ? 'bg-primary' : 'bg-surface-card'}`}>
-        {message.parts.map((part, index) => (
+        {blocks.map((block, index) => (
           <View key={index} className={isUser ? 'text-on-primary' : 'text-ink'}>
-            {renderPart(part, index)}
+            {renderBlock(block, index)}
           </View>
         ))}
       </View>
       <Text className={`mt-1 text-xs text-muted-soft ${isUser ? 'text-right' : 'text-left'}`}>
-        {getRelativeTime(message.info.time.created)}
+        {getRelativeTime(message.time?.created)}
       </Text>
     </TouchableOpacity>
   );

@@ -1,11 +1,11 @@
 import { useRef, useEffect } from 'react';
 import { FlatList, View, ActivityIndicator } from 'react-native';
-import type { Message } from '../../../shared/api/types';
+import type { V2Message } from '../../../shared/api/types';
 import { MessageBubble } from './MessageBubble';
 import { EmptyState } from '../../../shared/components/EmptyState';
 
 interface MessageListProps {
-  messages: Message[];
+  messages: V2Message[];
   isLoading?: boolean;
   onDelete?: (messageId: string) => void;
 }
@@ -46,7 +46,7 @@ export function MessageList({ messages, isLoading, onDelete }: MessageListProps)
     <FlatList
       ref={flatListRef}
       data={messages}
-      keyExtractor={(item) => item.info.id}
+      keyExtractor={(item) => item.id}
       renderItem={({ item }) => <MessageBubble message={item} onDelete={onDelete} />}
       contentContainerStyle={{ padding: 16, paddingBottom: 8 }}
       onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: false })}

@@ -16,7 +16,9 @@ let _dynamicBaseUrl: string | null = null;
  * Priority: dynamic (set by user connection) > env var > localhost fallback.
  */
 export function getApiBaseUrl(): string {
-  return _dynamicBaseUrl ?? ENV_BASE_URL;
+  const url = _dynamicBaseUrl ?? ENV_BASE_URL;
+  console.log('[API] getApiBaseUrl returning:', url, '(dynamic:', _dynamicBaseUrl, ')');
+  return url;
 }
 
 /**
@@ -24,7 +26,9 @@ export function getApiBaseUrl(): string {
  * @param url - The full base URL (e.g. "http://192.168.1.5:4096").
  */
 export function setApiBaseUrl(url: string): void {
-  _dynamicBaseUrl = url.replace(/\/$/, '');
+  const cleaned = url.replace(/\/$/, '');
+  console.log('[API] setApiBaseUrl called with:', url, '→ stored as:', cleaned);
+  _dynamicBaseUrl = cleaned;
 }
 
 /** @deprecated Use getApiBaseUrl() instead. */

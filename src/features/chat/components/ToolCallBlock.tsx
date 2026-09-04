@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import type { MessagePart } from '../../../shared/api/types';
+import type { MessageContentBlock } from '../../../shared/api/types';
 
-type ToolPart = Extract<MessagePart, { type: 'tool' }>;
+type ToolBlock = Extract<MessageContentBlock, { type: 'tool' }>;
 
 interface ToolCallBlockProps {
-  part: ToolPart;
+  block: ToolBlock;
 }
 
 function formatResult(result: unknown): string {
@@ -18,18 +18,18 @@ function formatResult(result: unknown): string {
  *
  * Uses Claude design system surface colors for backgrounds and borders.
  *
- * @param part - The tool message part to display.
+ * @param block - The tool content block to display.
  */
-export function ToolCallBlock({ part }: ToolCallBlockProps) {
+export function ToolCallBlock({ block }: ToolCallBlockProps) {
   const [expanded, setExpanded] = useState(false);
-  const hasResult = part.state.output != null;
+  const hasResult = block.state.output != null;
 
   return (
     <View className="my-1 rounded-lg border border-hairline bg-surface-soft p-2">
       <TouchableOpacity onPress={() => setExpanded(!expanded)} activeOpacity={0.7}>
         <View className="flex-row items-center justify-between">
           <Text className="text-xs font-medium text-body-strong">
-            {part.state.title || part.tool}
+            {block.state.title || block.tool}
           </Text>
           <Text className="text-xs text-muted-soft">{expanded ? '▼' : '▶'}</Text>
         </View>
@@ -37,11 +37,11 @@ export function ToolCallBlock({ part }: ToolCallBlockProps) {
 
       {expanded && (
         <View className="mt-2">
-          {part.state.input != null && (
+          {block.state.input != null && (
             <>
               <Text className="text-xs text-muted">Arguments:</Text>
               <Text className="mt-1 rounded bg-canvas p-2 text-xs text-body" selectable>
-                {JSON.stringify(part.state.input, null, 2)}
+                {JSON.stringify(block.state.input, null, 2)}
               </Text>
             </>
           )}
@@ -50,7 +50,7 @@ export function ToolCallBlock({ part }: ToolCallBlockProps) {
             <>
               <Text className="mt-2 text-xs text-muted">Result:</Text>
               <Text className="mt-1 rounded bg-canvas p-2 text-xs text-body" selectable>
-                {formatResult(part.state.output)}
+                {formatResult(block.state.output)}
               </Text>
             </>
           )}

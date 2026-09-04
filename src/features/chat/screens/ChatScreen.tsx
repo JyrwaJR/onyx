@@ -8,9 +8,9 @@ import { MessageList } from '../components/MessageList';
 import { MessageInput } from '../components/MessageInput';
 import { LoadingScreen } from '../../../shared/components/LoadingScreen';
 import { ErrorView } from '../../../shared/components/ErrorView';
-import { createSessionSSE, type SSEConnection } from '../../../shared/api/sse';
+import { createGlobalSSE, type SSEConnection } from '../../../shared/api/sse';
 import { queryKeys } from '../../../shared/api/query-keys';
-import type { Message, MessagePart } from '../../../shared/api/types';
+import type { MessageContentBlock, V2Message } from '../../../shared/api/types';
 
 /**
  * Back button component for chat screen header.
@@ -30,14 +30,18 @@ function BackButton() {
   );
 }
 
+/** A streaming assistant message being built from SSE deltas. */
+interface StreamingState {
+  text: string;
+  reasoning: string;
+}
+
 /**
  * Main chat screen with SSE streaming and message management.
  *
- * Receives `sessionId` and `projectId` from route params. Streams real-time
- * updates from the OpenCode session log stream and merges in-progress
- * assistant messages with the fetched history.
- *
- * Features a styled header with back button following Claude design system.
+ * Receives `sessionId` and `projectId` from route params. Subscribes to the
+ * global V2 SSE event stream and builds up assistant messages incrementally
+ * from `session.next.text.delta` / `session.next.reasoning.delta` events.
  */
 export default function ChatScreen() {
   const { sessionId, projectId } = useLocalSearchParams<{
@@ -46,16 +50,30 @@ export default function ChatScreen() {
   }>();
   const queryClient = useQueryClient();
   const sseRef = useRef<SSEConnection | null>(null);
-  const [streamingMessages, setStreamingMessages] = useState<Map<string, Message>>(new Map());
+  const [streaming, setStreaming] = useState<Map<string, StreamingState>>(new Map());
 
   const { data: messages, isLoading, isError, error } = useMessages(projectId, sessionId);
   const sendMessage = useSendMessage(projectId, sessionId);
   const deleteMessage = useDeleteMessage(projectId, sessionId);
 
-  // Merge streaming messages with fetched messages
-  const allMessages: Message[] = messages ? [...messages] : [];
-  streamingMessages.forEach((streamMsg, msgId) => {
-    const existingIndex = allMessages.findIndex((m) => m.info.id === msgId);
+  // Materialize streaming messages into the V2 message list shape.
+  const allMessages: V2Message[] = messages ? [...messages] : [];
+  streaming.forEach((state, msgId) => {
+    const existingIndex = allMessages.findIndex((m) => m.id === msgId);
+    const blocks: MessageContentBlock[] = [];
+    if (state.reasoning) {
+      blocks.push({ type: 'reasoning', id: 'reasoning-0', text: state.reasoning });
+    }
+    if (state.text) {
+      blocks.push({ type: 'text', id: 'text-0', text: state.text });
+    }
+    const existing = existingIndex >= 0 ? allMessages[existingIndex] : undefined;
+    const streamMsg: V2Message = {
+      id: msgId,
+      type: 'assistant',
+      time: { created: existing?.time?.created ?? 0 },
+      content: blocks,
+    };
     if (existingIndex >= 0) {
       allMessages[existingIndex] = streamMsg;
     } else {
@@ -63,8 +81,10 @@ export default function ChatScreen() {
     }
   });
 
-  // Sort by creation time
-  allMessages.sort((a, b) => (a.info.time.created ?? 0) - (b.info.time.created ?? 0));
+  // Sort by creation time (stable for already-stored messages).
+  allMessages.sort(
+    (a, b) => (a.time?.created ?? 0) - (b.time?.created ?? 0) || a.id.localeCompare(b.id)
+  );
 
   const handleSend = useCallback(
     (content: string) => {
@@ -80,47 +100,57 @@ export default function ChatScreen() {
     [deleteMessage]
   );
 
-  // SSE connection for real-time streaming
+  // Subscribe to the global V2 SSE event stream for this session.
   useEffect(() => {
-    console.log('[Chat] SSE effect triggered, sessionId:', sessionId);
     if (!sessionId) return;
 
     const handleEvent = (event: { type: string; data: string }) => {
-      console.log('[Chat] SSE event received:', event.type);
-      try {
-        const payload = JSON.parse(event.data as string) as {
-          type?: string;
-          id?: string;
+      let payload: {
+        type?: string;
+        data?: {
           sessionID?: string;
-          role?: string;
-          time?: { created?: number };
-          parts?: Message['parts'];
+          assistantMessageID?: string;
+          delta?: string;
+          text?: string;
+          part?: { type?: string };
         };
+      };
+      try {
+        payload = JSON.parse(event.data) as typeof payload;
+      } catch {
+        return;
+      }
+      if (!payload || !payload.data) return;
+      const { sessionID, assistantMessageID, delta } = payload.data;
+      if (sessionID !== sessionId || !assistantMessageID) return;
 
-        console.log('[Chat] Parsed payload:', JSON.stringify(payload).substring(0, 200));
+      const eventType = payload.type;
+      const msgId = assistantMessageID;
 
-        // Message updates arrive as complete message objects in the SSE stream.
-        if (payload.id && Array.isArray(payload.parts)) {
-          console.log('[Chat] Updating streaming message:', payload.id);
-          const msgId = payload.id;
-          setStreamingMessages((prev) => {
-            const next = new Map(prev);
-            next.set(msgId, {
-              info: {
-                id: payload.id as string,
-                sessionID: payload.sessionID as string,
-                role: (payload.role as Message['info']['role']) ?? 'assistant',
-                time: { created: payload.time?.created ?? Date.now() },
-              },
-              parts: payload.parts as MessagePart[],
-            });
-            return next;
-          });
-        } else {
-          console.log('[Chat] Event did not match message format (missing id or parts)');
-        }
-      } catch (e) {
-        console.error('[Chat] Failed to parse SSE event:', e);
+      if (eventType === 'session.next.text.delta') {
+        setStreaming((prev) => {
+          const next = new Map(prev);
+          const cur = next.get(msgId) ?? { text: '', reasoning: '' };
+          next.set(msgId, { ...cur, text: cur.text + (delta ?? '') });
+          return next;
+        });
+      } else if (eventType === 'session.next.reasoning.delta') {
+        setStreaming((prev) => {
+          const next = new Map(prev);
+          const cur = next.get(msgId) ?? { text: '', reasoning: '' };
+          next.set(msgId, { ...cur, reasoning: cur.reasoning + (delta ?? '') });
+          return next;
+        });
+      } else if (eventType === 'session.next.step.ended') {
+        // A step finished; pull the durable message and drop the local stream.
+        setStreaming((prev) => {
+          const next = new Map(prev);
+          next.delete(msgId);
+          return next;
+        });
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.messages.bySession(sessionId),
+        });
       }
     };
 
@@ -128,7 +158,7 @@ export default function ChatScreen() {
       console.warn('SSE error:', err.message);
     };
 
-    sseRef.current = createSessionSSE(sessionId, handleEvent, handleError);
+    sseRef.current = createGlobalSSE(handleEvent, handleError);
 
     return () => {
       sseRef.current?.close();
