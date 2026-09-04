@@ -40,7 +40,14 @@ export default function ChatScreen() {
 
   const [streaming, setStreaming] = useState<Map<string, StreamingState>>(new Map());
 
-  const { data: messages, isLoading, isError } = useMessages(projectId, sessionId);
+  const {
+    data: messages,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useMessages(projectId, sessionId);
 
   const sendMessage = useSendMessage(projectId, sessionId);
 
@@ -169,7 +176,13 @@ export default function ChatScreen() {
   return (
     <>
       <View className="flex-1 bg-surface">
-        <MessageList messages={allMessages} onDelete={handleDelete} />
+        <MessageList
+          messages={allMessages}
+          onDelete={handleDelete}
+          hasMore={hasNextPage ?? false}
+          isLoadingMore={isFetchingNextPage}
+          onLoadMore={() => fetchNextPage()}
+        />
         <MessageInput onSend={handleSend} sending={sendMessage.isPending} />
       </View>
     </>
