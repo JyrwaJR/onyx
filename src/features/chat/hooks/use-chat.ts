@@ -28,6 +28,8 @@ import { V2Message } from '../../../shared/api/types';
 export function useMessages(sessionId: string) {
   const query = useInfiniteQuery({
     queryKey: queryKeys.messages.bySession(sessionId),
+    refetchInterval: 3000,
+    refetchIntervalInBackground: false,
     queryFn: ({ pageParam }) => {
       return fetchMessages(sessionId, pageParam as string | undefined);
     },
@@ -64,7 +66,7 @@ export function useCreateSession() {
 
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ title, directory }: NewSessionFormData) => createSession(title, directory),
+    mutationFn: ({ title }: NewSessionFormData) => createSession(title),
     onSuccess: (session) => {
       if (session.projectID) {
         router.push(`/chat?sessionId=${session.id}&projectId=${session.projectID}` as never);

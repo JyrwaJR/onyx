@@ -7,3 +7,4 @@ export { MessageInput } from './components/MessageInput';
 export { MessageList } from './components/MessageList';
 export { ToolCallBlock } from './components/ToolCallBlock';
 export { MarkdownRenderer } from './components/MarkdownRenderer';
+export { ChatSelection } from './components/ChatSelection';
