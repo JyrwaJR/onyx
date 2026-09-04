@@ -25,12 +25,8 @@ function newMessageId(): string {
 export async function createSession(projectId: string, title?: string): Promise<Session> {
   const response = await http.post<ApiData<Session>>(
     CREATE_SESSION,
-    {
-      data: { title: title || undefined },
-    },
-    {
-      params: { projectID: projectId },
-    }
+    { data: { title: title || undefined } },
+    { params: { projectID: projectId } }
   );
   return response.data.data;
 }
@@ -46,6 +42,7 @@ export async function fetchMessages(projectId: string, sessionId: string): Promi
   const response = await http.get<ApiData<V2Message[]>>(GET_SESSION_MESSAGES(sessionId), {
     params: { limit: 20 },
   });
+  console.log(response.data);
   return response.data.data;
 }
 

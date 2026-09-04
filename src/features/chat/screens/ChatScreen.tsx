@@ -40,7 +40,7 @@ export default function ChatScreen() {
 
   const [streaming, setStreaming] = useState<Map<string, StreamingState>>(new Map());
 
-  const { data: messages, isLoading, isError, error } = useMessages(projectId, sessionId);
+  const { data: messages, isLoading, isError } = useMessages(projectId, sessionId);
 
   const sendMessage = useSendMessage(projectId, sessionId);
 

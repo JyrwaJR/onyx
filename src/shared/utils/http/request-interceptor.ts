@@ -16,6 +16,7 @@ import type { InternalAxiosRequestConfig } from 'axios';
 export const createRequestInterceptor = () => {
   return async (config: InternalAxiosRequestConfig) => {
     // TODO: Retrieve access token from secure storage and attach as Bearer token.
+    console.log('=>', config.url);
     return config;
   };
 };

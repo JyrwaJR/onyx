@@ -6,11 +6,15 @@
  */
 
 import { useCallback } from 'react';
-import { FlatList, View, ActivityIndicator, Text, RefreshControl } from 'react-native';
+import { FlatList, View, RefreshControl } from 'react-native';
 
 import { useProjects } from '../hooks/use-projects';
 import { ProjectCard } from './ProjectCard';
-import { ConnectionErrorScreen, NotFoundSessionsScreen } from '@/shared/components/screens';
+import {
+  ConnectionErrorScreen,
+  Loading,
+  NotFoundSessionsScreen,
+} from '@/shared/components/screens';
 
 /**
  * Project list with pull-to-refresh, loading, error, and empty states.
@@ -25,12 +29,7 @@ export function ProjectList() {
   }, [refetch]);
 
   if (isLoading) {
-    return (
-      <View className="flex-1 items-center justify-center bg-surface">
-        <ActivityIndicator size="large" color="#8f482f" />
-        <Text className="mt-4 text-base text-outline">Loading projects...</Text>
-      </View>
-    );
+    return <Loading />;
   }
 
   if (isError) {
