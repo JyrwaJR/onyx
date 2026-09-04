@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
-import { View, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Input } from '@/shared/components/ui/input';
 
 interface MessageInputProps {
   onSend: (content: string) => void;
@@ -19,7 +20,7 @@ interface MessageInputProps {
  */
 export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
   const [text, setText] = useState('');
-  const inputRef = useRef<TextInput>(null);
+  const inputRef = useRef<React.ComponentRef<typeof Input>>(null);
 
   const handleSend = () => {
     const trimmed = text.trim();
@@ -33,11 +34,10 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
   return (
     <View className="border-t border-hairline bg-canvas px-4 py-3">
       <View className="flex-row items-end gap-2">
-        <TextInput
+        <Input
           ref={inputRef}
-          className="max-h-[132px] min-h-[44px] flex-1 rounded-xl border border-hairline bg-surface-soft px-4 py-3 text-base text-ink"
+          className="max-h-[132px] min-h-[44px] flex-1"
           placeholder="Type a message..."
-          placeholderTextColor="#8e8b82"
           multiline
           numberOfLines={1}
           maxLength={10000}

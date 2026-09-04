@@ -7,23 +7,46 @@
  */
 
 import { useEffect, useCallback } from 'react';
-import { View, Text, TextInput, Pressable } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { MaterialIcons } from '@expo/vector-icons';
 
 import { LoadingScreen } from '@components/LoadingScreen';
 import { useConnectionStore } from '../store/connection-store';
 import { useHealthCheck } from '../hooks/use-health-check';
 import { serverUrlSchema, type ServerUrlFormData } from '../validators/server-url';
 
-const SUGGESTIONS = ['http://localhost:4096'] as const;
+/** Quick connect suggestion items. */
+interface SuggestionItem {
+  name: string;
+  url: string;
+  displayUrl?: string;
+  icon: 'terminal' | 'router';
+  status?: string;
+  latency?: string;
+}
+
+const SUGGESTIONS: SuggestionItem[] = [
+  {
+    name: 'Localhost Default',
+    url: 'http://localhost:4096',
+    displayUrl: 'http://localhost:4096',
+    icon: 'terminal',
+    status: 'Ready',
+  },
+  {
+    name: 'Studio Rig (LAN)',
+    url: 'http://192.168.1.50:4096',
+    displayUrl: '192.168.1.50:4096',
+    icon: 'router',
+    latency: '4ms',
+  },
+];
 
 /**
  * Connection screen for connecting to an OpenCode server.
- *
- * Uses Claude design system with cream canvas background,
- * surface-card inputs, and coral primary button.
  */
 export default function ConnectionScreen() {
   const router = useRouter();
@@ -39,11 +62,14 @@ export default function ConnectionScreen() {
     formState: { errors, isValid },
     reset,
     setValue,
+    watch,
   } = useForm<ServerUrlFormData>({
     resolver: zodResolver(serverUrlSchema),
     defaultValues: { serverUrl: '' },
     mode: 'onChange',
   });
+
+  const currentUrl = watch('serverUrl');
 
   useEffect(() => {
     if (hydrated && serverUrl) {
@@ -78,6 +104,10 @@ export default function ConnectionScreen() {
     [setValue, setServerUrl]
   );
 
+  const handleClearInput = useCallback(() => {
+    setValue('serverUrl', '', { shouldValidate: true });
+  }, [setValue]);
+
   if (!hydrated) {
     return <LoadingScreen message="Loading..." />;
   }
@@ -90,68 +120,181 @@ export default function ConnectionScreen() {
 
   if (connectionStatus === 'error' && error) {
     return (
-      <View className="flex-1 items-center justify-center bg-canvas px-6">
+      <View className="flex-1 items-center justify-center bg-surface px-6">
         <Text className="text-4xl">⚠️</Text>
-        <Text className="mt-4 text-center text-base text-body">{error}</Text>
-        <Pressable onPress={handleTryAgain} className="mt-6 rounded-lg bg-primary px-6 py-3">
+        <Text className="mt-4 text-center text-base text-on-surface">{error}</Text>
+        <TouchableOpacity
+          onPress={handleTryAgain}
+          className="mt-6 rounded-xl bg-primary px-6 py-3"
+          activeOpacity={0.7}>
           <Text className="text-base font-semibold text-on-primary">Try Again</Text>
-        </Pressable>
+        </TouchableOpacity>
       </View>
     );
   }
 
   return (
-    <View className="flex-1 items-center justify-center bg-canvas px-6">
-      <View className="w-full max-w-sm items-center">
-        <Text className="font-display text-display-md text-ink">Onyx</Text>
-        <Text className="mt-2 text-center text-base text-muted">
-          Connect to your local AI agent
-        </Text>
+    <View className="flex-1 bg-surface">
+      {/* Ambient background glow accents */}
+      <View className="absolute left-1/2 top-0 h-[280px] w-[340px] -translate-x-1/2 rounded-full bg-primary-fixed/35" />
+      <View className="absolute bottom-10 right-0 h-[240px] w-[240px] rounded-full bg-secondary-fixed/50" />
 
-        <View className="mt-10 w-full">
-          <Controller
-            control={control}
-            name="serverUrl"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                className="w-full rounded-lg border border-hairline bg-canvas px-4 py-3 text-base text-ink"
-                placeholder="http://localhost:3000"
-                placeholderTextColor="#8e8b82"
-                autoCapitalize="none"
-                autoCorrect={false}
-                keyboardType="url"
-                textContentType="URL"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-              />
-            )}
-          />
+      <View className="max-w-mobile mx-auto w-full flex-1 justify-between px-6 pb-8 pt-12">
+        {/* Header & Hero Section */}
+        <View className="mt-6 w-full items-center text-center">
+          {/* Status / Brand Badge */}
+          <View className="mb-6 flex-row items-center gap-2 rounded-full border border-outline-variant/60 bg-surface-container-low px-3 py-1">
+            <View className="relative flex h-2 w-2 items-center justify-center">
+              <View className="absolute h-2 w-2 rounded-full bg-primary opacity-75" />
+              <View className="h-2 w-2 rounded-full bg-primary" />
+            </View>
+            <Text className="text-[11px] font-medium uppercase tracking-wider text-secondary">
+              Local Agent Runtime
+            </Text>
+          </View>
 
-          {errors.serverUrl && (
-            <Text className="mt-2 text-sm text-error">{errors.serverUrl.message}</Text>
-          )}
-
-          <Pressable
-            onPress={handleSubmit(onSubmit)}
-            disabled={!isValid || isSubmitting}
-            className={`mt-4 w-full items-center rounded-lg px-6 py-3 ${
-              isValid && !isSubmitting ? 'bg-primary' : 'bg-hairline'
-            }`}>
-            <Text className="text-base font-semibold text-on-primary">Connect</Text>
-          </Pressable>
+          {/* Brand Wordmark & Tagline */}
+          <Text className="font-display text-[44px] font-normal leading-tight tracking-[-0.03em] text-on-surface">
+            Onyx
+          </Text>
+          <Text className="mt-2 max-w-[280px] text-center font-body text-[15px] leading-relaxed text-secondary">
+            Connect to your local AI workspace & intelligent agents
+          </Text>
         </View>
 
-        <View className="mt-8 w-full">
-          <Text className="mb-2 text-center text-sm text-muted-soft">Quick connect</Text>
-          {SUGGESTIONS.map((url) => (
-            <Pressable
-              key={url}
-              onPress={() => handleSuggestionPress(url)}
-              className="mt-2 w-full items-center rounded-lg border border-hairline bg-surface-soft px-4 py-3">
-              <Text className="text-sm text-body">{url}</Text>
-            </Pressable>
-          ))}
+        {/* Form Section */}
+        <View className="my-auto gap-6 py-6">
+          {/* Input Group */}
+          <View className="gap-2">
+            <View className="flex-row items-center justify-between px-1">
+              <Text className="text-xs font-semibold uppercase tracking-wider text-secondary">
+                Agent Server URL
+              </Text>
+              <Text className="text-[11px] lowercase text-outline">ws/http</Text>
+            </View>
+
+            <Controller
+              control={control}
+              name="serverUrl"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <View className="relative flex-row items-center">
+                  <View className="pointer-events-none absolute left-3.5 z-10 items-center text-outline">
+                    <MaterialIcons name="dns" size={20} color="#87736d" />
+                  </View>
+                  <TextInput
+                    className="h-[52px] w-full rounded-xl border border-outline-variant bg-surface-container-lowest py-3 pl-11 pr-10 text-sm tracking-tight text-on-surface"
+                    placeholder="http://localhost:4096"
+                    placeholderTextColor="#87736d99"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    keyboardType="url"
+                    textContentType="URL"
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                  />
+                  {currentUrl ? (
+                    <TouchableOpacity
+                      onPress={handleClearInput}
+                      className="absolute right-3 z-10 p-1"
+                      activeOpacity={0.7}>
+                      <MaterialIcons name="cancel" size={18} color="#87736d" />
+                    </TouchableOpacity>
+                  ) : null}
+                </View>
+              )}
+            />
+
+            {errors.serverUrl && (
+              <Text className="px-1 text-xs text-error">{errors.serverUrl.message}</Text>
+            )}
+          </View>
+
+          {/* Primary CTA */}
+          <TouchableOpacity
+            onPress={handleSubmit(onSubmit)}
+            disabled={!isValid || isSubmitting}
+            className={`h-12 w-full flex-row items-center justify-center gap-2 rounded-xl  ${
+              isValid && !isSubmitting ? 'bg-primary' : 'bg-hairline'
+            }`}
+            activeOpacity={0.98}>
+            <Text
+              className={`text-[16px] font-semibold tracking-wide ${
+                isValid && !isSubmitting ? 'text-on-primary' : 'text-on-primary/50'
+              }`}>
+              Connect
+            </Text>
+            <MaterialIcons
+              name="arrow-forward"
+              size={20}
+              color={isValid && !isSubmitting ? '#ffffff' : '#ffffff80'}
+            />
+          </TouchableOpacity>
+
+          {/* Quick Connect Section */}
+          <View className="gap-2.5 pt-2">
+            <View className="flex-row items-center justify-between px-1">
+              <Text className="text-xs font-semibold uppercase tracking-wider text-secondary">
+                Quick Connect
+              </Text>
+              <Text className="text-[11px] text-outline">Saved Nodes</Text>
+            </View>
+
+            <View className="gap-2">
+              {SUGGESTIONS.map((item) => (
+                <TouchableOpacity
+                  key={item.url}
+                  onPress={() => handleSuggestionPress(item.url)}
+                  className="w-full flex-row items-center justify-between rounded-xl border border-outline-variant/60 bg-surface-container-low/70 px-3.5 py-2.5"
+                  activeOpacity={0.7}>
+                  <View className="flex-row items-center gap-3">
+                    <View className="h-8 w-8 items-center justify-center rounded-lg bg-surface-container-highest">
+                      <MaterialIcons
+                        name={item.icon}
+                        size={18}
+                        color={item.status ? '#8f482f' : '#605e58'}
+                      />
+                    </View>
+                    <View>
+                      <Text className="text-sm font-medium leading-snug text-on-surface">
+                        {item.name}
+                      </Text>
+                      <Text className="text-xs text-secondary">{item.displayUrl || item.url}</Text>
+                    </View>
+                  </View>
+
+                  {item.status ? (
+                    <View className="flex-row items-center gap-1 rounded-full bg-primary-fixed/40 px-2 py-0.5">
+                      <View className="h-1.5 w-1.5 rounded-full bg-primary" />
+                      <Text className="text-on-primary-fixed text-[11px] font-medium">
+                        {item.status}
+                      </Text>
+                    </View>
+                  ) : (
+                    <Text className="text-xs text-outline">{item.latency}</Text>
+                  )}
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        </View>
+
+        {/* Footer & Helper Links */}
+        <View className="items-center gap-3 pb-2 pt-4">
+          <View className="flex-row items-center justify-center gap-5">
+            <TouchableOpacity className="flex-row items-center gap-1" activeOpacity={0.7}>
+              <MaterialIcons name="menu-book" size={15} color="#605e58" />
+              <Text className="text-xs font-medium text-secondary">Setup Guide</Text>
+            </TouchableOpacity>
+            <Text className="text-outline-variant">•</Text>
+            <TouchableOpacity className="flex-row items-center gap-1" activeOpacity={0.7}>
+              <MaterialIcons name="support" size={15} color="#605e58" />
+              <Text className="text-xs font-medium text-secondary">Troubleshoot</Text>
+            </TouchableOpacity>
+          </View>
+          <Text className="text-center text-[11px] text-outline">
+            Onyx Mobile v1.4.0 • Standalone Client
+          </Text>
         </View>
       </View>
     </View>

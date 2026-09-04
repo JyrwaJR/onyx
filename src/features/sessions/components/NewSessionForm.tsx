@@ -6,11 +6,13 @@
  * The actual session is created when the first message is sent.
  */
 
-import { View, Text, TextInput, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+import { Input } from '@/shared/components/ui/input';
+import { Button } from '@/shared/components/ui/button';
 import { newSessionSchema, type NewSessionFormData } from '../validators/new-session';
 
 interface NewSessionFormProps {
@@ -66,34 +68,26 @@ export function NewSessionForm({ projectId, visible, onClose }: NewSessionFormPr
             control={control}
             name="title"
             render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                className="rounded-lg border border-hairline bg-canvas px-4 py-3 text-base text-ink"
-                placeholder="Session title (optional)"
-                placeholderTextColor="#8e8b82"
-                onBlur={onBlur}
-                onChangeText={onChange}
+              <Input
+                label="Session title"
+                placeholder="Optional"
                 value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
                 autoFocus
+                error={errors.title?.message}
               />
             )}
           />
 
-          {errors.title && <Text className="mt-1 text-sm text-error">{errors.title.message}</Text>}
-
           <View className="mt-6 flex-row gap-3">
-            <TouchableOpacity
-              onPress={handleCancel}
-              className="flex-1 rounded-lg border border-hairline py-3"
-              activeOpacity={0.7}>
-              <Text className="text-center text-base font-medium text-body">Cancel</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
+            <Button title="Cancel" onPress={handleCancel} variant="secondary" className="flex-1" />
+            <Button
+              title="Start"
               onPress={handleSubmit(onSubmit)}
-              className="flex-1 rounded-lg bg-primary py-3"
-              activeOpacity={0.7}>
-              <Text className="text-center text-base font-semibold text-on-primary">Start</Text>
-            </TouchableOpacity>
+              variant="primary"
+              className="flex-1"
+            />
           </View>
         </View>
       </View>

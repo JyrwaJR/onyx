@@ -6,9 +6,10 @@
  */
 
 import { useState } from 'react';
-import { View, TouchableOpacity, Text } from 'react-native';
+import { View } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
 
+import { Fab } from '@/shared/components/ui/fab';
 import { SessionList } from '../components/SessionList';
 import { NewSessionForm } from '../components/NewSessionForm';
 
@@ -43,12 +44,7 @@ export default function SessionsScreen() {
       <View className="flex-1 bg-canvas">
         <SessionList projectId={projectId} />
 
-        <TouchableOpacity
-          onPress={() => setFormVisible(true)}
-          className="absolute bottom-6 right-6 h-14 w-14 items-center justify-center rounded-full bg-primary shadow-lg"
-          activeOpacity={0.8}>
-          <Text className="text-2xl font-bold text-on-primary">+</Text>
-        </TouchableOpacity>
+        <Fab onPress={() => setFormVisible(true)} />
 
         <NewSessionForm
           projectId={projectId}
