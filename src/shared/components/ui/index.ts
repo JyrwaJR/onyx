@@ -1,4 +1,4 @@
-export { cn } from './cn';
+export { cn } from '@/shared/lib/cn/cn';
 export { Button, buttonVariants, buttonTextVariants } from './button';
 export { Input, inputVariants } from './input';
 export { Card, cardVariants } from './card';

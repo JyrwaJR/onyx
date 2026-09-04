@@ -24,8 +24,8 @@ function BackButton() {
       onPress={() => router.back()}
       className="flex-row items-center pl-2"
       activeOpacity={0.7}>
-      <Text className="text-ink text-lg">←</Text>
-      <Text className="text-ink ml-1 text-base font-medium">Back</Text>
+      <Text className="text-lg text-ink">←</Text>
+      <Text className="ml-1 text-base font-medium text-ink">Back</Text>
     </TouchableOpacity>
   );
 }
@@ -49,26 +49,21 @@ export default function ChatScreen() {
     projectId: string;
   }>();
   const queryClient = useQueryClient();
+
   const sseRef = useRef<SSEConnection | null>(null);
+
   const [streaming, setStreaming] = useState<Map<string, StreamingState>>(new Map());
 
   const { data: messages, isLoading, isError, error } = useMessages(projectId, sessionId);
+
   const sendMessage = useSendMessage(projectId, sessionId);
+
   const deleteMessage = useDeleteMessage(projectId, sessionId);
 
-  // Temporary debug logging: confirm params resolve and query state transitions.
-  useEffect(() => {
-    console.log('[ChatScreen] params ->', { projectId, sessionId });
-    console.log('[ChatScreen] query ->', {
-      messages: messages?.length,
-      isLoading,
-      isError,
-      error: error?.message ?? null,
-    });
-  }, [projectId, sessionId, messages, isLoading, isError, error]);
-
   // Materialize streaming messages into the V2 message list shape.
+
   const allMessages: V2Message[] = messages ? [...messages] : [];
+
   streaming.forEach((state, msgId) => {
     const existingIndex = allMessages.findIndex((m) => m.id === msgId);
     const blocks: MessageContentBlock[] = [];
@@ -189,23 +184,7 @@ export default function ChatScreen() {
 
   return (
     <>
-      <Stack.Screen
-        options={{
-          title: 'Chat',
-          headerStyle: {
-            backgroundColor: '#faf9f5',
-          },
-          headerTintColor: '#141413',
-          headerTitleStyle: {
-            fontWeight: '500',
-            fontSize: 18,
-            fontFamily: 'Inter',
-          },
-          headerLeft: () => <BackButton />,
-          headerShadowVisible: false,
-        }}
-      />
-      <View className="bg-canvas flex-1">
+      <View className="flex-1 bg-canvas">
         <MessageList messages={allMessages} onDelete={handleDelete} />
         <MessageInput onSend={handleSend} sending={sendMessage.isPending} />
       </View>

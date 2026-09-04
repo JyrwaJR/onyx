@@ -1,7 +1,7 @@
 import { forwardRef } from 'react';
 import { Text, TouchableOpacity, View, type TouchableOpacityProps } from 'react-native';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from './cn';
+import { cn } from '@/shared/lib/cn';
 
 const buttonVariants = cva(
   'flex-row items-center justify-center rounded-md px-5 py-3 min-h-[40px]',

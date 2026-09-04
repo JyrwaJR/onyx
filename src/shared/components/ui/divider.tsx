@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 import { View, type ViewProps } from 'react-native';
-import { cn } from './cn';
+import { cn } from '@/shared/lib/cn';
 
 interface DividerProps extends ViewProps {
   /** Divider color variant. */

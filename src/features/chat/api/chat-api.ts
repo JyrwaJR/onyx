@@ -43,14 +43,9 @@ export async function createSession(projectId: string, title?: string): Promise<
  * @returns Array of V2 messages sorted by creation time.
  */
 export async function fetchMessages(projectId: string, sessionId: string): Promise<V2Message[]> {
-  console.log('[fetchMessages] requesting', GET_SESSION_MESSAGES(sessionId), 'with', {
-    projectId,
-    sessionId,
-  });
   const response = await http.get<ApiData<V2Message[]>>(GET_SESSION_MESSAGES(sessionId), {
-    params: { projectID: projectId },
+    params: { limit: 20 },
   });
-  console.log('[fetchMessages] response.data:', JSON.stringify(response.data).slice(0, 500));
   return response.data.data;
 }
 

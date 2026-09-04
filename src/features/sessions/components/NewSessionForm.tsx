@@ -49,7 +49,7 @@ export function NewSessionForm({ projectId, visible, onClose }: NewSessionFormPr
     reset();
     onClose();
     router.push(
-      `/(tabs)/projects/${projectId}/sessions/new${title ? `?title=${encodeURIComponent(title)}` : ''}` as never
+      `/projects/${projectId}/sessions/new${title ? `?title=${encodeURIComponent(title)}` : ''}` as never
     );
   };
 

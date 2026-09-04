@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Input } from '@/shared/components/ui/input';
+import { cn } from '@lib/cn';
 
 interface MessageInputProps {
   onSend: (content: string) => void;
@@ -10,13 +11,6 @@ interface MessageInputProps {
 
 /**
  * Text input with auto-grow and send button.
- *
- * Uses Claude design system styling with cream canvas background
- * and coral send button.
- *
- * @param onSend - Callback when the user sends a message.
- * @param disabled - Whether the input is disabled.
- * @param sending - Whether a message is currently being sent.
  */
 export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
   const [text, setText] = useState('');
@@ -24,7 +18,9 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
 
   const handleSend = () => {
     const trimmed = text.trim();
-    if (!trimmed || sending) return;
+
+    if (!trimmed || disabled || sending) return;
+
     onSend(trimmed);
     setText('');
   };
@@ -33,32 +29,39 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
 
   return (
     <View className="border-t border-hairline bg-canvas px-4 py-3">
-      <View className="flex-row items-end gap-2">
+      <View className="flex-wrap items-end gap-2">
         <Input
           ref={inputRef}
-          className="max-h-[132px] min-h-[44px] flex-1"
+          className="max-h-[132px] min-h-11 flex-1"
           placeholder="Type a message..."
           multiline
           numberOfLines={1}
           maxLength={10000}
           value={text}
           onChangeText={setText}
-          editable={!sending}
+          editable={!disabled && !sending}
           onSubmitEditing={handleSend}
-          blurOnSubmit={false}
         />
 
         <TouchableOpacity
           onPress={handleSend}
           disabled={!canSend}
-          className={`h-11 w-11 items-center justify-center rounded-full ${
+          activeOpacity={0.7}
+          className={cn(
+            'h-11 w-11 shrink-0 items-center justify-center rounded-full',
             canSend ? 'bg-primary' : 'bg-hairline'
-          }`}
-          activeOpacity={0.7}>
+          )}>
           {sending ? (
             <ActivityIndicator size="small" color="#FFFFFF" />
           ) : (
-            <View className="h-0 w-0 border-b-[6px] border-l-[8px] border-t-[6px] border-b-transparent border-l-on-primary border-t-transparent" />
+            <View
+              className={cn(
+                'h-0 w-0',
+                'border-b-[6px] border-l-[8px] border-t-[6px]',
+                'border-b-transparent border-t-transparent',
+                canSend ? 'border-l-on-primary' : 'border-l-muted-foreground'
+              )}
+            />
           )}
         </TouchableOpacity>
       </View>

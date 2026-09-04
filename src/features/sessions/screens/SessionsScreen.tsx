@@ -26,21 +26,6 @@ export default function SessionsScreen() {
 
   return (
     <>
-      <Stack.Screen
-        options={{
-          title: 'Sessions',
-          headerStyle: {
-            backgroundColor: '#faf9f5',
-          },
-          headerTintColor: '#141413',
-          headerTitleStyle: {
-            fontWeight: '500',
-            fontSize: 18,
-            fontFamily: 'Inter',
-          },
-          headerShadowVisible: false,
-        }}
-      />
       <View className="flex-1 bg-canvas">
         <SessionList projectId={projectId} />
 

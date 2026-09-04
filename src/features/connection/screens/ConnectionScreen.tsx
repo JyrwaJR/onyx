@@ -17,6 +17,7 @@ import { LoadingScreen } from '@components/LoadingScreen';
 import { useConnectionStore } from '../store/connection-store';
 import { useHealthCheck } from '../hooks/use-health-check';
 import { serverUrlSchema, type ServerUrlFormData } from '../validators/server-url';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 /** Quick connect suggestion items. */
 interface SuggestionItem {
@@ -79,7 +80,7 @@ export default function ConnectionScreen() {
 
   useEffect(() => {
     if (connectionStatus === 'connected' && isHealthy) {
-      router.replace('/(tabs)/projects' as never);
+      router.replace('/projects' as never);
     }
   }, [connectionStatus, isHealthy, router]);
 
@@ -134,7 +135,7 @@ export default function ConnectionScreen() {
   }
 
   return (
-    <View className="flex-1 bg-surface">
+    <SafeAreaView className="flex-1 bg-surface">
       {/* Ambient background glow accents */}
       <View className="absolute left-1/2 top-0 h-[280px] w-[340px] -translate-x-1/2 rounded-full bg-primary-fixed/35" />
       <View className="absolute bottom-10 right-0 h-[240px] w-[240px] rounded-full bg-secondary-fixed/50" />
@@ -297,6 +298,6 @@ export default function ConnectionScreen() {
           </Text>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }

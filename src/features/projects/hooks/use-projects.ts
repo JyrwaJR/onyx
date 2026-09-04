@@ -74,7 +74,7 @@ export function useForkProject() {
     mutationFn: forkProject,
     onSuccess: (newProject) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.projects.all });
-      router.push(`/(tabs)/projects/${newProject.id}/sessions` as never);
+      router.push(`/projects/${newProject.id}/sessions` as never);
     },
   });
 }

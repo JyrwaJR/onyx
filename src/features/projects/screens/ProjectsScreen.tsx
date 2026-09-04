@@ -4,8 +4,6 @@
  * Renders a header with the "Projects" title and the ProjectList component.
  */
 
-import { Stack } from 'expo-router';
-
 import { ProjectList } from '../components/ProjectList';
 
 /**
@@ -16,21 +14,6 @@ import { ProjectList } from '../components/ProjectList';
 export default function ProjectsScreen() {
   return (
     <>
-      <Stack.Screen
-        options={{
-          title: 'Projects',
-          headerStyle: {
-            backgroundColor: '#faf9f5',
-          },
-          headerTintColor: '#141413',
-          headerTitleStyle: {
-            fontWeight: '500',
-            fontSize: 18,
-            fontFamily: 'Inter',
-          },
-          headerShadowVisible: false,
-        }}
-      />
       <ProjectList />
     </>
   );

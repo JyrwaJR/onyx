@@ -1,7 +1,7 @@
 import { forwardRef } from 'react';
 import { TextInput, type TextInputProps, View, Text } from 'react-native';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from './cn';
+import { cn } from '@/shared/lib/cn';
 
 const inputVariants = cva('rounded-lg border bg-canvas px-4 py-3 text-base text-ink min-h-[48px]', {
   variants: {

@@ -46,7 +46,7 @@ export function SessionCard({ session, projectId }: SessionCardProps) {
   const deleteSession = useDeleteSession(projectId);
 
   const handlePress = () => {
-    router.push(`/(tabs)/projects/${projectId}/sessions/${session.id}/chat` as never);
+    router.push(`/projects/${projectId}/sessions/${session.id}/chat` as never);
   };
 
   const handleLongPress = () => {

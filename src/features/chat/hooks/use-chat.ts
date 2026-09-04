@@ -35,7 +35,7 @@ export function useCreateSession(projectId: string) {
       queryClient.invalidateQueries({
         queryKey: queryKeys.sessions.byProject(projectId),
       });
-      router.push(`/(tabs)/projects/${projectId}/sessions/${session.id}/chat` as never);
+      router.push(`/projects/${projectId}/sessions/${session.id}/chat` as never);
     },
   });
 }

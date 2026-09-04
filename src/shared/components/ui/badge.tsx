@@ -1,7 +1,7 @@
 import { forwardRef } from 'react';
 import { Text, type TextProps } from 'react-native';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from './cn';
+import { cn } from '@/shared/lib/cn';
 
 const badgeVariants = cva('rounded-pill px-3 py-1', {
   variants: {

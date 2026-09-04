@@ -17,7 +17,6 @@ let _dynamicBaseUrl: string | null = null;
  */
 export function getApiBaseUrl(): string {
   const url = _dynamicBaseUrl ?? ENV_BASE_URL;
-  console.log('[API] getApiBaseUrl returning:', url, '(dynamic:', _dynamicBaseUrl, ')');
   return url;
 }
 
@@ -27,7 +26,6 @@ export function getApiBaseUrl(): string {
  */
 export function setApiBaseUrl(url: string): void {
   const cleaned = url.replace(/\/$/, '');
-  console.log('[API] setApiBaseUrl called with:', url, '→ stored as:', cleaned);
   _dynamicBaseUrl = cleaned;
 }
 

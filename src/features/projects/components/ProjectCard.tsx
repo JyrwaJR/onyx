@@ -36,7 +36,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
   const router = useRouter();
 
   const handlePress = () => {
-    router.push(`/(tabs)/projects/${project.id}/sessions` as never);
+    router.push(`/projects/${project.id}/sessions` as never);
   };
 
   return (
