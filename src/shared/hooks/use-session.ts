@@ -5,7 +5,7 @@ import { SessionT } from '../api';
 export function useSession(sessionId: string) {
   return useQuery({
     queryKey: ['session', sessionId],
-    queryFn: () => http.get<SessionT>(`/session/${sessionId}`),
+    queryFn: () => http.get<SessionT>(`/api/session/${sessionId}`),
     select: (data) => data.data,
     enabled: !!sessionId,
   });

@@ -23,34 +23,34 @@ interface TimeSpan {
 /** OpenCode project. */
 
 /** Session summary (from list / create endpoints). */
-export type SessionT = {
+export interface SessionT {
+  agent: string;
+  cost: number;
   id: string;
+  location: {
+    directory: string;
+  };
+  model: {
+    id: string;
+    providerID: string;
+    variant: string;
+  };
   projectID: string;
-  directory: string;
-  parentID?: string;
-  summary?: {
-    additions: number;
-    deletions: number;
-    files: number;
-    diffs?: any[];
-  };
-  share?: {
-    url: string;
-  };
-  title: string;
-  version: string;
   time: {
     created: number;
     updated: number;
-    compacting?: number;
   };
-  revert?: {
-    messageID: string;
-    partID?: string;
-    snapshot?: string;
-    diff?: string;
+  title: string;
+  tokens: {
+    cache: {
+      read: number;
+      write: number;
+    };
+    input: number;
+    output: number;
+    reasoning: number;
   };
-};
+}
 /**
  * A single content block inside a V2 assistant message.
  * Produced by both the V2 message read endpoint and the SSE event stream.
