@@ -11,6 +11,9 @@ export interface HealthResponse {
   version?: string;
 }
 
+/** Message delivery status. */
+export type MessageStatus = 'pending' | 'sending' | 'sent';
+
 /** Millisecond timestamps from the OpenCode server. */
 interface TimeSpan {
   created: number;
@@ -87,6 +90,7 @@ export interface V2Message {
   };
   time: TimeSpan & { completed?: number };
   finish?: 'stop' | 'length' | 'error';
+  status?: MessageStatus;
   cost?: number;
   tokens?: {
     total?: number;
