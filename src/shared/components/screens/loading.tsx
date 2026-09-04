@@ -3,9 +3,8 @@
  * showing live handshake status, VRAM telemetry, loading progress, and action controls.
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Animated, Easing } from 'react-native';
-import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 
 interface RuntimeConnectingScreenProps {
@@ -20,7 +19,6 @@ interface RuntimeConnectingScreenProps {
 }
 
 export function Loading({
-  screenTitle = 'Connection Error State',
   modelName = 'Onyx 7B Q4_K_M',
   hostUrl = 'http://localhost:4096',
   allocatedVram = '4.8',
@@ -29,17 +27,17 @@ export function Loading({
   onCancelConnection,
   onConnectionSuccess,
 }: RuntimeConnectingScreenProps) {
-  const router = useRouter();
-
   // Dynamic progress simulation
   const [progress, setProgress] = useState(initialProgress);
   const [isAborting, setIsAborting] = useState(false);
   const [isCancelled, setIsCancelled] = useState(false);
 
-  // Animated values
-  const pulseAnim = useRef(new Animated.Value(1)).current;
-  const spinAnim = useRef(new Animated.Value(0)).current;
-  const progressAnim = useRef(new Animated.Value(initialProgress)).current;
+  // Animated values. Created once via lazy state initializers so the
+  // instances are stable across renders while still being usable during
+  // render (they are bound to Animated.View style props below).
+  const [pulseAnim] = useState(() => new Animated.Value(1));
+  const [spinAnim] = useState(() => new Animated.Value(0));
+  const [progressAnim] = useState(() => new Animated.Value(initialProgress));
 
   // Pulse effect for central core
   useEffect(() => {
