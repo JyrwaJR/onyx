@@ -19,6 +19,12 @@ import { serverUrlSchema, type ServerUrlFormData } from '../validators/server-ur
 
 const SUGGESTIONS = ['http://localhost:4096'] as const;
 
+/**
+ * Connection screen for connecting to an OpenCode server.
+ *
+ * Uses Claude design system with cream canvas background,
+ * surface-card inputs, and coral primary button.
+ */
 export default function ConnectionScreen() {
   const router = useRouter();
 
@@ -84,21 +90,21 @@ export default function ConnectionScreen() {
 
   if (connectionStatus === 'error' && error) {
     return (
-      <View className="flex-1 items-center justify-center bg-white px-6">
+      <View className="flex-1 items-center justify-center bg-canvas px-6">
         <Text className="text-4xl">⚠️</Text>
-        <Text className="mt-4 text-center text-base text-gray-700">{error}</Text>
-        <Pressable onPress={handleTryAgain} className="mt-6 rounded-lg bg-indigo-600 px-6 py-3">
-          <Text className="text-base font-semibold text-white">Try Again</Text>
+        <Text className="mt-4 text-center text-base text-body">{error}</Text>
+        <Pressable onPress={handleTryAgain} className="mt-6 rounded-lg bg-primary px-6 py-3">
+          <Text className="text-base font-semibold text-on-primary">Try Again</Text>
         </Pressable>
       </View>
     );
   }
 
   return (
-    <View className="flex-1 items-center justify-center bg-white px-6">
+    <View className="flex-1 items-center justify-center bg-canvas px-6">
       <View className="w-full max-w-sm items-center">
-        <Text className="text-3xl font-bold text-gray-900">Onyx</Text>
-        <Text className="mt-2 text-center text-base text-gray-500">
+        <Text className="font-display text-display-md text-ink">Onyx</Text>
+        <Text className="mt-2 text-center text-base text-muted">
           Connect to your local AI agent
         </Text>
 
@@ -108,9 +114,9 @@ export default function ConnectionScreen() {
             name="serverUrl"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-base text-gray-900"
+                className="w-full rounded-lg border border-hairline bg-canvas px-4 py-3 text-base text-ink"
                 placeholder="http://localhost:3000"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor="#8e8b82"
                 autoCapitalize="none"
                 autoCorrect={false}
                 keyboardType="url"
@@ -123,27 +129,27 @@ export default function ConnectionScreen() {
           />
 
           {errors.serverUrl && (
-            <Text className="mt-2 text-sm text-red-500">{errors.serverUrl.message}</Text>
+            <Text className="mt-2 text-sm text-error">{errors.serverUrl.message}</Text>
           )}
 
           <Pressable
             onPress={handleSubmit(onSubmit)}
             disabled={!isValid || isSubmitting}
             className={`mt-4 w-full items-center rounded-lg px-6 py-3 ${
-              isValid && !isSubmitting ? 'bg-indigo-600' : 'bg-gray-300'
+              isValid && !isSubmitting ? 'bg-primary' : 'bg-hairline'
             }`}>
-            <Text className="text-base font-semibold text-white">Connect</Text>
+            <Text className="text-base font-semibold text-on-primary">Connect</Text>
           </Pressable>
         </View>
 
         <View className="mt-8 w-full">
-          <Text className="mb-2 text-center text-sm text-gray-400">Quick connect</Text>
+          <Text className="mb-2 text-center text-sm text-muted-soft">Quick connect</Text>
           {SUGGESTIONS.map((url) => (
             <Pressable
               key={url}
               onPress={() => handleSuggestionPress(url)}
-              className="mt-2 w-full items-center rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
-              <Text className="text-sm text-gray-600">{url}</Text>
+              className="mt-2 w-full items-center rounded-lg border border-hairline bg-surface-soft px-4 py-3">
+              <Text className="text-sm text-body">{url}</Text>
             </Pressable>
           ))}
         </View>

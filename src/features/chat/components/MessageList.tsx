@@ -31,7 +31,7 @@ export function MessageList({ messages, isLoading, onDelete }: MessageListProps)
   if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" color="#4F46E5" />
+        <ActivityIndicator size="large" color="#cc785c" />
       </View>
     );
   }

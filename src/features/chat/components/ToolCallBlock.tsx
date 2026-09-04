@@ -16,6 +16,8 @@ function formatResult(result: unknown): string {
 /**
  * Collapsible display for a tool call with arguments and result.
  *
+ * Uses Claude design system surface colors for backgrounds and borders.
+ *
  * @param part - The tool message part to display.
  */
 export function ToolCallBlock({ part }: ToolCallBlockProps) {
@@ -23,11 +25,13 @@ export function ToolCallBlock({ part }: ToolCallBlockProps) {
   const hasResult = part.state.output != null;
 
   return (
-    <View className="my-1 rounded-lg border border-gray-200 bg-gray-50 p-2">
+    <View className="my-1 rounded-lg border border-hairline bg-surface-soft p-2">
       <TouchableOpacity onPress={() => setExpanded(!expanded)} activeOpacity={0.7}>
         <View className="flex-row items-center justify-between">
-          <Text className="text-xs font-medium text-gray-700">{part.state.title || part.tool}</Text>
-          <Text className="text-xs text-gray-400">{expanded ? '▼' : '▶'}</Text>
+          <Text className="text-xs font-medium text-body-strong">
+            {part.state.title || part.tool}
+          </Text>
+          <Text className="text-xs text-muted-soft">{expanded ? '▼' : '▶'}</Text>
         </View>
       </TouchableOpacity>
 
@@ -35,8 +39,8 @@ export function ToolCallBlock({ part }: ToolCallBlockProps) {
         <View className="mt-2">
           {part.state.input != null && (
             <>
-              <Text className="text-xs text-gray-500">Arguments:</Text>
-              <Text className="mt-1 rounded bg-white p-2 text-xs text-gray-600" selectable>
+              <Text className="text-xs text-muted">Arguments:</Text>
+              <Text className="mt-1 rounded bg-canvas p-2 text-xs text-body" selectable>
                 {JSON.stringify(part.state.input, null, 2)}
               </Text>
             </>
@@ -44,8 +48,8 @@ export function ToolCallBlock({ part }: ToolCallBlockProps) {
 
           {hasResult && (
             <>
-              <Text className="mt-2 text-xs text-gray-500">Result:</Text>
-              <Text className="mt-1 rounded bg-white p-2 text-xs text-gray-600" selectable>
+              <Text className="mt-2 text-xs text-muted">Result:</Text>
+              <Text className="mt-1 rounded bg-canvas p-2 text-xs text-body" selectable>
                 {formatResult(part.state.output)}
               </Text>
             </>

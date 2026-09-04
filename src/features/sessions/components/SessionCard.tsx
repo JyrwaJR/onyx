@@ -33,7 +33,14 @@ function getRelativeTime(ms?: number): string {
   return new Date(ms).toLocaleDateString();
 }
 
-/** Card for displaying a session with navigation and long-press delete. */
+/**
+ * Card for displaying a session with navigation to chat.
+ *
+ * Uses Claude design system surface-card background with hairline border.
+ *
+ * @param session - The session data to display.
+ * @param projectId - The parent project ID for navigation.
+ */
 export function SessionCard({ session, projectId }: SessionCardProps) {
   const router = useRouter();
   const deleteSession = useDeleteSession(projectId);
@@ -57,12 +64,12 @@ export function SessionCard({ session, projectId }: SessionCardProps) {
     <TouchableOpacity
       onPress={handlePress}
       onLongPress={handleLongPress}
-      className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+      className="rounded-lg border border-hairline bg-surface-card p-4"
       activeOpacity={0.7}>
-      <Text className="text-base font-semibold text-gray-900" numberOfLines={1}>
+      <Text className="text-base font-semibold text-ink" numberOfLines={1}>
         {session.title || 'Untitled'}
       </Text>
-      <Text className="mt-1 text-xs text-gray-400">{getRelativeTime(session.time.updated)}</Text>
+      <Text className="mt-1 text-xs text-muted-soft">{getRelativeTime(session.time.updated)}</Text>
     </TouchableOpacity>
   );
 }

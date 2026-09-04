@@ -10,8 +10,14 @@ import { FlatList, View, ActivityIndicator, Text, RefreshControl } from 'react-n
 
 import { useProjects } from '../hooks/use-projects';
 import { ProjectCard } from './ProjectCard';
+import { EmptyState } from '../../../shared/components/EmptyState';
+import { ErrorView } from '../../../shared/components/ErrorView';
 
-/** Project list with pull-to-refresh. */
+/**
+ * Project list with pull-to-refresh, loading, error, and empty states.
+ *
+ * Uses Claude design system colors throughout.
+ */
 export function ProjectList() {
   const { data: projects, isLoading, isError, error, refetch, isFetching } = useProjects();
 
@@ -21,38 +27,29 @@ export function ProjectList() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator size="large" color="#4F46E5" />
-        <Text className="mt-4 text-base text-gray-500">Loading projects...</Text>
+      <View className="flex-1 items-center justify-center bg-canvas">
+        <ActivityIndicator size="large" color="#cc785c" />
+        <Text className="mt-4 text-base text-muted">Loading projects...</Text>
       </View>
     );
   }
 
   if (isError) {
     return (
-      <View className="flex-1 items-center justify-center bg-white px-6">
-        <Text className="text-4xl">⚠️</Text>
-        <Text className="mt-4 text-center text-base text-gray-700">
-          {error instanceof Error ? error.message : 'Failed to load projects.'}
-        </Text>
-        <Text
-          onPress={handleRefresh}
-          className="mt-6 rounded-lg bg-indigo-600 px-6 py-3 text-base font-semibold text-white">
-          Retry
-        </Text>
-      </View>
+      <ErrorView
+        message={error instanceof Error ? error.message : 'Failed to load projects.'}
+        onRetry={handleRefresh}
+      />
     );
   }
 
   if (!projects || projects.length === 0) {
     return (
-      <View className="flex-1 items-center justify-center px-6">
-        <Text className="text-5xl">📭</Text>
-        <Text className="mt-4 text-lg font-semibold text-gray-700">No projects yet</Text>
-        <Text className="mt-2 text-center text-sm text-gray-500">
-          Connect to a server to see your projects.
-        </Text>
-      </View>
+      <EmptyState
+        icon="📭"
+        title="No projects yet"
+        subtitle="Connect to a server to see your projects."
+      />
     );
   }
 

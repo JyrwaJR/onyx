@@ -10,6 +10,9 @@ interface MessageInputProps {
 /**
  * Text input with auto-grow and send button.
  *
+ * Uses Claude design system styling with cream canvas background
+ * and coral send button.
+ *
  * @param onSend - Callback when the user sends a message.
  * @param disabled - Whether the input is disabled.
  * @param sending - Whether a message is currently being sent.
@@ -28,13 +31,13 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
   const canSend = text.trim().length > 0 && !disabled && !sending;
 
   return (
-    <View className="border-t border-gray-200 bg-white px-4 py-3">
+    <View className="border-t border-hairline bg-canvas px-4 py-3">
       <View className="flex-row items-end gap-2">
         <TextInput
           ref={inputRef}
-          className="min-h-[44px] max-h-[132px] flex-1 rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-base text-gray-900"
+          className="max-h-[132px] min-h-[44px] flex-1 rounded-xl border border-hairline bg-surface-soft px-4 py-3 text-base text-ink"
           placeholder="Type a message..."
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor="#8e8b82"
           multiline
           numberOfLines={1}
           maxLength={10000}
@@ -49,13 +52,13 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
           onPress={handleSend}
           disabled={!canSend}
           className={`h-11 w-11 items-center justify-center rounded-full ${
-            canSend ? 'bg-indigo-600' : 'bg-gray-200'
+            canSend ? 'bg-primary' : 'bg-hairline'
           }`}
           activeOpacity={0.7}>
           {sending ? (
             <ActivityIndicator size="small" color="#FFFFFF" />
           ) : (
-            <View className="h-0 w-0 border-l-[8px] border-l-white border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent" />
+            <View className="h-0 w-0 border-b-[6px] border-l-[8px] border-t-[6px] border-b-transparent border-l-on-primary border-t-transparent" />
           )}
         </TouchableOpacity>
       </View>

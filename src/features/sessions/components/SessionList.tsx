@@ -18,7 +18,13 @@ interface SessionListProps {
   projectId: string;
 }
 
-/** Session list with pull-to-refresh, loading, error, and empty states. */
+/**
+ * Session list with pull-to-refresh, loading, error, and empty states.
+ *
+ * Uses Claude design system colors throughout.
+ *
+ * @param projectId - The project ID to fetch sessions for.
+ */
 export function SessionList({ projectId }: SessionListProps) {
   const { data, isLoading, isError, error, refetch, isFetching } = useSessions(projectId);
 
@@ -30,8 +36,8 @@ export function SessionList({ projectId }: SessionListProps) {
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator size="large" color="#4F46E5" />
+      <View className="flex-1 items-center justify-center bg-canvas">
+        <ActivityIndicator size="large" color="#cc785c" />
       </View>
     );
   }

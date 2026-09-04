@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
-import { View } from 'react-native';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { useMessages, useSendMessage, useDeleteMessage } from '../hooks/use-chat';
@@ -13,11 +13,31 @@ import { queryKeys } from '../../../shared/api/query-keys';
 import type { Message, MessagePart } from '../../../shared/api/types';
 
 /**
+ * Back button component for chat screen header.
+ * Renders a left arrow with "Back" text in ink color.
+ */
+function BackButton() {
+  const router = useRouter();
+
+  return (
+    <TouchableOpacity
+      onPress={() => router.back()}
+      className="flex-row items-center pl-2"
+      activeOpacity={0.7}>
+      <Text className="text-lg text-ink">←</Text>
+      <Text className="ml-1 text-base font-medium text-ink">Back</Text>
+    </TouchableOpacity>
+  );
+}
+
+/**
  * Main chat screen with SSE streaming and message management.
  *
  * Receives `sessionId` and `projectId` from route params. Streams real-time
  * updates from the OpenCode session log stream and merges in-progress
  * assistant messages with the fetched history.
+ *
+ * Features a styled header with back button following Claude design system.
  */
 export default function ChatScreen() {
   const { sessionId, projectId } = useLocalSearchParams<{
@@ -128,8 +148,23 @@ export default function ChatScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: 'Chat' }} />
-      <View className="flex-1 bg-white">
+      <Stack.Screen
+        options={{
+          title: 'Chat',
+          headerStyle: {
+            backgroundColor: '#faf9f5',
+          },
+          headerTintColor: '#141413',
+          headerTitleStyle: {
+            fontWeight: '500',
+            fontSize: 18,
+            fontFamily: 'Inter',
+          },
+          headerLeft: () => <BackButton />,
+          headerShadowVisible: false,
+        }}
+      />
+      <View className="flex-1 bg-canvas">
         <MessageList messages={allMessages} onDelete={handleDelete} />
         <MessageInput onSend={handleSend} sending={sendMessage.isPending} />
       </View>

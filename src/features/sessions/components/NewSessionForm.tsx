@@ -19,7 +19,16 @@ interface NewSessionFormProps {
   onClose: () => void;
 }
 
-/** Modal form for creating a new session with title input. */
+/**
+ * Modal form for creating a new session with title input.
+ *
+ * Uses Claude design system styling with canvas background
+ * and primary coral for the submit button.
+ *
+ * @param projectId - The project ID to create the session in.
+ * @param visible - Whether the modal is visible.
+ * @param onClose - Callback to close the modal.
+ */
 export function NewSessionForm({ projectId, visible, onClose }: NewSessionFormProps) {
   const router = useRouter();
 
@@ -50,17 +59,17 @@ export function NewSessionForm({ projectId, visible, onClose }: NewSessionFormPr
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <View className="flex-1 justify-end bg-black/50">
-        <View className="rounded-t-2xl bg-white p-6 pb-8">
-          <Text className="mb-4 text-lg font-semibold text-gray-900">New Session</Text>
+        <View className="rounded-t-2xl bg-canvas p-6 pb-8">
+          <Text className="mb-4 text-lg font-semibold text-ink">New Session</Text>
 
           <Controller
             control={control}
             name="title"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
-                className="rounded-lg border border-gray-300 px-4 py-3 text-base text-gray-900"
+                className="rounded-lg border border-hairline bg-canvas px-4 py-3 text-base text-ink"
                 placeholder="Session title (optional)"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor="#8e8b82"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
@@ -69,23 +78,21 @@ export function NewSessionForm({ projectId, visible, onClose }: NewSessionFormPr
             )}
           />
 
-          {errors.title && (
-            <Text className="mt-1 text-sm text-red-500">{errors.title.message}</Text>
-          )}
+          {errors.title && <Text className="mt-1 text-sm text-error">{errors.title.message}</Text>}
 
           <View className="mt-6 flex-row gap-3">
             <TouchableOpacity
               onPress={handleCancel}
-              className="flex-1 rounded-lg border border-gray-300 py-3"
+              className="flex-1 rounded-lg border border-hairline py-3"
               activeOpacity={0.7}>
-              <Text className="text-center text-base font-medium text-gray-700">Cancel</Text>
+              <Text className="text-center text-base font-medium text-body">Cancel</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={handleSubmit(onSubmit)}
-              className="flex-1 rounded-lg bg-indigo-600 py-3"
+              className="flex-1 rounded-lg bg-primary py-3"
               activeOpacity={0.7}>
-              <Text className="text-center text-base font-semibold text-white">Start</Text>
+              <Text className="text-center text-base font-semibold text-on-primary">Start</Text>
             </TouchableOpacity>
           </View>
         </View>

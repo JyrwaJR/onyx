@@ -29,8 +29,8 @@ function renderPart(part: MessagePart, index: number) {
       return <ToolCallBlock key={index} part={part} />;
     case 'reasoning':
       return (
-        <View key={index} className="my-1 rounded bg-gray-50 p-2">
-          <Text className="text-xs italic text-gray-400">{part.text}</Text>
+        <View key={index} className="my-1 rounded bg-surface-soft p-2">
+          <Text className="text-xs italic text-muted-soft">{part.text}</Text>
         </View>
       );
     default:
@@ -40,6 +40,9 @@ function renderPart(part: MessagePart, index: number) {
 
 /**
  * Message bubble with user/AI alignment and long-press delete.
+ *
+ * User messages appear on the right with coral background.
+ * AI messages appear on the left with cream card background.
  *
  * @param message - The message to display.
  * @param onDelete - Optional callback for deleting user messages.
@@ -64,14 +67,14 @@ export function MessageBubble({ message, onDelete }: MessageBubbleProps) {
       onLongPress={handleLongPress}
       activeOpacity={isUser ? 0.7 : 1}
       className={`mb-3 max-w-[85%] ${isUser ? 'self-end' : 'self-start'}`}>
-      <View className={`rounded-2xl px-4 py-3 ${isUser ? 'bg-indigo-600' : 'bg-gray-100'}`}>
+      <View className={`rounded-2xl px-4 py-3 ${isUser ? 'bg-primary' : 'bg-surface-card'}`}>
         {message.parts.map((part, index) => (
-          <View key={index} className={isUser ? 'text-white' : 'text-gray-900'}>
+          <View key={index} className={isUser ? 'text-on-primary' : 'text-ink'}>
             {renderPart(part, index)}
           </View>
         ))}
       </View>
-      <Text className={`mt-1 text-xs text-gray-400 ${isUser ? 'text-right' : 'text-left'}`}>
+      <Text className={`mt-1 text-xs text-muted-soft ${isUser ? 'text-right' : 'text-left'}`}>
         {getRelativeTime(message.info.time.created)}
       </Text>
     </TouchableOpacity>

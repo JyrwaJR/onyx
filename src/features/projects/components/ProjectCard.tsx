@@ -25,7 +25,13 @@ function projectTitle(project: Project): string {
   return last || project.worktree;
 }
 
-/** Card for displaying a project with navigation to its sessions. */
+/**
+ * Card for displaying a project with navigation to its sessions.
+ *
+ * Uses Claude design system surface-card background with hairline border.
+ *
+ * @param project - The project data to display.
+ */
 export function ProjectCard({ project }: ProjectCardProps) {
   const router = useRouter();
 
@@ -36,15 +42,17 @@ export function ProjectCard({ project }: ProjectCardProps) {
   return (
     <TouchableOpacity
       onPress={handlePress}
-      className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+      className="rounded-lg border border-hairline bg-surface-card p-4"
       activeOpacity={0.7}>
-      <Text className="text-base font-semibold text-gray-900" numberOfLines={1}>
+      <Text className="text-base font-semibold text-ink" numberOfLines={1}>
         {projectTitle(project)}
       </Text>
-      <Text className="mt-1 text-sm text-gray-500" numberOfLines={1}>
+      <Text className="mt-1 text-sm text-muted" numberOfLines={1}>
         {project.worktree}
       </Text>
-      {project.vcs && <Text className="mt-2 text-xs text-gray-400">{project.vcs} repository</Text>}
+      {project.vcs && (
+        <Text className="mt-2 text-xs text-muted-soft">{project.vcs} repository</Text>
+      )}
     </TouchableOpacity>
   );
 }
