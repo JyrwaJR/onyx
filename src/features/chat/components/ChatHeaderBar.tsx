@@ -19,7 +19,9 @@ export const ChatHeaderBar = memo(function ChatHeaderBar({ sessionId }: ChatHead
       <View className="flex-1 flex-row items-center gap-1.5 pr-2">
         <View className="h-2 w-2 rounded-full bg-[#8f482f]" />
         <Text className="text-xs font-medium text-[#54433e]" numberOfLines={1}>
-          {isFetching ? 'Loading...' : data?.directory}
+          {isFetching
+            ? 'Loading...'
+            : `${data?.agent} - ${data?.model.id} - (${data?.model.variant})`}
         </Text>
       </View>
 
