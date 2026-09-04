@@ -10,9 +10,5 @@ interface ContainerProps {
  * @param children - Child elements to render inside the container.
  */
 export const Container: React.FC<ContainerProps> = ({ children }) => {
-  return <View className={styles.container}>{children}</View>;
-};
-
-const styles = {
-  container: 'flex flex-1 p-safe bg-canvas',
+  return <View className={'p-safe flex flex-1 bg-surface'}>{children}</View>;
 };

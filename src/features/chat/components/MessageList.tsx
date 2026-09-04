@@ -2,7 +2,7 @@ import { useRef, useEffect } from 'react';
 import { FlatList, View, ActivityIndicator } from 'react-native';
 import type { V2Message } from '../../../shared/api/types';
 import { MessageBubble } from './MessageBubble';
-import { EmptyState } from '../../../shared/components/EmptyState';
+import { NotFoundSessionsScreen } from '../../../shared/components/screens';
 
 interface MessageListProps {
   messages: V2Message[];
@@ -31,15 +31,13 @@ export function MessageList({ messages, isLoading, onDelete }: MessageListProps)
   if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" color="#cc785c" />
+        <ActivityIndicator size="large" color="#8f482f" />
       </View>
     );
   }
 
   if (messages.length === 0) {
-    return (
-      <EmptyState icon="💬" title="No messages yet" subtitle="Send a message to start chatting" />
-    );
+    return <NotFoundSessionsScreen screenTitle="No Messages" />;
   }
 
   return (

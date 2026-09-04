@@ -61,8 +61,8 @@ export function NewSessionForm({ projectId, visible, onClose }: NewSessionFormPr
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <View className="flex-1 justify-end bg-black/50">
-        <View className="rounded-t-2xl bg-canvas p-6 pb-8">
-          <Text className="mb-4 text-lg font-semibold text-ink">New Session</Text>
+        <View className="rounded-t-2xl bg-surface p-6 pb-8">
+          <Text className="mb-4 text-headline-md font-semibold text-on-surface">New Session</Text>
 
           <Controller
             control={control}

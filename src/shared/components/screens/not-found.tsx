@@ -222,7 +222,7 @@ export function NotFound({
           className="mb-5 h-12 w-full flex-row items-center justify-center gap-2 rounded-xl bg-primary shadow-sm active:scale-[0.99]"
           activeOpacity={0.9}>
           <MaterialIcons name="space-dashboard" size={18} color="#ffffff" />
-          <Text className="text-xs font-semibold text-on-primary">Return to Dashboard</Text>
+          <Text className="text-xs font-semibold text-primary-on">Return to Dashboard</Text>
         </TouchableOpacity>
 
         {/* Secondary Quick Destinations */}

@@ -26,7 +26,7 @@ export default function SessionsScreen() {
 
   return (
     <>
-      <View className="flex-1 bg-canvas">
+      <View className="flex-1 bg-surface">
         <SessionList projectId={projectId} />
 
         <Fab onPress={() => setFormVisible(true)} />

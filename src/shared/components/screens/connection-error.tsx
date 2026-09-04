@@ -16,7 +16,7 @@ interface ConnectionErrorScreenProps {
   onOpenNetworkSettings?: () => void;
 }
 
-export default function ConnectionErrorScreen({
+export function ConnectionErrorScreen({
   targetUrl = 'http://localhost:4096',
   targetPort = '4096 (TCP)',
   errorCode = 'ECONNREFUSED',
@@ -170,12 +170,12 @@ export default function ConnectionErrorScreen({
             {isRetrying ? (
               <>
                 <ActivityIndicator size="small" color="#ffffff" />
-                <Text className="text-sm font-semibold text-on-primary">Pinging Daemon...</Text>
+                <Text className="text-sm font-semibold text-primary-on">Pinging Daemon...</Text>
               </>
             ) : (
               <>
                 <MaterialIcons name="refresh" size={20} color="#ffffff" />
-                <Text className="text-sm font-semibold text-on-primary">
+                <Text className="text-sm font-semibold text-primary-on">
                   {retryFailed ? 'Connection Failed (ECONNREFUSED)' : 'Retry Connection'}
                 </Text>
               </>
@@ -209,7 +209,7 @@ export default function ConnectionErrorScreen({
                 onPress={handleCopyLogs}
                 className="flex-row items-center gap-1 active:opacity-70">
                 <MaterialIcons name="content-copy" size={14} color="#ffb59d" />
-                <Text className="font-mono text-[11px] font-medium text-inverse-primary">
+                <Text className="text-inverse-primary font-mono text-[11px] font-medium">
                   {isCopied ? 'Copied!' : 'Copy'}
                 </Text>
               </TouchableOpacity>

@@ -11,8 +11,7 @@ import { FlatList, View, ActivityIndicator, RefreshControl } from 'react-native'
 
 import { useSessions } from '../hooks/use-sessions';
 import { SessionCard } from './SessionCard';
-import { EmptyState } from '../../../shared/components/EmptyState';
-import { ErrorView } from '../../../shared/components/ErrorView';
+import { ConnectionErrorScreen, NotFoundSessionsScreen } from '@/shared/components/screens';
 
 interface SessionListProps {
   projectId: string;
@@ -36,25 +35,18 @@ export function SessionList({ projectId }: SessionListProps) {
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-canvas">
-        <ActivityIndicator size="large" color="#cc785c" />
+      <View className="flex-1 items-center justify-center bg-surface">
+        <ActivityIndicator size="large" color="#8f482f" />
       </View>
     );
   }
 
   if (isError) {
-    return (
-      <ErrorView
-        message={error instanceof Error ? error.message : 'Failed to load sessions.'}
-        onRetry={handleRefresh}
-      />
-    );
+    return <ConnectionErrorScreen />;
   }
 
   if (sessions.length === 0) {
-    return (
-      <EmptyState icon="💬" title="No sessions yet" subtitle="Tap + to start a new conversation." />
-    );
+    return <NotFoundSessionsScreen />;
   }
 
   return (

@@ -26,7 +26,7 @@ export const Fab = forwardRef<View, FabProps>(({ icon = '+', className, ...props
       )}
       activeOpacity={0.8}
       {...props}>
-      <Text className="text-2xl font-bold text-on-primary">{icon}</Text>
+      <Text className="text-2xl font-bold text-primary-on">{icon}</Text>
     </TouchableOpacity>
   );
 });

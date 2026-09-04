@@ -4,15 +4,15 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/shared/lib/cn';
 
 const buttonVariants = cva(
-  'flex-row items-center justify-center rounded-md px-5 py-3 min-h-[40px]',
+  'flex-row items-center justify-center rounded-xl px-5 py-3 min-h-[40px] shadow-md',
   {
     variants: {
       variant: {
         primary: 'bg-primary',
-        secondary: 'bg-canvas border border-hairline',
+        secondary: 'bg-surface border border-outline-variant',
         destructive: 'bg-error/10 border border-error/20',
         ghost: 'bg-transparent',
-        'primary-on-dark': 'bg-surface-dark-elevated',
+        'primary-on-dark': 'bg-inverse-surface',
       },
       size: {
         sm: 'min-h-[32px] px-3 py-2',
@@ -28,20 +28,20 @@ const buttonVariants = cva(
   }
 );
 
-const buttonTextVariants = cva('font-button text-center', {
+const buttonTextVariants = cva('font-sans text-center', {
   variants: {
     variant: {
-      primary: 'text-on-primary',
-      secondary: 'text-ink',
+      primary: 'text-primary-on',
+      secondary: 'text-on-surface',
       destructive: 'text-error',
       ghost: 'text-primary',
-      'primary-on-dark': 'text-on-dark',
+      'primary-on-dark': 'text-inverse-on-surface',
     },
     size: {
-      sm: 'text-body-sm',
-      md: 'text-button',
+      sm: 'text-label-sm',
+      md: 'text-label-md',
       lg: 'text-body-md',
-      icon: 'text-button',
+      icon: 'text-label-md',
     },
   },
   defaultVariants: {

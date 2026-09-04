@@ -1,5 +1,5 @@
-import { NotFound } from '@/shared/components/screens';
+import { Redirect } from 'expo-router';
 
 export default function Index() {
-  return <NotFound />;
+  return <Redirect href="/(connection)" />;
 }

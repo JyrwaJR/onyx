@@ -6,12 +6,12 @@ import { cn } from '@/shared/lib/cn';
 const badgeVariants = cva('rounded-pill px-3 py-1', {
   variants: {
     variant: {
-      default: 'bg-surface-card',
+      default: 'bg-secondary-container',
       primary: 'bg-primary',
       success: 'bg-success/15',
       warning: 'bg-warning/15',
       error: 'bg-error/15',
-      muted: 'bg-surface-soft',
+      muted: 'bg-surface-container-low',
     },
     size: {
       sm: 'px-2 py-0.5',
@@ -25,18 +25,18 @@ const badgeVariants = cva('rounded-pill px-3 py-1', {
   },
 });
 
-const badgeTextVariants = cva('font-caption', {
+const badgeTextVariants = cva('font-label', {
   variants: {
     variant: {
-      default: 'text-ink',
-      primary: 'text-on-primary',
+      default: 'text-secondary-on-container',
+      primary: 'text-primary-on',
       success: 'text-success',
       warning: 'text-warning',
       error: 'text-error',
-      muted: 'text-muted',
+      muted: 'text-outline',
     },
     uppercase: {
-      true: 'font-caption-upper',
+      true: 'font-label-sm',
     },
   },
   defaultVariants: {

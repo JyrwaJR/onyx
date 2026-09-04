@@ -29,7 +29,7 @@ const markdownStyles = {
     fontSize: 13,
     fontFamily: 'JetBrains Mono',
   },
-  link: { color: '#cc785c' },
+  link: { color: '#8f482f' },
   heading1: { fontSize: 22, fontWeight: 'bold' as const, marginTop: 12, marginBottom: 8 },
   heading2: { fontSize: 18, fontWeight: 'bold' as const, marginTop: 10, marginBottom: 6 },
   heading3: { fontSize: 16, fontWeight: 'bold' as const, marginTop: 8, marginBottom: 4 },

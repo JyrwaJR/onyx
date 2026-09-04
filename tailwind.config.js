@@ -6,71 +6,10 @@ module.exports = {
   theme: {
     extend: {
       // ═══════════════════════════════════════════════════════════════════
-      // Colors — Merged: Original Claude tokens + Stitch MD3 tokens
+      // Colors — Onyx Design System (DESIGN.md)
       // ═══════════════════════════════════════════════════════════════════
       colors: {
-        // ── Brand & Accent (Original) ───────────────────────────────────
-        primary: {
-          DEFAULT: '#cc785c',
-          active: '#a9583e',
-          disabled: '#e6dfd8',
-          // Stitch MD3 additions
-          container: '#ad5f45',
-          fixed: '#ffdbd0',
-          'fixed-dim': '#ffb59d',
-        },
-        accent: {
-          teal: '#5db8a6',
-          amber: '#e8a55a',
-        },
-
-        // ── Surface — Original tokens (preserved) ───────────────────────
-        canvas: '#faf9f5',
-        'surface-soft': '#f5f0e8',
-        'surface-card': '#efe9de',
-        'surface-cream-strong': '#e8e0d2',
-        'surface-dark': {
-          DEFAULT: '#181715',
-          elevated: '#252320',
-          soft: '#1f1e1b',
-        },
-        hairline: {
-          DEFAULT: '#e6dfd8',
-          soft: '#ebe6df',
-        },
-
-        // ── Text — Original tokens (preserved) ──────────────────────────
-        ink: '#141413',
-        body: {
-          DEFAULT: '#3d3d3a',
-          strong: '#252523',
-        },
-        muted: {
-          DEFAULT: '#6c6a64',
-          soft: '#8e8b82',
-        },
-        'on-primary': {
-          DEFAULT: '#ffffff',
-        },
-        'on-dark': {
-          DEFAULT: '#faf9f5',
-          soft: '#a09d96',
-        },
-
-        // ── Semantic — Original tokens (preserved) ──────────────────────
-        success: '#5db872',
-        warning: '#d4a017',
-        error: {
-          DEFAULT: '#c64545',
-          // Stitch MD3 additions
-          container: '#ffdad6',
-        },
-
-        // ═════════════════════════════════════════════════════════════════
-        // Stitch MD3 — Material Design 3 Tokens
-        // ═════════════════════════════════════════════════════════════════
-
-        // ── Stitch Surface ──────────────────────────────────────────────
+        // ── Surface — Onyx tokens ────────────────────────────────────────
         surface: {
           DEFAULT: '#fcf9f6',
           dim: '#dcd9d7',
@@ -92,54 +31,91 @@ module.exports = {
         'inverse-surface': '#31302f',
         'inverse-on-surface': '#f3f0ee',
 
-        // ── Stitch Outline ──────────────────────────────────────────────
+        // ── Primary — Onyx tokens ──────────────────────────────────────
+        primary: {
+          DEFAULT: '#8f482f',
+          on: '#ffffff',
+          container: '#ad5f45',
+          'on-container': '#fffbff',
+          fixed: '#ffdbd0',
+          'fixed-dim': '#ffb59d',
+          'on-fixed': '#390c00',
+          'on-fixed-variant': '#75331c',
+          inverse: '#ffb59d',
+          tint: '#924a31',
+        },
+
+        // ── Secondary — Onyx tokens ────────────────────────────────────
+        secondary: {
+          DEFAULT: '#605e58',
+          on: '#ffffff',
+          container: '#e6e2da',
+          'on-container': '#66645e',
+          fixed: '#e6e2da',
+          'fixed-dim': '#cac6bf',
+          'on-fixed': '#1c1c17',
+          'on-fixed-variant': '#484741',
+        },
+
+        // ── Tertiary — Onyx tokens ─────────────────────────────────────
+        tertiary: {
+          DEFAULT: '#5e5c54',
+          on: '#ffffff',
+          container: '#77746c',
+          'on-container': '#fffbff',
+          fixed: '#e7e2d8',
+          'fixed-dim': '#cac6bc',
+          'on-fixed': '#1d1c15',
+          'on-fixed-variant': '#49473f',
+        },
+
+        // ── Error — Onyx tokens ────────────────────────────────────────
+        error: {
+          DEFAULT: '#ba1a1a',
+          on: '#ffffff',
+          container: '#ffdad6',
+          'on-container': '#93000a',
+        },
+
+        // ── Outline — Onyx tokens ──────────────────────────────────────
         outline: {
           DEFAULT: '#87736d',
           variant: '#dac1ba',
         },
 
-        // ── Stitch Background ───────────────────────────────────────────
+        // ── Background — Onyx tokens ───────────────────────────────────
         background: {
           DEFAULT: '#fcf9f6',
+          on: '#1c1c1a',
         },
 
-        // ── Stitch Secondary ────────────────────────────────────────────
-        secondary: {
-          DEFAULT: '#605e58',
-          container: '#e6e2da',
-          fixed: '#e6e2da',
-          'fixed-dim': '#cac6bf',
+        // ── Legacy/Compat — Preserved for existing components ───────────
+        canvas: '#fcf9f6',
+        'surface-soft': '#f6f3f1',
+        'surface-card': '#f0edeb',
+        hairline: {
+          DEFAULT: '#dac1ba',
+          soft: '#e5e2e0',
         },
-        'on-secondary': {
-          DEFAULT: '#ffffff',
-          container: '#66645e',
-          fixed: '#1c1c17',
-          'fixed-variant': '#484741',
+        ink: '#1c1c1a',
+        body: {
+          DEFAULT: '#54433e',
+          strong: '#1c1c1a',
         },
-
-        // ── Stitch Tertiary ─────────────────────────────────────────────
-        tertiary: {
-          DEFAULT: '#5e5c54',
-          container: '#77746c',
-          fixed: '#e7e2d8',
-          'fixed-dim': '#cac6bc',
+        muted: {
+          DEFAULT: '#87736d',
+          soft: '#dac1ba',
         },
-        'on-tertiary': {
-          DEFAULT: '#ffffff',
-          container: '#fffbff',
-          fixed: '#1d1c15',
-          'fixed-variant': '#49473f',
+        'on-dark': {
+          DEFAULT: '#fcf9f6',
+          soft: '#dcd9d7',
         },
-
-        // ── Stitch on-primary-container (for MD3 surfaces) ──────────────
-        'on-primary-container': '#fffbff',
-
-        // ── Stitch inverse ──────────────────────────────────────────────
-        'inverse-primary': '#ffb59d',
+        success: '#5db872',
+        warning: '#d4a017',
       },
 
       // ═══════════════════════════════════════════════════════════════════
-      // Typography — Font Families
+      // Typography — Font Families (Onyx)
       // ═══════════════════════════════════════════════════════════════════
       fontFamily: {
         display: [
@@ -152,90 +128,74 @@ module.exports = {
         ],
         sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
         mono: ['JetBrains Mono', 'SF Mono', 'Fira Code', 'Consolas', 'monospace'],
-        // Stitch font aliases
         body: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
-        'body-lg': ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
-        'headline-lg': ['EB Garamond', 'serif'],
-        'headline-md': ['EB Garamond', 'serif'],
-        'headline-display': ['EB Garamond', 'serif'],
         label: ['Inter', 'sans-serif'],
-        'label-sm': ['Inter', 'sans-serif'],
-        'label-md': ['Inter', 'sans-serif'],
         code: ['JetBrains Mono', 'SF Mono', 'Fira Code', 'Consolas', 'monospace'],
       },
 
       // ═══════════════════════════════════════════════════════════════════
-      // Typography — Font Sizes & Line Heights
+      // Typography — Font Sizes & Line Heights (Onyx)
       // ═══════════════════════════════════════════════════════════════════
       fontSize: {
-        // Display — Copernicus/Tiempos serif, weight 400, negative tracking
-        'display-xl': ['4rem', { lineHeight: '1.05', letterSpacing: '-1.5px', fontWeight: '400' }],
-        'display-lg': ['3rem', { lineHeight: '1.1', letterSpacing: '-1px', fontWeight: '400' }],
-        'display-md': [
-          '2.25rem',
-          { lineHeight: '1.15', letterSpacing: '-0.5px', fontWeight: '400' },
+        // Headlines — EB Garamond, weight 500, negative tracking
+        'headline-display': [
+          '3rem',
+          { lineHeight: '1.1', letterSpacing: '-0.03em', fontWeight: '500' },
         ],
-        'display-sm': [
+        'headline-lg': ['2rem', { lineHeight: '1.2', letterSpacing: '-0.02em', fontWeight: '500' }],
+        'headline-lg-mobile': [
           '1.75rem',
-          { lineHeight: '1.2', letterSpacing: '-0.3px', fontWeight: '400' },
+          { lineHeight: '1.2', letterSpacing: '-0.02em', fontWeight: '500' },
+        ],
+        'headline-md': [
+          '1.5rem',
+          { lineHeight: '1.3', letterSpacing: '-0.01em', fontWeight: '500' },
         ],
 
-        // Title — StyreneB/Inter sans
-        'title-lg': ['1.375rem', { lineHeight: '1.3', letterSpacing: '0', fontWeight: '500' }],
-        'title-md': ['1.125rem', { lineHeight: '1.4', letterSpacing: '0', fontWeight: '500' }],
-        'title-sm': ['1rem', { lineHeight: '1.4', letterSpacing: '0', fontWeight: '500' }],
+        // Body — Inter
+        'body-lg': ['1.125rem', { lineHeight: '1.6', letterSpacing: '0', fontWeight: '400' }],
+        'body-md': ['1rem', { lineHeight: '1.6', letterSpacing: '0', fontWeight: '400' }],
 
-        // Body — StyreneB/Inter sans
-        'body-md': ['1rem', { lineHeight: '1.55', letterSpacing: '0', fontWeight: '400' }],
-        'body-sm': ['0.875rem', { lineHeight: '1.55', letterSpacing: '0', fontWeight: '400' }],
+        // Labels — Inter
+        'label-md': ['0.875rem', { lineHeight: '1.4', letterSpacing: '0.02em', fontWeight: '500' }],
+        'label-sm': ['0.75rem', { lineHeight: '1.4', letterSpacing: '0.05em', fontWeight: '600' }],
 
-        // Caption — StyreneB/Inter sans
-        caption: ['0.8125rem', { lineHeight: '1.4', letterSpacing: '0', fontWeight: '500' }],
-        'caption-upper': [
-          '0.75rem',
-          { lineHeight: '1.4', letterSpacing: '1.5px', fontWeight: '500' },
-        ],
-
-        // Code — JetBrains Mono
-        code: ['0.875rem', { lineHeight: '1.6', letterSpacing: '0', fontWeight: '400' }],
-
-        // UI — StyreneB/Inter sans
-        button: ['0.875rem', { lineHeight: '1.0', letterSpacing: '0', fontWeight: '500' }],
-        'nav-link': ['0.875rem', { lineHeight: '1.4', letterSpacing: '0', fontWeight: '500' }],
+        // Code — Inter
+        code: ['0.875rem', { lineHeight: '1.5', letterSpacing: '0', fontWeight: '400' }],
       },
 
       // ═══════════════════════════════════════════════════════════════════
-      // Spacing — 4px base unit
+      // Spacing — 4px base unit (Onyx)
       // ═══════════════════════════════════════════════════════════════════
       spacing: {
-        xxs: '4px',
-        xs: '8px',
-        sm: '12px',
+        xs: '4px',
+        sm: '8px',
         md: '16px',
         lg: '24px',
-        xl: '32px',
-        xxl: '48px',
-        section: '96px',
+        xl: '40px',
+        xxl: '64px',
+        gutter: '24px',
+        'margin-mobile': '16px',
+        'margin-desktop': '48px',
       },
 
       // ═══════════════════════════════════════════════════════════════════
-      // Border Radius
+      // Border Radius — Onyx "Soft Geometry" (12px standard)
       // ═══════════════════════════════════════════════════════════════════
       borderRadius: {
-        xs: '4px',
-        sm: '6px',
-        md: '8px',
-        lg: '12px',
-        xl: '16px',
-        pill: '9999px',
+        sm: '0.25rem',
+        DEFAULT: '0.5rem',
+        md: '0.75rem',
+        lg: '1rem',
+        xl: '1.5rem',
         full: '9999px',
+        pill: '9999px',
       },
 
       // ═══════════════════════════════════════════════════════════════════
-      // Box Shadow — Minimal, color-block first approach
+      // Box Shadow — None (Flat/Tonal Layering per Onyx)
       // ═══════════════════════════════════════════════════════════════════
       boxShadow: {
-        subtle: '0 1px 3px rgba(20,20,19,0.08)',
         none: 'none',
       },
 
@@ -243,7 +203,7 @@ module.exports = {
       // Max Width
       // ═══════════════════════════════════════════════════════════════════
       maxWidth: {
-        content: '1200px',
+        content: '800px',
       },
 
       // ═══════════════════════════════════════════════════════════════════

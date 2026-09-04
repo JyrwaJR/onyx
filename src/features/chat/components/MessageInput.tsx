@@ -28,7 +28,7 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
   const canSend = text.trim().length > 0 && !disabled && !sending;
 
   return (
-    <View className="border-t border-hairline bg-canvas px-4 py-3">
+    <View className="border-t border-outline-variant bg-surface px-4 py-3">
       <View className="flex-wrap items-end gap-2">
         <Input
           ref={inputRef}
@@ -49,7 +49,7 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
           activeOpacity={0.7}
           className={cn(
             'h-11 w-11 shrink-0 items-center justify-center rounded-full',
-            canSend ? 'bg-primary' : 'bg-hairline'
+            canSend ? 'bg-primary' : 'bg-outline-variant'
           )}>
           {sending ? (
             <ActivityIndicator size="small" color="#FFFFFF" />
@@ -59,7 +59,7 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
                 'h-0 w-0',
                 'border-b-[6px] border-l-[8px] border-t-[6px]',
                 'border-b-transparent border-t-transparent',
-                canSend ? 'border-l-on-primary' : 'border-l-muted-foreground'
+                canSend ? 'border-l-primary-on' : 'border-l-outline'
               )}
             />
           )}

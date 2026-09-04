@@ -10,8 +10,7 @@ import { FlatList, View, ActivityIndicator, Text, RefreshControl } from 'react-n
 
 import { useProjects } from '../hooks/use-projects';
 import { ProjectCard } from './ProjectCard';
-import { EmptyState } from '../../../shared/components/EmptyState';
-import { ErrorView } from '../../../shared/components/ErrorView';
+import { ConnectionErrorScreen, NotFoundSessionsScreen } from '@/shared/components/screens';
 
 /**
  * Project list with pull-to-refresh, loading, error, and empty states.
@@ -19,7 +18,7 @@ import { ErrorView } from '../../../shared/components/ErrorView';
  * Uses Claude design system colors throughout.
  */
 export function ProjectList() {
-  const { data: projects, isLoading, isError, error, refetch, isFetching } = useProjects();
+  const { data: projects, isLoading, isError, refetch, isFetching } = useProjects();
 
   const handleRefresh = useCallback(() => {
     refetch();
@@ -27,30 +26,19 @@ export function ProjectList() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-canvas">
-        <ActivityIndicator size="large" color="#cc785c" />
-        <Text className="mt-4 text-base text-muted">Loading projects...</Text>
+      <View className="flex-1 items-center justify-center bg-surface">
+        <ActivityIndicator size="large" color="#8f482f" />
+        <Text className="mt-4 text-base text-outline">Loading projects...</Text>
       </View>
     );
   }
 
   if (isError) {
-    return (
-      <ErrorView
-        message={error instanceof Error ? error.message : 'Failed to load projects.'}
-        onRetry={handleRefresh}
-      />
-    );
+    return <ConnectionErrorScreen />;
   }
 
   if (!projects || projects.length === 0) {
-    return (
-      <EmptyState
-        icon="📭"
-        title="No projects yet"
-        subtitle="Connect to a server to see your projects."
-      />
-    );
+    return <NotFoundSessionsScreen />;
   }
 
   return (

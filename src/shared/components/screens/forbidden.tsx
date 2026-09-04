@@ -146,7 +146,7 @@ export function ForbiddenScreen({
             className="h-12 w-full flex-row items-center justify-center gap-2 rounded-lg bg-primary shadow-sm active:bg-primary-container"
             activeOpacity={0.98}>
             <MaterialIcons name="vpn-key" size={18} color="#ffffff" />
-            <Text className="text-sm font-semibold text-on-primary">
+            <Text className="text-sm font-semibold text-primary-on">
               Request Access / Re-authenticate
             </Text>
           </TouchableOpacity>

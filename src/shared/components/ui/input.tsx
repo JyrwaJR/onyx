@@ -3,18 +3,21 @@ import { TextInput, type TextInputProps, View, Text } from 'react-native';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/shared/lib/cn';
 
-const inputVariants = cva('rounded-lg border bg-canvas px-4 py-3 text-base text-ink min-h-[48px]', {
-  variants: {
-    variant: {
-      default: 'border-hairline',
-      error: 'border-error',
-      success: 'border-success',
+const inputVariants = cva(
+  'rounded-md border bg-surface px-4 py-3 text-base text-on-surface min-h-[48px]',
+  {
+    variants: {
+      variant: {
+        default: 'border-outline-variant',
+        error: 'border-error',
+        success: 'border-success',
+      },
     },
-  },
-  defaultVariants: {
-    variant: 'default',
-  },
-});
+    defaultVariants: {
+      variant: 'default',
+    },
+  }
+);
 
 interface InputProps extends TextInputProps, VariantProps<typeof inputVariants> {
   /** Label text displayed above the input. */
@@ -39,14 +42,14 @@ export const Input = forwardRef<TextInput, InputProps>(
 
     return (
       <View className="w-full">
-        {label && <Text className="mb-2 text-body-sm font-medium text-muted">{label}</Text>}
+        {label && <Text className="mb-2 text-label-md font-medium text-outline">{label}</Text>}
         <TextInput
           ref={ref}
-          placeholderTextColor="#8e8b82"
+          placeholderTextColor="#87736d"
           className={cn(inputVariants({ variant: resolvedVariant }), className)}
           {...props}
         />
-        {error && <Text className="mt-1 text-body-sm text-error">{error}</Text>}
+        {error && <Text className="mt-1 text-label-md text-error">{error}</Text>}
       </View>
     );
   }

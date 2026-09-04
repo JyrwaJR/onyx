@@ -7,6 +7,7 @@ import { useState, useCallback, useRef } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
+import { Button } from '../ui';
 
 interface Blueprint {
   id: string;
@@ -45,8 +46,6 @@ export function NotFoundSessionsScreen({
   onImportRepository,
   onSelectBlueprint,
 }: NoActiveSessionsScreenProps) {
-  const router = useRouter();
-
   // Toast Notification State & Animation
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const toastOpacity = useRef(new Animated.Value(0)).current;
@@ -88,7 +87,7 @@ export function NotFoundSessionsScreen({
   );
 
   const handleCreateSession = useCallback(() => {
-    showToast('Opening a fresh notebook session...');
+    // showToast('Opening a fresh notebook session...');
     onCreateSession?.();
   }, [onCreateSession, showToast]);
 
@@ -181,13 +180,11 @@ export function NotFoundSessionsScreen({
         {/* Primary Action Group */}
         <View className="mb-6 gap-3">
           {/* Terracotta Primary Action */}
-          <TouchableOpacity
-            onPress={handleCreateSession}
-            className="h-14 w-full flex-row items-center justify-center gap-2 rounded-xl bg-primary shadow-md active:bg-primary-container"
-            activeOpacity={0.9}>
+
+          <Button onPress={handleCreateSession} activeOpacity={0.9} variant={'primary'} size={'lg'}>
             <MaterialIcons name="add" size={20} color="#ffffff" />
-            <Text className="text-sm font-semibold text-on-primary">+ Create New Session</Text>
-          </TouchableOpacity>
+            <Text className="text-sm font-semibold text-white">Create New Session</Text>
+          </Button>
 
           {/* Secondary Dashed Repository Card */}
           <TouchableOpacity

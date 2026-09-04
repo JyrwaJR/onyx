@@ -25,13 +25,13 @@ export function ToolCallBlock({ block }: ToolCallBlockProps) {
   const hasResult = block.state.output != null;
 
   return (
-    <View className="my-1 rounded-lg border border-hairline bg-surface-soft p-2">
+    <View className="my-1 rounded-lg border border-outline-variant bg-surface-container-low p-2">
       <TouchableOpacity onPress={() => setExpanded(!expanded)} activeOpacity={0.7}>
         <View className="flex-row items-center justify-between">
-          <Text className="text-xs font-medium text-body-strong">
+          <Text className="text-xs font-medium text-on-surface">
             {block.state.title || block.tool}
           </Text>
-          <Text className="text-xs text-muted-soft">{expanded ? '▼' : '▶'}</Text>
+          <Text className="text-xs text-outline-variant">{expanded ? '▼' : '▶'}</Text>
         </View>
       </TouchableOpacity>
 
@@ -39,8 +39,10 @@ export function ToolCallBlock({ block }: ToolCallBlockProps) {
         <View className="mt-2">
           {block.state.input != null && (
             <>
-              <Text className="text-xs text-muted">Arguments:</Text>
-              <Text className="mt-1 rounded bg-canvas p-2 text-xs text-body" selectable>
+              <Text className="text-xs text-outline">Arguments:</Text>
+              <Text
+                className="mt-1 rounded bg-surface p-2 text-xs text-on-surface-variant"
+                selectable>
                 {JSON.stringify(block.state.input, null, 2)}
               </Text>
             </>
@@ -48,8 +50,10 @@ export function ToolCallBlock({ block }: ToolCallBlockProps) {
 
           {hasResult && (
             <>
-              <Text className="mt-2 text-xs text-muted">Result:</Text>
-              <Text className="mt-1 rounded bg-canvas p-2 text-xs text-body" selectable>
+              <Text className="mt-2 text-xs text-outline">Result:</Text>
+              <Text
+                className="mt-1 rounded bg-surface p-2 text-xs text-on-surface-variant"
+                selectable>
                 {formatResult(block.state.output)}
               </Text>
             </>

@@ -3,31 +3,27 @@ import { Text, type TextProps } from 'react-native';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/shared/lib/cn';
 
-const textVariants = cva('text-ink', {
+const textVariants = cva('text-on-surface', {
   variants: {
     variant: {
-      'display-lg': 'font-display text-display-lg',
-      'display-md': 'font-display text-display-md',
-      'display-sm': 'font-display text-display-sm',
-      'title-lg': 'font-sans text-title-lg font-medium',
-      'title-md': 'font-sans text-title-md font-medium',
-      'title-sm': 'font-sans text-title-sm font-medium',
+      'headline-display': 'font-display text-headline-display',
+      'headline-lg': 'font-display text-headline-lg',
+      'headline-lg-mobile': 'font-display text-headline-lg-mobile',
+      'headline-md': 'font-display text-headline-md',
+      'body-lg': 'font-sans text-body-lg',
       'body-md': 'font-sans text-body-md',
-      'body-sm': 'font-sans text-body-sm',
-      caption: 'font-sans text-caption',
-      'caption-upper': 'font-sans text-caption-upper',
+      'label-md': 'font-sans text-label-md',
+      'label-sm': 'font-sans text-label-sm',
       code: 'font-mono text-code',
     },
     color: {
-      ink: 'text-ink',
-      body: 'text-body',
-      'body-strong': 'text-body-strong',
-      muted: 'text-muted',
-      'muted-soft': 'text-muted-soft',
+      'on-surface': 'text-on-surface',
+      'on-surface-variant': 'text-on-surface-variant',
       primary: 'text-primary',
-      'on-primary': 'text-on-primary',
-      'on-dark': 'text-on-dark',
-      'on-dark-soft': 'text-on-dark-soft',
+      'primary-on': 'text-primary-on',
+      'inverse-on-surface': 'text-inverse-on-surface',
+      outline: 'text-outline',
+      'outline-variant': 'text-outline-variant',
       error: 'text-error',
       success: 'text-success',
       warning: 'text-warning',
@@ -40,7 +36,7 @@ const textVariants = cva('text-ink', {
   },
   defaultVariants: {
     variant: 'body-md',
-    color: 'ink',
+    color: 'on-surface',
   },
 });
 

@@ -29,8 +29,8 @@ function renderBlock(block: MessageContentBlock, index: number) {
       return <ToolCallBlock key={index} block={block} />;
     case 'reasoning':
       return (
-        <View key={index} className="my-1 rounded bg-surface-soft p-2">
-          <Text className="text-xs italic text-muted-soft">{block.text}</Text>
+        <View key={index} className="my-1 rounded bg-surface-container-low p-2">
+          <Text className="text-xs italic text-outline-variant">{block.text}</Text>
         </View>
       );
     default:
@@ -72,14 +72,14 @@ export function MessageBubble({ message, onDelete }: MessageBubbleProps) {
       onLongPress={handleLongPress}
       activeOpacity={isUser ? 0.7 : 1}
       className={`mb-3 max-w-[85%] ${isUser ? 'self-end' : 'self-start'}`}>
-      <View className={`rounded-2xl px-4 py-3 ${isUser ? 'bg-primary' : 'bg-surface-card'}`}>
+      <View className={`rounded-2xl px-4 py-3 ${isUser ? 'bg-primary' : 'bg-surface-container'}`}>
         {blocks.map((block, index) => (
-          <View key={index} className={isUser ? 'text-on-primary' : 'text-ink'}>
+          <View key={index} className={isUser ? 'text-primary-on' : 'text-on-surface'}>
             {renderBlock(block, index)}
           </View>
         ))}
       </View>
-      <Text className={`mt-1 text-xs text-muted-soft ${isUser ? 'text-right' : 'text-left'}`}>
+      <Text className={`mt-1 text-xs text-outline-variant ${isUser ? 'text-right' : 'text-left'}`}>
         {getRelativeTime(message.time?.created)}
       </Text>
     </TouchableOpacity>

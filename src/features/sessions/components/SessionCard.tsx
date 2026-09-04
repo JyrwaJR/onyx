@@ -64,12 +64,14 @@ export function SessionCard({ session, projectId }: SessionCardProps) {
     <TouchableOpacity
       onPress={handlePress}
       onLongPress={handleLongPress}
-      className="rounded-lg border border-hairline bg-surface-card p-4"
+      className="rounded-lg border border-outline-variant bg-surface-container p-4"
       activeOpacity={0.7}>
-      <Text className="text-base font-semibold text-ink" numberOfLines={1}>
+      <Text className="text-base font-semibold text-on-surface" numberOfLines={1}>
         {session.title || 'Untitled'}
       </Text>
-      <Text className="mt-1 text-xs text-muted-soft">{getRelativeTime(session.time.updated)}</Text>
+      <Text className="mt-1 text-xs text-outline-variant">
+        {getRelativeTime(session.time.updated)}
+      </Text>
     </TouchableOpacity>
   );
 }

@@ -3,13 +3,13 @@ import { View, type ViewProps } from 'react-native';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/shared/lib/cn';
 
-const cardVariants = cva('rounded-lg p-4', {
+const cardVariants = cva('rounded-md p-4', {
   variants: {
     variant: {
-      default: 'bg-surface-card border border-hairline',
-      elevated: 'bg-surface-card border border-hairline shadow-subtle',
-      dark: 'bg-surface-dark',
-      'dark-elevated': 'bg-surface-dark-elevated',
+      default: 'bg-surface-container border border-outline-variant',
+      elevated: 'bg-surface-container-high border border-outline-variant',
+      dark: 'bg-inverse-surface',
+      'dark-elevated': 'bg-inverse-surface',
       ghost: 'bg-transparent',
       coral: 'bg-primary',
     },

@@ -1,34 +1,20 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { View } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { useMessages, useSendMessage, useDeleteMessage } from '../hooks/use-chat';
 import { MessageList } from '../components/MessageList';
 import { MessageInput } from '../components/MessageInput';
-import { LoadingScreen } from '../../../shared/components/LoadingScreen';
-import { ErrorView } from '../../../shared/components/ErrorView';
 import { createGlobalSSE, type SSEConnection } from '../../../shared/api/sse';
 import { queryKeys } from '../../../shared/api/query-keys';
 import type { MessageContentBlock, V2Message } from '../../../shared/api/types';
+import { ConnectionErrorScreen, Loading } from '@/shared/components/screens';
 
 /**
  * Back button component for chat screen header.
  * Renders a left arrow with "Back" text in ink color.
  */
-function BackButton() {
-  const router = useRouter();
-
-  return (
-    <TouchableOpacity
-      onPress={() => router.back()}
-      className="flex-row items-center pl-2"
-      activeOpacity={0.7}>
-      <Text className="text-lg text-ink">←</Text>
-      <Text className="ml-1 text-base font-medium text-ink">Back</Text>
-    </TouchableOpacity>
-  );
-}
 
 /** A streaming assistant message being built from SSE deltas. */
 interface StreamingState {
@@ -173,18 +159,16 @@ export default function ChatScreen() {
   }, [sessionId, queryClient]);
 
   if (isLoading) {
-    return <LoadingScreen message="Loading messages..." />;
+    return <Loading />;
   }
 
   if (isError) {
-    return (
-      <ErrorView message={error instanceof Error ? error.message : 'Failed to load messages.'} />
-    );
+    return <ConnectionErrorScreen />;
   }
 
   return (
     <>
-      <View className="flex-1 bg-canvas">
+      <View className="flex-1 bg-surface">
         <MessageList messages={allMessages} onDelete={handleDelete} />
         <MessageInput onSend={handleSend} sending={sendMessage.isPending} />
       </View>

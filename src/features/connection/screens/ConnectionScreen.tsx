@@ -13,11 +13,12 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { MaterialIcons } from '@expo/vector-icons';
 
-import { LoadingScreen } from '@components/LoadingScreen';
 import { useConnectionStore } from '../store/connection-store';
 import { useHealthCheck } from '../hooks/use-health-check';
 import { serverUrlSchema, type ServerUrlFormData } from '../validators/server-url';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ConnectionErrorScreen, Loading } from '@/shared/components/screens';
+import { cn } from '@/shared/lib/cn';
 
 /** Quick connect suggestion items. */
 interface SuggestionItem {
@@ -92,11 +93,6 @@ export default function ConnectionScreen() {
     [setServerUrl, connect]
   );
 
-  const handleTryAgain = useCallback(() => {
-    disconnect();
-    reset({ serverUrl });
-  }, [disconnect, reset, serverUrl]);
-
   const handleSuggestionPress = useCallback(
     (url: string) => {
       setValue('serverUrl', url, { shouldValidate: true });
@@ -110,28 +106,17 @@ export default function ConnectionScreen() {
   }, [setValue]);
 
   if (!hydrated) {
-    return <LoadingScreen message="Loading..." />;
+    return <Loading />;
   }
 
   const isSubmitting = connectionStatus === 'connecting';
 
   if (isSubmitting) {
-    return <LoadingScreen message="Connecting to server..." />;
+    return <Loading />;
   }
 
   if (connectionStatus === 'error' && error) {
-    return (
-      <View className="flex-1 items-center justify-center bg-surface px-6">
-        <Text className="text-4xl">⚠️</Text>
-        <Text className="mt-4 text-center text-base text-on-surface">{error}</Text>
-        <TouchableOpacity
-          onPress={handleTryAgain}
-          className="mt-6 rounded-xl bg-primary px-6 py-3"
-          activeOpacity={0.7}>
-          <Text className="text-base font-semibold text-on-primary">Try Again</Text>
-        </TouchableOpacity>
-      </View>
-    );
+    return <ConnectionErrorScreen />;
   }
 
   return (
@@ -219,17 +204,9 @@ export default function ConnectionScreen() {
               isValid && !isSubmitting ? 'bg-primary' : 'bg-hairline'
             }`}
             activeOpacity={0.98}>
-            <Text
-              className={`text-[16px] font-semibold tracking-wide ${
-                isValid && !isSubmitting ? 'text-on-primary' : 'text-on-primary/50'
-              }`}>
+            <Text className={cn('text-[16px] font-semibold tracking-wide text-white')}>
               Connect
             </Text>
-            <MaterialIcons
-              name="arrow-forward"
-              size={20}
-              color={isValid && !isSubmitting ? '#ffffff' : '#ffffff80'}
-            />
           </TouchableOpacity>
 
           {/* Quick Connect Section */}
