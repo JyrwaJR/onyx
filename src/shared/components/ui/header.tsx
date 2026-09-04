@@ -31,18 +31,17 @@ export const StackHeader = memo(({ title, showBack = true }: StackHeaderProps) =
   return (
     <View className="border-b border-[#dac1ba] bg-[#fcf9f6]" style={{ paddingTop: insets.top }}>
       <View className="min-h-[52px] flex-row items-center gap-x-3 px-4">
-        {isShowBack && (
-          <TouchableOpacity
-            onPress={handleBack}
-            hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
-            activeOpacity={0.7}>
-            <MaterialIcons name="arrow-back-ios" size={22} color="#54433e" />
-          </TouchableOpacity>
-        )}
-
-        <Text className="flex-1 text-lg font-semibold text-[#1c1c1a]" numberOfLines={1}>
-          {title ?? ''}
-        </Text>
+        <TouchableOpacity
+          onPress={handleBack}
+          disabled={!canGoBack}
+          hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+          className="flex-1 flex-row gap-x-3"
+          activeOpacity={0.7}>
+          {isShowBack && <MaterialIcons name="arrow-back-ios" size={22} color="#54433e" />}
+          <Text className="flex-1 text-lg font-semibold text-[#1c1c1a]" numberOfLines={1}>
+            {title ?? ''}
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
