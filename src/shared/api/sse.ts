@@ -32,18 +32,21 @@ export function createSessionSSE(
   onError?: (error: Error) => void
 ): SSEConnection {
   const url = `${getApiBaseUrl()}${SESSION_LOG_STREAM(sessionId)}`;
+  console.log('[SSE] Connecting to:', url);
   const es = new EventSource(url, {
     headers: { Accept: 'text/event-stream' },
   });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   es.addEventListener('message', (event: any) => {
+    console.log('[SSE] Received event:', event.type, event.data);
     if (event.data != null) {
       onEvent({ type: event.type, data: String(event.data) });
     }
   });
 
   es.addEventListener('error', (event: unknown) => {
+    console.error('[SSE] Error:', event);
     if (onError) {
       onError(new Error(String(event)));
     }

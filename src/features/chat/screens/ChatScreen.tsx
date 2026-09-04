@@ -62,9 +62,11 @@ export default function ChatScreen() {
 
   // SSE connection for real-time streaming
   useEffect(() => {
+    console.log('[Chat] SSE effect triggered, sessionId:', sessionId);
     if (!sessionId) return;
 
     const handleEvent = (event: { type: string; data: string }) => {
+      console.log('[Chat] SSE event received:', event.type);
       try {
         const payload = JSON.parse(event.data as string) as {
           type?: string;
@@ -75,8 +77,11 @@ export default function ChatScreen() {
           parts?: Message['parts'];
         };
 
+        console.log('[Chat] Parsed payload:', JSON.stringify(payload).substring(0, 200));
+
         // Message updates arrive as complete message objects in the SSE stream.
         if (payload.id && Array.isArray(payload.parts)) {
+          console.log('[Chat] Updating streaming message:', payload.id);
           const msgId = payload.id;
           setStreamingMessages((prev) => {
             const next = new Map(prev);
@@ -91,9 +96,11 @@ export default function ChatScreen() {
             });
             return next;
           });
+        } else {
+          console.log('[Chat] Event did not match message format (missing id or parts)');
         }
-      } catch {
-        // Ignore parse errors for non-JSON events
+      } catch (e) {
+        console.error('[Chat] Failed to parse SSE event:', e);
       }
     };
 
