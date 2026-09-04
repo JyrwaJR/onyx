@@ -12,46 +12,42 @@ export interface HealthResponse {
 }
 
 /** Millisecond timestamps from the OpenCode server. */
-export interface TimeSpan {
+interface TimeSpan {
   created: number;
   updated?: number;
 }
 
 /** OpenCode project. */
-export interface Project {
-  id: string;
-  worktree: string;
-  vcs?: string;
-  time: TimeSpan;
-  sandboxes: unknown[];
-}
 
 /** Session summary (from list / create endpoints). */
-export interface SessionT {
+export type SessionT = {
   id: string;
-  slug?: string;
   projectID: string;
   directory: string;
-  path?: string;
   parentID?: string;
+  summary?: {
+    additions: number;
+    deletions: number;
+    files: number;
+    diffs?: Array<any>;
+  };
+  share?: {
+    url: string;
+  };
   title: string;
-  agent?: string;
-  model?: {
-    id: string;
-    providerID: string;
-    variant?: string;
+  version: string;
+  time: {
+    created: number;
+    updated: number;
+    compacting?: number;
   };
-  cost?: number;
-  tokens?: {
-    input: number;
-    output: number;
-    reasoning?: number;
-    cache?: { read: number; write: number };
+  revert?: {
+    messageID: string;
+    partID?: string;
+    snapshot?: string;
+    diff?: string;
   };
-  version?: string;
-  time: TimeSpan;
-}
-
+};
 /**
  * A single content block inside a V2 assistant message.
  * Produced by both the V2 message read endpoint and the SSE event stream.

@@ -1,19 +1,25 @@
 import { memo } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useSession } from '@hooks/use-session';
 
 /**
  * Static sub-header bar showing the active model, branch, and socket latency.
  *
  * Fixed below the StackHeader, above the message list.
  */
-export const ChatHeaderBar = memo(function ChatHeaderBar() {
+type ChatHeaderBarProps = {
+  sessionId: string;
+};
+
+export const ChatHeaderBar = memo(function ChatHeaderBar({ sessionId }: ChatHeaderBarProps) {
+  const { data, isFetching } = useSession(sessionId);
   return (
     <View className="flex-row items-center justify-between bg-[#f6f3f1] px-4 py-2">
       <View className="flex-1 flex-row items-center gap-1.5 pr-2">
         <View className="h-2 w-2 rounded-full bg-[#8f482f]" />
         <Text className="text-xs font-medium text-[#54433e]" numberOfLines={1}>
-          Onyx-7B (Local) <Text className="text-[#5e5c54]">·</Text> feature/jwt-auth
+          {isFetching ? 'Loading...' : data?.directory}
         </Text>
       </View>
 

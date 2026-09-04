@@ -153,7 +153,7 @@ export default function ChatScreen() {
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           className="flex-1">
-          <ChatHeaderBar />
+          <ChatHeaderBar sessionId={sessionId} />
 
           {/* Messages Stream */}
           <ScrollView
