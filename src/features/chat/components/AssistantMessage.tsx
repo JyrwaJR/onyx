@@ -116,7 +116,7 @@ export const AssistantMessage = memo(function AssistantMessage({
           </View>
         ))}
 
-        {/* Action Pills */}
+        {/* Action Pills 
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -143,6 +143,7 @@ export const AssistantMessage = memo(function AssistantMessage({
             <Text className="text-xs font-semibold text-[#1c1c1a]">Explain logic</Text>
           </TouchableOpacity>
         </ScrollView>
+        */}
       </View>
       <Text className="ml-1 mt-1 text-[11px] text-[#5e5c54]">
         {new Date(message.time.created).toLocaleTimeString([], {

@@ -5,6 +5,7 @@ import { SessionT } from '../api';
 export function useSession(sessionId: string) {
   return useQuery({
     queryKey: ['session', sessionId],
+    refetchInterval: 1000,
     queryFn: () => http.get<SessionT>(`/api/session/${sessionId}`),
     select: (data) => data.data,
     enabled: !!sessionId,
