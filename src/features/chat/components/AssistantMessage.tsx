@@ -104,11 +104,18 @@ export const AssistantMessage = memo(function AssistantMessage({
             className="flex-row items-center justify-between rounded-lg bg-[#ebe8e5] p-2">
             <View className="flex-1 flex-row items-center gap-1.5 pr-2">
               <MaterialIcons name="task-alt" size={18} color="#8f482f" />
-              <Text className="text-xs font-semibold text-[#1c1c1a]" numberOfLines={1}>
-                Running <Text className="font-mono text-[#8f482f]">{block.tool}</Text>
-              </Text>
+              <View className="flex-1">
+                <Text className="text-xs font-semibold text-[#1c1c1a]" numberOfLines={1}>
+                  Running <Text className="font-mono text-[#8f482f]">{block.tool}</Text>
+                </Text>
+                {block.state.input && (
+                  <Text className="mt-1 font-mono text-[10px] text-[#5e5c54]" numberOfLines={3}>
+                    {JSON.stringify(block.state.input, null, 2)}
+                  </Text>
+                )}
+              </View>
             </View>
-            <View className="rounded bg-[#ffffff] px-1.5 py-0.5">
+            <View className="rounded bg-[#ffffff] px-1.5 py-0.5 self-start">
               <Text className="text-[11px] text-[#1c1c1a]">
                 {block.state.status === 'completed' ? 'Done' : 'Running'}
               </Text>

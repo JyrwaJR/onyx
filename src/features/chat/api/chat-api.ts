@@ -6,6 +6,7 @@ import {
   GET_SESSION_BY_ID,
   GET_SESSION_MESSAGES,
   SEND_SESSION_MESSAGE,
+  INTERRUPT_SESSION,
 } from '../../../shared/api/endpoints';
 import { mapV1MessageToV2Message } from '../../../shared/api/types';
 import type { Message, SessionT, V2Message } from '../../../shared/api/types';

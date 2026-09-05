@@ -94,6 +94,10 @@ export function useDeleteMessage(sessionId: string) {
       queryClient.invalidateQueries({
         queryKey: queryKeys.messages.bySession(sessionId),
       });
+      // Invalidate the query just in case it is called outside of mutate context
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.messages.bySession(sessionId),
+      });
     },
   });
 }
@@ -146,6 +150,10 @@ export function useSendMessage(sessionId: string) {
     },
     onSettled: () => {
       queryClient.invalidateQueries({
+        queryKey: queryKeys.messages.bySession(sessionId),
+      });
+      // Force refresh of the message list by re-fetching
+      queryClient.refetchQueries({
         queryKey: queryKeys.messages.bySession(sessionId),
       });
     },
