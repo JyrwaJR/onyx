@@ -1,9 +1,7 @@
 {
   "alias": "@",
   "aliases": {
-    "@shared/*": [
-      "src/shared/*"
-    ]
+    "@shared/*": ["src/shared/*"]
   },
   "paths": {
     "types": "src/shared/types",

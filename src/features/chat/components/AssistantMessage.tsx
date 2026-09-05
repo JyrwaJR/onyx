@@ -115,7 +115,7 @@ export const AssistantMessage = memo(function AssistantMessage({
                 )}
               </View>
             </View>
-            <View className="rounded bg-[#ffffff] px-1.5 py-0.5 self-start">
+            <View className="self-start rounded bg-[#ffffff] px-1.5 py-0.5">
               <Text className="text-[11px] text-[#1c1c1a]">
                 {block.state.status === 'completed' ? 'Done' : 'Running'}
               </Text>

@@ -135,4 +135,3 @@ export async function sendMessage(sessionId: string, content: string): Promise<v
 export async function abortSession(sessionId: string): Promise<void> {
   await http.post(INTERRUPT_SESSION(sessionId));
 }
-
