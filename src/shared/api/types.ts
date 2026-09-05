@@ -272,3 +272,22 @@ export function mapRawMessageToMessage(message: RawMessage): Message {
 
   return { ...base, type: 'assistant', content: contentBlocks };
 }
+
+/** Todo item status values returned by the OpenCode server. */
+export type TodoStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled';
+
+/** Todo item priority values returned by the OpenCode server. */
+export type TodoPriority = 'high' | 'medium' | 'low';
+
+/**
+ * A single task tracked by the agent for a session
+ * (from `GET /session/:id/todo` and the `todo.updated` SSE event).
+ */
+export interface Todo {
+  /** Brief description of the task. */
+  content: string;
+  /** Current status of the task. */
+  status: TodoStatus;
+  /** Priority level of the task. */
+  priority: TodoPriority;
+}
