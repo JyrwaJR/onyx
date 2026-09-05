@@ -209,3 +209,83 @@ export type ContentBlock =
     }
   | { type: 'tool-result'; toolCallId: string; result: unknown }
   | { type: 'reasoning'; text: string };
+
+/**
+ * Maps a raw `RawMessage` (`{ info, parts }`) to the app-internal `Message`
+ * shape used by the chat UI.
+ *
+ * - User messages: joins all text parts into the top-level `text` field.
+ * - Assistant messages: builds an ordered `content` block list from text,
+ *   reasoning, and tool parts. Non-renderable part types (step-start,
+ *   step-finish, file, snapshot, patch, agent, retry, compaction, subtask)
+ *   are dropped.
+ *
+ * @param message - The raw message from the API.
+ * @returns The mapped message.
+ */
+export function mapRawMessageToMessage(message: RawMessage): Message {
+  const contentBlocks: MessageContentBlock[] = [];
+
+  for (const part of message.parts) {
+    if (part.type === 'text') {
+      contentBlocks.push({ type: 'text', id: part.id, text: part.text });
+    } else if (part.type === 'reasoning') {
+      const block: MessageContentBlock & { type: 'reasoning' } = {
+        type: 'reasoning',
+        id: part.id,
+        text: part.text,
+      };
+      // v1 exposes reasoning timing as `{ start, end }`; the render type
+      // uses `TimeSpan` (`created`/`updated`).
+      if (part.time) {
+        block.time = { created: part.time.start, updated: part.time.end };
+      }
+      contentBlocks.push(block);
+    } else if (part.type === 'tool') {
+      contentBlocks.push({
+        type: 'tool',
+        id: part.id,
+        callID: part.callID,
+        tool: part.tool,
+        state: part.state as any,
+      });
+    } else if (part.type === 'selection') {
+      contentBlocks.push({
+        type: 'selection',
+        id: part.id,
+        question: part.question,
+        options: part.options,
+      });
+    }
+  }
+
+  const base: Omit<Message, 'type' | 'text' | 'content'> = {
+    id: message.info.id,
+    agent: message.info.agent,
+    model: message.info.modelID
+      ? {
+          id: message.info.modelID,
+          providerID: message.info.providerID ?? '',
+          variant: message.info.variant,
+        }
+      : undefined,
+    time: message.info.time as any,
+    finish: message.info.finish as Message['finish'],
+    cost: message.info.cost,
+    tokens: message.info.tokens as any,
+  };
+
+  if (message.info.role === 'user') {
+    const text = message.parts
+      .filter((part): part is Extract<MessagePart, { type: 'text' }> => part.type === 'text')
+      .map((part) => part.text)
+      .join('\n');
+    return { ...base, type: 'user', text };
+  }
+
+  if (message.info.role === 'system') {
+    return { ...base, type: 'system', text: '' };
+  }
+
+  return { ...base, type: 'assistant', content: contentBlocks };
+}

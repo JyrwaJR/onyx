@@ -64,6 +64,7 @@ function getUnconfirmedPending(
   const pendingList = [...pendingMessages.values()].sort(
     (a, b) => (a.time?.created ?? 0) - (b.time?.created ?? 0)
   );
+
   const skippedByText = new Map<string, number>();
   const kept = new Map<string, Message>();
   for (const pendingMsg of pendingList) {
@@ -151,9 +152,14 @@ export default function ChatScreen() {
       merged.push(pendingMsg);
     }
 
-    merged.sort(
-      (a, b) => (a.time?.created ?? 0) - (b.time?.created ?? 0) || a.id.localeCompare(b.id)
-    );
+    merged.sort((a, b) => {
+      const timeA = a.time?.created ?? 0;
+      const timeB = b.time?.created ?? 0;
+      if (timeA !== timeB) {
+        return timeA - timeB;
+      }
+      return (a.id ?? '').localeCompare(b.id ?? '');
+    });
     return merged;
   }, [messages, streaming, pendingMessages]);
 

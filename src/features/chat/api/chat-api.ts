@@ -8,6 +8,7 @@ import {
   INTERRUPT_SESSION,
   RUN_SHELL_COMMAND,
 } from '../../../shared/api/endpoints';
+import { mapRawMessageToMessage } from '../../../shared/api/types';
 import type { Message, SessionT, RawMessage } from '../../../shared/api/types';
 
 /**
@@ -74,11 +75,11 @@ export async function fetchMessages(
 
   try {
     const response = await http.get<RawMessage[]>(GET_SESSION_MESSAGES(sessionId), { params });
-    const messages = response.data;
+    const messages = response.data.map(mapRawMessageToMessage);
 
     return {
       messages,
-      before: messages.length === limit ? (messages[0]?.info.id ?? null) : null,
+      before: messages.length === limit ? (messages[0]?.id ?? null) : null,
       usedFallback: false,
     };
   } catch (error) {
@@ -87,7 +88,7 @@ export async function fetchMessages(
     if (isAxiosError(error) && error.response?.status === 400 && before) {
       const response = await http.get<RawMessage[]>(GET_SESSION_MESSAGES(sessionId));
       return {
-        messages: response.data,
+        messages: response.data.map(mapRawMessageToMessage),
         before: null,
         usedFallback: true,
       };

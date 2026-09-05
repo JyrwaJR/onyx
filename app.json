@@ -4,10 +4,7 @@
     "slug": "onyx",
     "version": "1.0.0",
     "scheme": "remote-code",
-    "platforms": [
-      "ios",
-      "android"
-    ],
+    "platforms": ["ios", "android"],
     "web": {
       "bundler": "metro",
       "output": "static",
@@ -34,9 +31,7 @@
     "orientation": "portrait",
     "icon": "./src/shared/assets/icon.png",
     "userInterfaceStyle": "light",
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.jyrwajr.onyx"
