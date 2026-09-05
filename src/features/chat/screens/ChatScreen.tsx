@@ -197,6 +197,7 @@ export default function ChatScreen() {
         id: tempId,
         type: 'user',
         text: trimmed,
+        status: 'pending',
         time: { created: Date.now() },
       });
       return next;
