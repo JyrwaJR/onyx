@@ -28,7 +28,15 @@ export const AssistantMessage = memo(function AssistantMessage({
   const reasoningBlocks = message.content?.filter((b) => b.type === 'reasoning') ?? [];
   const textBlocks = message.content?.filter((b) => b.type === 'text') ?? [];
   const toolBlocks = message.content?.filter((b) => b.type === 'tool') ?? [];
-
+  const [expandedIds, setExpandedIds] = useState(new Set<string>());
+  const toggleExpanded = useCallback((id: string) => {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
   return (
     <View className="mb-4 mr-2">
       {/* Agent Metadata Header */}
@@ -98,30 +106,39 @@ export const AssistantMessage = memo(function AssistantMessage({
         ))}
 
         {/* Tool Execution Badges */}
-        {toolBlocks.map((block, idx) => (
-          <View
-            key={idx}
-            className="flex-row items-center justify-between rounded-lg bg-[#ebe8e5] p-2">
-            <View className="flex-1 flex-row items-center gap-1.5 pr-2">
-              <MaterialIcons name="task-alt" size={18} color="#8f482f" />
-              <View className="flex-1">
-                <Text className="text-xs font-semibold text-[#1c1c1a]" numberOfLines={1}>
-                  Running <Text className="font-mono text-[#8f482f]">{block.tool}</Text>
-                </Text>
-                {block.state.input && (
-                  <Text className="mt-1 font-mono text-[10px] text-[#5e5c54]" numberOfLines={3}>
+        {toolBlocks.map((block, idx) => {
+          const isExpanded = expandedIds.has(block.id);
+          return (
+            <TouchableOpacity
+              key={idx}
+              onPress={() => toggleExpanded(block.id)}
+              activeOpacity={0.8}
+              className="rounded-lg bg-[#e6e2da] p-3">
+              <View className="flex-row items-center justify-between">
+                <View className="flex-1 flex-row items-center gap-1.5 pr-2">
+                  <MaterialIcons name="task-alt" size={18} color="#8f482f" />
+                  <Text className="text-xs font-semibold text-[#1c1c1a]" numberOfLines={1}>
+                    Running <Text className="font-mono text-[#8f482f]">{block.tool}</Text>
+                  </Text>
+                </View>
+                <View className="self-start rounded bg-[#ffffff] px-1.5 py-0.5">
+                  <Text className="text-[11px] text-[#1c1c1a]">
+                    {block.state.status === 'completed' ? 'Done' : 'Running'}
+                  </Text>
+                </View>
+              </View>
+              {block.state.input && (
+                <View className="mt-2 border-t border-[#dac1ba]/30 pt-2">
+                  <Text
+                    className="font-mono text-[10px] text-[#5e5c54]"
+                    numberOfLines={isExpanded ? undefined : 2}>
                     {JSON.stringify(block.state.input, null, 2)}
                   </Text>
-                )}
-              </View>
-            </View>
-            <View className="self-start rounded bg-[#ffffff] px-1.5 py-0.5">
-              <Text className="text-[11px] text-[#1c1c1a]">
-                {block.state.status === 'completed' ? 'Done' : 'Running'}
-              </Text>
-            </View>
-          </View>
-        ))}
+                </View>
+              )}
+            </TouchableOpacity>
+          );
+        })}
 
         {/* Action Pills 
         <ScrollView
