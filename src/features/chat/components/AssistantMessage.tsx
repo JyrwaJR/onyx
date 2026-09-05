@@ -1,5 +1,5 @@
 import { memo, useCallback, useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import type { V2Message } from '../../../shared/api/types';
 
@@ -31,8 +31,9 @@ export const AssistantMessage = memo(function AssistantMessage({
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const toggleExpanded = useCallback((id: string) => {
+    console.log('toggleExpanded called with:', id, 'current:', expandedId);
     setExpandedId((prev) => (prev === id ? null : id));
-  }, []);
+  }, [expandedId]);
 
   return (
     <View className="mb-4 mr-2">
@@ -63,9 +64,8 @@ export const AssistantMessage = memo(function AssistantMessage({
         {/* Collapsible Reasoning Tray */}
         {reasoningBlocks.length > 0 && (
           <View className="rounded-lg bg-[#ebe8e5] p-2.5">
-            <TouchableOpacity
+            <Pressable
               onPress={onToggleReasoning}
-              activeOpacity={0.7}
               className="flex-row items-center justify-between">
               <View className="flex-row items-center gap-1.5">
                 <MaterialIcons name="psychology" size={16} color="#8f482f" />
@@ -78,7 +78,7 @@ export const AssistantMessage = memo(function AssistantMessage({
                 size={18}
                 color="#5e5c54"
               />
-            </TouchableOpacity>
+            </Pressable>
 
             {isReasoningOpen && (
               <View className="mt-2 gap-1.5 border-t border-[#dac1ba]/30 pl-6 pt-2">
@@ -106,10 +106,9 @@ export const AssistantMessage = memo(function AssistantMessage({
         {toolBlocks.map((block, idx) => {
           const isExpanded = expandedId === block.id;
           return (
-            <TouchableOpacity
+            <Pressable
               key={idx}
               onPress={() => toggleExpanded(block.id)}
-              activeOpacity={0.8}
               className="rounded-lg bg-[#e6e2da] p-3">
               <View className="flex-row items-center justify-between">
                 <View className="flex-1 flex-row items-center gap-1.5 pr-2">
@@ -133,7 +132,7 @@ export const AssistantMessage = memo(function AssistantMessage({
                   </Text>
                 </View>
               )}
-            </TouchableOpacity>
+            </Pressable>
           );
         })}
 
