@@ -4,6 +4,7 @@ export {
   useDeleteMessage,
   useSendMessage,
   useAbortSession,
+  useSSE,
 } from './hooks';
 export { useChatStore } from './store/chat-store';
 export { messageSchema } from './validators/message';

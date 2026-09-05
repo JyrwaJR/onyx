@@ -12,7 +12,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useMessages, useSendMessage } from '../hooks';
-import { useSSE } from '../hooks/useSSE';
+import { useSSE } from '../hooks/use-sse';
 import type { StreamingState } from '../types';
 import type { MessageContentBlock, V2Message } from '../../../shared/api/types';
 import { Loading } from '@/shared/components/screens';

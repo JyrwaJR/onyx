@@ -29,29 +29,17 @@ export function MessageInput({ onSend, sessionId, agent, disabled, sending }: Me
   };
 
   const handleShellCommand = () => {
-    console.log('handleShellCommand triggered', {
-      text,
-      trimmed: text.trim(),
-      disabled,
-      sending,
-      sessionId,
-      agent,
-    });
     const trimmed = text.trim();
     if (!trimmed) {
-      console.log('Shell command blocked: no text');
       return;
     }
     if (disabled) {
-      console.log('Shell command blocked: disabled');
       return;
     }
     if (sending) {
-      console.log('Shell command blocked: sending');
       return;
     }
     if (!sessionId) {
-      console.log('Shell command blocked: no sessionId');
       return;
     }
 
@@ -74,16 +62,7 @@ export function MessageInput({ onSend, sessionId, agent, disabled, sending }: Me
 
         <TouchableOpacity
           className="h-9 w-9 items-center justify-center rounded-md"
-          onPress={() => {
-            console.log('Terminal button pressed', {
-              canRunShell,
-              isPending: runShell.isPending,
-              disabled,
-              sending,
-              sessionId,
-            });
-            handleShellCommand();
-          }}
+          onPress={handleShellCommand}
           disabled={!canRunShell || runShell.isPending}
           accessibilityLabel="Run as shell command">
           {runShell.isPending ? (
@@ -113,10 +92,10 @@ export function MessageInput({ onSend, sessionId, agent, disabled, sending }: Me
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => handleSend()}
+          onPress={handleSend}
           disabled={!canSend}
           activeOpacity={0.8}
-          className="h-9 w-9 items-center justify-center rounded-xl bg-[#8f482f]"
+          className="h-9 w-9 items-center justify-center rounded-md bg-[#8f482f]"
           accessibilityLabel="Send message">
           <MaterialIcons name="arrow-upward" size={18} color="#ffffff" />
         </TouchableOpacity>
