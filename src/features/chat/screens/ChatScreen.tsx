@@ -391,7 +391,7 @@ export default function ChatScreen() {
           {/* Bottom Input Area wrapped in bottom edge SafeAreaView */}
           <View className="gap-2 border-t border-[#dac1ba]/30 bg-[#fcf9f6] pb-2">
             <View className="flex-row pt-2">
-              <ContextBar onToggleAgent={(v) => setAgent(v)} />
+              <ContextBar sessionId={sessionId} onToggleAgent={(v) => setAgent(v)} />
               <SquareLoadingBar isLoading={isBusy} />
             </View>
             <Ternary
