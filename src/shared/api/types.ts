@@ -52,8 +52,8 @@ export interface SessionT {
   };
 }
 /**
- * A single content block inside a V2 assistant message.
- * Produced by both the V2 message read endpoint and the SSE event stream.
+ * A single content block inside an assistant message.
+ * Produced by both the message read endpoint and the SSE event stream.
  */
 export type MessageContentBlock =
   | { type: 'text'; id: string; text: string }
@@ -73,12 +73,12 @@ export type MessageContentBlock =
   | { type: 'selection'; id: string; question: string; options: string[] };
 
 /**
- * A single V2 chat message (from GET /api/session/:id/message).
+ * A single chat message (from GET /api/session/:id/message).
  *
  * User messages carry their text in the top-level `text` field; assistant
  * messages carry an ordered list of content blocks in `content`.
  */
-export interface V2Message {
+export interface Message {
   id: string;
   type: 'user' | 'assistant' | 'system';
   text?: string;
@@ -102,7 +102,7 @@ export interface V2Message {
   };
 }
 
-/** Standard envelope wrapped around V2 list/create responses. */
+/** Standard envelope wrapped around list/create responses. */
 export interface ApiData<T> {
   data: T;
   cursor?: { previous: string | null; next: string | null } | null;
@@ -186,95 +186,14 @@ export interface MessageInfo {
     }[];
   };
   cost?: number;
-  tokens?: V2Message['tokens'];
+  tokens?: Message['tokens'];
   finish?: string;
 }
 
 /** A single chat message returned by `GET /session/:id/message`. */
-export interface Message {
+export interface RawMessage {
   info: MessageInfo;
   parts: MessagePart[];
-}
-
-/**
- * Maps a v1 `Message` (`{ info, parts }`) to the app-internal `V2Message`
- * shape used by the chat UI.
- *
- * - User messages: joins all text parts into the top-level `text` field.
- * - Assistant messages: builds an ordered `content` block list from text,
- *   reasoning, and tool parts. Non-renderable part types (step-start,
- *   step-finish, file, snapshot, patch, agent, retry, compaction, subtask)
- *   are dropped.
- * - `modelID` (v1) is mapped onto `model.id` (V2 render type).
- *
- * @param message - The raw v1 message from the API.
- * @returns The mapped V2 message.
- */
-export function mapV1MessageToV2Message(message: Message): V2Message {
-  const contentBlocks: MessageContentBlock[] = [];
-
-  for (const part of message.parts) {
-    if (part.type === 'text') {
-      contentBlocks.push({ type: 'text', id: part.id, text: part.text });
-    } else if (part.type === 'reasoning') {
-      const block: MessageContentBlock & { type: 'reasoning' } = {
-        type: 'reasoning',
-        id: part.id,
-        text: part.text,
-      };
-      // v1 exposes reasoning timing as `{ start, end }`; the render type
-      // uses `TimeSpan` (`created`/`updated`).
-      if (part.time) {
-        block.time = { created: part.time.start, updated: part.time.end };
-      }
-      contentBlocks.push(block);
-    } else if (part.type === 'tool') {
-      contentBlocks.push({
-        type: 'tool',
-        id: part.id,
-        callID: part.callID,
-        tool: part.tool,
-        state: part.state,
-      });
-    } else if (part.type === 'selection') {
-      contentBlocks.push({
-        type: 'selection',
-        id: part.id,
-        question: part.question,
-        options: part.options,
-      });
-    }
-  }
-
-  const base: Omit<V2Message, 'type' | 'text' | 'content'> = {
-    id: message.info.id,
-    agent: message.info.agent,
-    model: message.info.modelID
-      ? {
-          id: message.info.modelID,
-          providerID: message.info.providerID ?? '',
-          variant: message.info.variant,
-        }
-      : undefined,
-    time: message.info.time,
-    finish: message.info.finish as V2Message['finish'],
-    cost: message.info.cost,
-    tokens: message.info.tokens,
-  };
-
-  if (message.info.role === 'user') {
-    const text = message.parts
-      .filter((part): part is Extract<MessagePart, { type: 'text' }> => part.type === 'text')
-      .map((part) => part.text)
-      .join('\n');
-    return { ...base, type: 'user', text };
-  }
-
-  if (message.info.role === 'system') {
-    return { ...base, type: 'system', text: '' };
-  }
-
-  return { ...base, type: 'assistant', content: contentBlocks };
 }
 
 /** Content block types used internally for rendering (derived from MessagePart). */
