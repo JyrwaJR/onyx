@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useSession } from '@hooks/use-session';
+import { useMcpStatus } from '@shared/hooks/use-mcp-status';
 
 import { AbortSessionButton } from './AbortSessionButton';
 
@@ -17,6 +17,9 @@ type ChatHeaderBarProps = {
 export const ChatHeaderBar = memo(function ChatHeaderBar({ sessionId }: ChatHeaderBarProps) {
   console.log('sessionId', sessionId);
   const { data, isFetching } = useSession(sessionId);
+  const { data: mcpServers, isLoading } = useMcpStatus();
+  const totalServers = mcpServers?.length ?? 0;
+  const activeServers = mcpServers?.filter(s => s.status === 'connected').length ?? 0;
   return (
     <View className="flex-row items-center justify-between bg-[#f6f3f1] px-4 py-2">
       <View className="flex-1 flex-row items-center gap-1.5 pr-2">
@@ -31,7 +34,9 @@ export const ChatHeaderBar = memo(function ChatHeaderBar({ sessionId }: ChatHead
       <View className="flex-row items-center gap-2">
         <AbortSessionButton sessionId={sessionId} />
         <View className="rounded bg-[#f0edeb] px-1.5 py-0.5">
-          <Text className="text-[11px] text-[#5e5c54]">12ms socket</Text>
+          <Text className="text-[11px] text-[#5e5c54]">
+            {isLoading ? '...' : `${activeServers}/${totalServers} servers`}
+          </Text>
         </View>
         <TouchableOpacity
           className="h-7 w-7 items-center justify-center"
