@@ -1,5 +1,3 @@
-import { PaginationMeta } from './pagination-meta';
-
 /**
  * @file Shared API type definitions for HTTP client responses.
  *
@@ -8,18 +6,13 @@ import { PaginationMeta } from './pagination-meta';
  */
 
 export interface ApiResponse<T> {
-  /** Whether the request was processed successfully. */
-  success: boolean;
-  /** Human-readable status message from the server. */
   message: string;
+  success: boolean;
   /** Response payload — `null` on failure. */
   data: T | null;
   /** Pagination metadata for list endpoints. */
-  meta?: PaginationMeta;
+  cursor?: 'next' | 'previous';
   /** Authentication token (returned on login/refresh). */
-  token?: string;
-  /** Structured error details returned on failure. */
-  error?: string | Record<string, unknown>;
 }
 
 /**

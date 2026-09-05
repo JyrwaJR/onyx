@@ -64,7 +64,7 @@ export function MessageInput({ onSend, sessionId, agent, disabled, sending }: Me
 
   return (
     <View className="px-4 pt-1">
-      <View className="flex-row items-end justify-center gap-1 rounded-md border border-primary-fixed bg-[#ebe8e5] p-1.5 ">
+      <View className="flex-row items-end gap-1 rounded-md border border-primary-fixed bg-[#ebe8e5] p-1.5 ">
         <TouchableOpacity
           className="h-9 w-9 items-center justify-center rounded-md"
           disabled
@@ -94,9 +94,10 @@ export function MessageInput({ onSend, sessionId, agent, disabled, sending }: Me
         </TouchableOpacity>
 
         <TextInput
-          className="max-h-[120px] min-h-[36px] flex-1 px-1 py-1.5 text-sm text-[#1c1c1a]"
+          className="max-h-[120px] min-h-[36px] flex-1 px-1 py-1.5 text-end text-sm text-[#1c1c1a]"
           placeholder="Ask Onyx or type '/' for commands..."
           placeholderTextColor="#5e5c54"
+          placeholderClassName="text-end"
           ref={inputRef}
           returnKeyType="default"
           multiline
