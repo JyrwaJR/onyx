@@ -59,10 +59,10 @@ export const AssistantMessage = memo(function AssistantMessage({
       </View>
 
       {/* Agent Card */}
-      <View className="gap-3 rounded-xl bg-[#f0edeb] p-4">
+      <View className="gap-3 rounded-md bg-[#f0edeb] p-1">
         {/* Collapsible Reasoning Tray */}
         {reasoningBlocks.length > 0 && (
-          <View className="rounded-lg bg-[#ebe8e5] p-2.5">
+          <View className="rounded-md bg-[#ebe8e5] p-2.5">
             <Pressable
               onPress={onToggleReasoning}
               className="flex-row items-center justify-between">
@@ -96,7 +96,7 @@ export const AssistantMessage = memo(function AssistantMessage({
 
         {/* Body Text */}
         {textBlocks.map((block, idx) => (
-          <Text key={idx} className="text-sm leading-relaxed text-[#1c1c1a]">
+          <Text key={idx} className="p-2 text-sm leading-relaxed text-[#1c1c1a]">
             {block.text}
           </Text>
         ))}
@@ -108,7 +108,7 @@ export const AssistantMessage = memo(function AssistantMessage({
             <Pressable
               key={idx}
               onPress={() => toggleExpanded(block.id)}
-              className="rounded-lg bg-[#e6e2da] p-3">
+              className="rounded-md bg-[#e6e2da] p-3">
               <View className="flex-row items-center justify-between">
                 <View className="flex-1 flex-row items-center gap-1.5 pr-2">
                   <MaterialIcons name="task-alt" size={18} color="#8f482f" />
@@ -143,21 +143,21 @@ export const AssistantMessage = memo(function AssistantMessage({
           className="pt-1">
           <TouchableOpacity
             activeOpacity={0.8}
-            className="flex-row items-center gap-1 rounded-xl bg-[#8f482f] px-3 py-2">
+            className="flex-row items-center gap-1 rounded-md bg-[#8f482f] px-3 py-2">
             <MaterialIcons name="check" size={16} color="#ffffff" />
             <Text className="text-xs font-semibold text-white">Accept Changes</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             activeOpacity={0.8}
-            className="flex-row items-center gap-1 rounded-xl bg-[#e6e2da] px-3 py-2">
+            className="flex-row items-center gap-1 rounded-md bg-[#e6e2da] px-3 py-2">
             <MaterialIcons name="play-arrow" size={16} color="#1c1c17" />
             <Text className="text-xs font-semibold text-[#1c1c17]">Run Tests</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             activeOpacity={0.8}
-            className="flex-row items-center gap-1 rounded-xl bg-[#ebe8e5] px-3 py-2">
+            className="flex-row items-center gap-1 rounded-md bg-[#ebe8e5] px-3 py-2">
             <MaterialIcons name="help-outline" size={16} color="#1c1c1a" />
             <Text className="text-xs font-semibold text-[#1c1c1a]">Explain logic</Text>
           </TouchableOpacity>
