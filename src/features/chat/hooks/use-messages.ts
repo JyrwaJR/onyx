@@ -1,6 +1,7 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { queryKeys } from '../../../shared/api/query-keys';
 import { fetchMessages } from '../api/chat-api';
+import { useChatStore } from '../store/chat-store';
 
 /**
  * Fetches messages for a session using an infinite query with
@@ -23,9 +24,10 @@ import { fetchMessages } from '../api/chat-api';
  * @returns Query result with the flattened message list in ascending order.
  */
 export function useMessages(sessionId: string) {
+  const isStreaming = useChatStore((s) => s.isStreaming);
   const query = useInfiniteQuery({
     queryKey: queryKeys.messages.bySession(sessionId),
-    refetchInterval: 3000,
+    refetchInterval: isStreaming ? 3000 : 30000,
     refetchIntervalInBackground: false,
     queryFn: ({ pageParam }) => {
       return fetchMessages(sessionId, pageParam as string | undefined);

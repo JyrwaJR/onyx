@@ -144,6 +144,15 @@ export type MessagePart =
       text: string;
       time?: { start: number; end?: number };
       metadata?: Record<string, unknown>;
+    }
+  | {
+      id: string;
+      sessionID: string;
+      messageID: string;
+      type: 'selection';
+      question: string;
+      options: string[];
+      metadata?: Record<string, unknown>;
     };
 
 /**
@@ -226,6 +235,13 @@ export function mapV1MessageToV2Message(message: Message): V2Message {
         callID: part.callID,
         tool: part.tool,
         state: part.state,
+      });
+    } else if (part.type === 'selection') {
+      contentBlocks.push({
+        type: 'selection',
+        id: part.id,
+        question: part.question,
+        options: part.options,
       });
     }
   }

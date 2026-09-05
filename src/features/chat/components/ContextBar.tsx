@@ -1,7 +1,7 @@
-import { memo, useState } from 'react';
+import { memo } from 'react';
 import { Text, TouchableOpacity, ScrollView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { LoadSkillModal } from './LoadSkillModal';
+import { useVcsInfo } from '../hooks/use-vcs-info';
 
 /**
  * Horizontal scrollable action bar above the chat input.
@@ -15,7 +15,7 @@ type ContextBarProps = {
 };
 
 export const ContextBar = memo(function ContextBar({ sessionId }: ContextBarProps) {
-  const [modalVisible, setModalVisible] = useState(false);
+  const { data: vcs, refetch, isFetching } = useVcsInfo();
   return (
     <>
       <ScrollView
@@ -25,12 +25,12 @@ export const ContextBar = memo(function ContextBar({ sessionId }: ContextBarProp
         className="pb-1 pt-2">
         <TouchableOpacity
           activeOpacity={0.7}
-          onPress={() => setModalVisible(true)}
+          onPress={() => refetch()}
+          disabled={isFetching}
           className="flex-row items-center gap-1 rounded-full bg-[#f6f3f1] px-2.5 py-1">
-          <MaterialIcons name="add" size={14} color="#5e5c54" />
-          <Text className="text-xs text-[#5e5c54]">Load Skill</Text>
+          <MaterialIcons name="account-tree" size={14} color="#5e5c54" />
+          <Text className="text-xs text-[#5e5c54]">{vcs?.default_branch}</Text>
         </TouchableOpacity>
-
         <TouchableOpacity
           activeOpacity={0.7}
           className="flex-row items-center gap-1 rounded-full bg-[#f6f3f1] px-2.5 py-1">
@@ -38,11 +38,6 @@ export const ContextBar = memo(function ContextBar({ sessionId }: ContextBarProp
           <Text className="text-xs text-[#5e5c54]">Repo file</Text>
         </TouchableOpacity>
       </ScrollView>
-      <LoadSkillModal
-        sessionId={sessionId}
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
-      />
     </>
   );
 });

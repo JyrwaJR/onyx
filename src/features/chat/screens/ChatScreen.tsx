@@ -92,6 +92,7 @@ export default function ChatScreen() {
     question: string;
     options: string[];
   } | null>(null);
+  const processedSelectionId = useRef<string | null>(null);
   const [isReasoningOpen, setIsReasoningOpen] = useState(true);
 
   // User messages rendered optimistically before the server confirms them.
@@ -218,6 +219,26 @@ export default function ChatScreen() {
       return next;
     });
   });
+
+  // Handle incoming selection blocks
+  useEffect(() => {
+    const lastMessage = allMessages[allMessages.length - 1];
+    if (lastMessage?.type === 'assistant' && lastMessage.content) {
+      const selectionBlock = lastMessage.content.find((b) => b.type === 'selection');
+      if (
+        selectionBlock &&
+        selectionBlock.type === 'selection' &&
+        processedSelectionId.current !== lastMessage.id
+      ) {
+        processedSelectionId.current = lastMessage.id;
+        setActiveInteraction({
+          type: 'selection',
+          question: selectionBlock.question,
+          options: selectionBlock.options,
+        });
+      }
+    }
+  }, [allMessages]);
 
   // Prune pending messages once the server confirms them. This is a
   // render-phase state adjustment (React re-renders immediately with the
