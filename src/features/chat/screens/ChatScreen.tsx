@@ -83,12 +83,13 @@ function getUnconfirmedPending(
 }
 
 export default function ChatScreen() {
+  const [agent, setAgent] = useState<'build' | 'plan'>('build');
   const { sessionId, projectId } = useLocalSearchParams<{
     sessionId: string;
     projectId: string;
   }>();
 
-  const { data, isFetching } = useSession(sessionId);
+  const { data: session, isFetching } = useSession(sessionId);
   const { isBusy: isSessionBusy } = useSessionStatus({ sessionId });
 
   const [streaming, setStreaming] = useState<Map<string, StreamingState>>(new Map());
@@ -268,7 +269,7 @@ export default function ChatScreen() {
   if (!projectId || !sessionId) {
     return (
       <>
-        <StackHeader title={isFetching ? 'Loading…' : data?.title} />
+        <StackHeader title={isFetching ? 'Loading…' : session?.title} />
         <Container>
           <SafeAreaView
             edges={['right', 'left', 'bottom']}
@@ -290,7 +291,7 @@ export default function ChatScreen() {
 
   return (
     <>
-      <StackHeader title={isFetching ? 'Loading…' : data?.title} />
+      <StackHeader title={isFetching ? 'Loading…' : session?.title} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={0}
@@ -336,7 +337,7 @@ export default function ChatScreen() {
           {/* Bottom Input Area wrapped in bottom edge SafeAreaView */}
           <View className="gap-2 border-t border-[#dac1ba]/30 bg-[#fcf9f6] pb-2">
             <View className="flex-row pt-2">
-              <ContextBar sessionId={sessionId} />
+              <ContextBar onToggleAgent={(v) => setAgent(v)} />
               <SquareLoadingBar isLoading={isBusy} />
             </View>
             <Ternary
@@ -358,7 +359,7 @@ export default function ChatScreen() {
               falsy={
                 <MessageInput
                   sessionId={sessionId}
-                  agent={data?.agent ?? 'build'}
+                  agent={agent}
                   disabled={sendMessage.isPaused}
                   sending={sendMessage.isPending}
                   onSend={handleSend}
