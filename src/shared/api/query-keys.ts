@@ -28,4 +28,8 @@ export const queryKeys = {
   messages: {
     bySession: (sessionId: string) => ['messages', sessionId] as const,
   },
+
+  todos: {
+    bySession: (sessionId: string) => ['todos', sessionId] as const,
+  },
 } as const;
