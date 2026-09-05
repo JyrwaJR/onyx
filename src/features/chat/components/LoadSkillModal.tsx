@@ -26,8 +26,8 @@ export const LoadSkillModal: React.FC<LoadSkillModalProps> = ({ sessionId, visib
           <ScrollView>
             {isLoading ? (
               <Text>Loading skills...</Text>
-            ) : (
-              skills?.map((skill) => (
+            ) : skills && skills.length > 0 ? (
+              skills.map((skill) => (
                 <TouchableOpacity
                   key={skill.name}
                   style={styles.skillItem}
@@ -35,6 +35,8 @@ export const LoadSkillModal: React.FC<LoadSkillModalProps> = ({ sessionId, visib
                   <Text>{skill.name}</Text>
                 </TouchableOpacity>
               ))
+            ) : (
+              <Text>No skills available.</Text>
             )}
           </ScrollView>
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
