@@ -29,7 +29,7 @@ interface ConnectionState {
   setServerUrl: (url: string) => void;
   /** Attempt to connect to the server: ping and update status. */
   connect: () => Promise<void>;
-  /** Reset connection status to idle. */
+  /** Reset connection status to idle, preserving the server URL. */
   disconnect: () => void;
 }
 
@@ -82,7 +82,7 @@ export const useConnectionStore = create<ConnectionState>()(
       },
 
       disconnect: () => {
-        set({ connectionStatus: 'idle', error: null, serverUrl: '' });
+        set((state) => ({ connectionStatus: 'idle', error: null, serverUrl: state.serverUrl }));
         router.replace('/');
       },
     }),

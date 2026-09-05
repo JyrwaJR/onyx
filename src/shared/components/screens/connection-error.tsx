@@ -29,12 +29,15 @@ export function ConnectionErrorScreen({
   onOpenNetworkSettings,
 }: ConnectionErrorScreenProps) {
   // Interactive States
-  const { disconnect } = useConnectionStore();
+  const { disconnect, error: storeError, serverUrl: storeServerUrl } = useConnectionStore();
   const [isRetrying, setIsRetrying] = useState(false);
   const [retryFailed, setRetryFailed] = useState(false);
   const [lastPingTime, setLastPingTime] = useState('Just now');
   const [showLogs, setShowLogs] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
+
+  const displayError = storeError || errorCode;
+  const displayUrl = storeServerUrl || targetUrl;
 
   const handleRetry = useCallback(async () => {
     if (isRetrying) return;
@@ -111,7 +114,7 @@ export function ConnectionErrorScreen({
               <Text className="max-w-xs text-center font-body text-sm leading-relaxed text-on-surface-variant">
                 Onyx could not reach the local server at{' '}
                 <Text className="rounded bg-surface-container px-1 py-0.5 font-mono text-xs font-semibold text-on-surface">
-                  {targetUrl}
+                  {displayUrl}
                 </Text>
                 . Check if your daemon is active and firewall permits loopback connections.
               </Text>
@@ -135,7 +138,7 @@ export function ConnectionErrorScreen({
               <View className="gap-1.5">
                 <View className="flex-row items-center justify-between rounded bg-surface-container-lowest px-3 py-2">
                   <Text className="font-mono text-xs text-secondary">Error Code</Text>
-                  <Text className="font-mono text-xs font-medium text-error">{errorCode}</Text>
+                  <Text className="font-mono text-xs font-medium text-error">{displayError}</Text>
                 </View>
 
                 <View className="flex-row items-center justify-between rounded bg-surface-container-lowest px-3 py-2">
@@ -192,7 +195,7 @@ export function ConnectionErrorScreen({
                   <>
                     <MaterialIcons name="refresh" size={20} color="#ffffff" />
                     <Text className="text-sm font-semibold text-primary-on">
-                      {retryFailed ? 'Connection Failed (ECONNREFUSED)' : 'Retry Connection'}
+                      {retryFailed ? `Connection Failed (${displayError})` : 'Retry Connection'}
                     </Text>
                   </>
                 )}
