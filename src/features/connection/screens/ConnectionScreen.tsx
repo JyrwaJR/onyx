@@ -50,7 +50,7 @@ const SUGGESTIONS: SuggestionItem[] = [
  */
 export default function ConnectionScreen() {
   const { setServerUrl, connect } = useConnectionStore();
-  const { onAddNewServer } = usePrevConnectionStore();
+  const { serverUrls, onAddNewServer } = usePrevConnectionStore();
 
   const {
     control,
@@ -222,6 +222,39 @@ export default function ConnectionScreen() {
               ))}
             </View>
           </View>
+
+          {/* Saved Connections Section */}
+          {serverUrls.length > 0 && (
+            <View className="gap-2.5 pt-6">
+              <View className="flex-row items-center justify-between px-1">
+                <Text className="text-xs font-semibold uppercase tracking-wider text-secondary">
+                  Saved Connections
+                </Text>
+                <Text className="text-[11px] text-outline">History</Text>
+              </View>
+
+              <View className="gap-2">
+                {serverUrls.map((url) => (
+                  <TouchableOpacity
+                    key={url}
+                    onPress={() => handleSuggestionPress(url)}
+                    className="w-full flex-row items-center justify-between rounded-xl border border-outline-variant/60 bg-surface-container-low/70 px-3.5 py-2.5"
+                    activeOpacity={0.7}>
+                    <View className="flex-row items-center gap-3">
+                      <View className="h-8 w-8 items-center justify-center rounded-lg bg-surface-container-highest">
+                        <MaterialIcons name="history" size={18} color="#605e58" />
+                      </View>
+                      <View>
+                        <Text className="text-sm font-medium leading-snug text-on-surface">
+                          {url}
+                        </Text>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          )}
         </View>
 
         {/* Footer & Helper Links */}
