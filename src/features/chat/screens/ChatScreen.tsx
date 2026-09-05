@@ -82,10 +82,7 @@ export default function ChatScreen() {
     sessionId: string;
     projectId: string;
   }>();
-  console.log({
-    sessionId,
-    projectId,
-  });
+
   const { data, isFetching } = useSession(sessionId);
 
   const [streaming, setStreaming] = useState<Map<string, StreamingState>>(new Map());

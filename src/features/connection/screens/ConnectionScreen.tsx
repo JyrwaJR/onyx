@@ -6,19 +6,17 @@
  * On success, navigates to the projects dashboard.
  */
 
-import { useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
 import { View, Text, TouchableOpacity, TextInput } from 'react-native';
-import { useRouter } from 'expo-router';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { MaterialIcons } from '@expo/vector-icons';
 
-import { useHealthCheck } from '../hooks/use-health-check';
 import { serverUrlSchema, type ServerUrlFormData } from '../validators/server-url';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ConnectionErrorScreen, Loading } from '@/shared/components/screens';
 import { cn } from '@/shared/lib/cn';
 import { useConnectionStore } from '@/shared/stores';
+import { usePrevConnectionStore } from '../store/use-prev-connection';
 
 /** Quick connect suggestion items. */
 interface SuggestionItem {
@@ -51,12 +49,8 @@ const SUGGESTIONS: SuggestionItem[] = [
  * Connection screen for connecting to an OpenCode server.
  */
 export default function ConnectionScreen() {
-  const router = useRouter();
-
-  const { serverUrl, connectionStatus, error, hydrated, setServerUrl, connect } =
-    useConnectionStore();
-
-  const { isHealthy } = useHealthCheck(connectionStatus === 'connected' ? serverUrl : '');
+  const { setServerUrl, connect } = useConnectionStore();
+  const { onAddNewServer } = usePrevConnectionStore();
 
   const {
     control,
@@ -71,18 +65,6 @@ export default function ConnectionScreen() {
 
   const currentUrl = useWatch({ name: 'serverUrl', control });
 
-  useEffect(() => {
-    if (hydrated && serverUrl) {
-      setValue('serverUrl', serverUrl, { shouldValidate: true });
-    }
-  }, [hydrated, serverUrl, setValue]);
-
-  useEffect(() => {
-    if (connectionStatus === 'connected' && isHealthy) {
-      router.replace('/projects' as never);
-    }
-  }, [connectionStatus, isHealthy, router]);
-
   const onSubmit = useCallback(
     async (data: ServerUrlFormData) => {
       setServerUrl(data.serverUrl);
@@ -94,24 +76,15 @@ export default function ConnectionScreen() {
   const handleSuggestionPress = useCallback(
     (url: string) => {
       setValue('serverUrl', url, { shouldValidate: true });
+      onAddNewServer(url);
       setServerUrl(url);
     },
-    [setValue, setServerUrl]
+    [setValue, setServerUrl, onAddNewServer]
   );
 
   const handleClearInput = useCallback(() => {
     setValue('serverUrl', '', { shouldValidate: true });
   }, [setValue]);
-
-  const isSubmitting = connectionStatus === 'connecting';
-
-  if (isSubmitting) {
-    return <Loading />;
-  }
-
-  if (connectionStatus === 'error' && error) {
-    return <ConnectionErrorScreen />;
-  }
 
   return (
     <SafeAreaView className="flex-1 bg-surface">
@@ -193,9 +166,9 @@ export default function ConnectionScreen() {
           {/* Primary CTA */}
           <TouchableOpacity
             onPress={handleSubmit(onSubmit)}
-            disabled={!isValid || isSubmitting}
+            disabled={!isValid}
             className={`h-12 w-full flex-row items-center justify-center gap-2 rounded-xl  ${
-              isValid && !isSubmitting ? 'bg-primary' : 'bg-hairline'
+              isValid ? 'bg-primary' : 'bg-hairline'
             }`}
             activeOpacity={0.98}>
             <Text className={cn('text-[16px] font-semibold tracking-wide text-white')}>

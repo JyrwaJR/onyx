@@ -1,7 +1,13 @@
 import { useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { queryKeys } from '../../../shared/api/query-keys';
-import { createSession, fetchMessages, deleteMessage, sendMessage } from '../api/chat-api';
+import {
+  createSession,
+  fetchMessages,
+  deleteMessage,
+  sendMessage,
+  abortSession,
+} from '../api/chat-api';
 import { NewSessionFormData } from '@/features/sessions/validators/new-session';
 import { V2Message } from '../../../shared/api/types';
 

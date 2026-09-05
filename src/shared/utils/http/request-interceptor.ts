@@ -5,6 +5,7 @@
  * to every outgoing request.
  */
 
+import { useConnectionStore } from '@/shared/stores';
 import type { InternalAxiosRequestConfig } from 'axios';
 
 /**
@@ -15,8 +16,10 @@ import type { InternalAxiosRequestConfig } from 'axios';
  */
 export const createRequestInterceptor = () => {
   return async (config: InternalAxiosRequestConfig) => {
-    // TODO: Retrieve access token from secure storage and attach as Bearer token.
-    console.log('=>', config.url);
+    const baseUrl = useConnectionStore.getState().serverUrl || process.env.API_BASE_URL;
+    if (baseUrl) {
+      config.baseURL = baseUrl;
+    }
     return config;
   };
 };

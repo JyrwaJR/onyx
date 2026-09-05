@@ -1,20 +1,17 @@
 /**
  * @file Zustand store for server connection state.
  *
- * Manages the current server URL, connection status, and error state.
- * Persists the server URL to AsyncStorage manually (no persist middleware).
+ * Manages server URL, connection status, and error state using Zustand's persist middleware.
  */
 
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from 'expo-router';
 
-import { setApiBaseUrl } from '@utils/http/constants';
 import http from '@utils/http/client';
 import { HEALTH_CHECK } from '@/shared/api/endpoints';
 import { HealthResponse } from '../api';
-import { router } from 'expo-router';
-
-const STORAGE_KEY = 'onyx-connection';
 
 export type ConnectionStatus = 'idle' | 'connecting' | 'connected' | 'error';
 
@@ -28,85 +25,71 @@ interface ConnectionState {
   /** Whether the store has been hydrated from AsyncStorage. */
   hydrated: boolean;
 
-  /** Set the server URL and persist it to AsyncStorage. */
+  /** Set the server URL. */
   setServerUrl: (url: string) => void;
-  /** Attempt to connect to the server: set base URL, ping, update status. */
+  /** Attempt to connect to the server: ping and update status. */
   connect: () => Promise<void>;
   /** Reset connection status to idle. */
   disconnect: () => void;
-  /** Load persisted state from AsyncStorage and reconfigure the HTTP client base URL. */
-  hydrate: () => Promise<void>;
 }
 
-export const useConnectionStore = create<ConnectionState>()((set, get) => ({
-  serverUrl: 'https://192.168.1.18:4096',
-  connectionStatus: 'idle',
-  error: null,
-  hydrated: false,
+export const useConnectionStore = create<ConnectionState>()(
+  persist(
+    (set, get) => ({
+      serverUrl: '',
+      connectionStatus: 'idle',
+      error: null,
+      hydrated: false,
 
-  setServerUrl: (url: string) => {
-    set({ serverUrl: url, error: null });
-    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ serverUrl: url })).catch(() => {});
-  },
+      setServerUrl: (url: string) => {
+        set({ serverUrl: url.trim(), error: null });
+      },
 
-  connect: async () => {
-    const { serverUrl } = get();
+      connect: async () => {
+        const { serverUrl } = get();
 
-    if (!serverUrl) {
-      set({ connectionStatus: 'error', error: 'Please enter a server URL.' });
-      return;
-    }
-
-    set({ connectionStatus: 'connecting', error: null });
-
-    try {
-      setApiBaseUrl(serverUrl);
-
-      const response = await http.get<HealthResponse>(HEALTH_CHECK);
-
-      if (response.data && response.data.healthy) {
-        set({ connectionStatus: 'connected', error: null });
-      } else {
-        set({
-          connectionStatus: 'error',
-          error: 'Server responded but reported unhealthy status.',
-        });
-      }
-    } catch (err) {
-      const status = (err as { response?: { status?: number } }).response?.status;
-
-      if (status === 401 || status === 403) {
-        set({ connectionStatus: 'connected', error: null });
-        return;
-      }
-
-      set({
-        connectionStatus: 'error',
-        error: 'Could not reach the server. Check the URL and try again.',
-      });
-    }
-  },
-
-  disconnect: () => {
-    set({ connectionStatus: 'idle', error: null, serverUrl: '' });
-    AsyncStorage.removeItem(STORAGE_KEY).catch(() => {});
-    router.replace('/');
-  },
-
-  hydrate: async () => {
-    try {
-      const raw = await AsyncStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const data = JSON.parse(raw);
-        if (data.serverUrl) {
-          set({ serverUrl: data.serverUrl, hydrated: true });
-          setApiBaseUrl(data.serverUrl);
+        if (!serverUrl) {
+          set({ connectionStatus: 'error', error: 'Please enter a server URL.' });
           return;
         }
-      }
-      set({ hydrated: true });
-    } catch {
-      set({ hydrated: true });
+
+        set({ connectionStatus: 'connecting', error: null });
+
+        try {
+          const response = await http.get<HealthResponse>(HEALTH_CHECK);
+
+          if (response.data?.healthy) {
+            set({ connectionStatus: 'connected', error: null });
+          } else {
+            set({
+              connectionStatus: 'error',
+              error: 'Server responded but reported unhealthy status.',
+            });
+          }
+        } catch (err: any) {
+          const status = err?.response?.status;
+
+          if (status === 401 || status === 403) {
+            set({ connectionStatus: 'connected', error: null });
+            return;
+          }
+
+          set({
+            connectionStatus: 'error',
+            error: 'Could not reach the server. Check the URL and try again.',
+          });
+        }
+      },
+
+      disconnect: () => {
+        set({ connectionStatus: 'idle', error: null, serverUrl: '' });
+        router.replace('/');
+      },
+    }),
+    {
+      name: 'onyx-connection',
+      storage: createJSONStorage(() => AsyncStorage),
+      partialize: (state) => ({ serverUrl: state.serverUrl }),
     }
-  },
-}));
+  )
+);

@@ -8,27 +8,6 @@
 /** Static fallback from environment variable. */
 const ENV_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:4096';
 
-/** Runtime-configurable base URL. Set by the connection flow. */
-let _dynamicBaseUrl: string | null = null;
-
-/**
- * Returns the active API base URL.
- * Priority: dynamic (set by user connection) > env var > localhost fallback.
- */
-export function getApiBaseUrl(): string {
-  const url = _dynamicBaseUrl ?? ENV_BASE_URL;
-  return url;
-}
-
-/**
- * Sets the API base URL at runtime. Called when the user connects to a server.
- * @param url - The full base URL (e.g. "http://192.168.1.5:4096").
- */
-export function setApiBaseUrl(url: string): void {
-  const cleaned = url.replace(/\/$/, '');
-  _dynamicBaseUrl = cleaned;
-}
-
 /** @deprecated Use getApiBaseUrl() instead. */
 export const API_BASE_URL = ENV_BASE_URL;
 

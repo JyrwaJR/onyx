@@ -12,8 +12,8 @@
  */
 
 import EventSource from 'react-native-sse';
-import { getApiBaseUrl } from '@utils/http/constants';
 import { GLOBAL_EVENT_STREAM } from './endpoints';
+import { useConnectionStore } from '../stores';
 
 /** Callback type for SSE events. */
 export type SSEEventHandler = (event: { type: string; data: string }) => void;
@@ -35,7 +35,7 @@ export function createGlobalSSE(
   onEvent: SSEEventHandler,
   onError?: (error: Error) => void
 ): SSEConnection {
-  const url = `${getApiBaseUrl()}${GLOBAL_EVENT_STREAM}`;
+  const url = `${useConnectionStore.getState().serverUrl}${GLOBAL_EVENT_STREAM}`;
   const es = new EventSource(url, {
     headers: { Accept: 'text/event-stream' },
     pollingInterval: 2500,
