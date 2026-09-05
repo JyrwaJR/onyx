@@ -15,3 +15,4 @@ export { MessageList } from './components/MessageList';
 export { ToolCallBlock } from './components/ToolCallBlock';
 export { MarkdownRenderer } from './components/MarkdownRenderer';
 export { ChatSelection } from './components/ChatSelection';
+export type { ChatQuestion } from './components/ChatSelection';
