@@ -1,5 +1,5 @@
 /**
- * @file Connection screen — initial screen for connecting to a local AI agent.
+ *@abstract @file Connection screen — initial screen for connecting to a local AI agent.
  *
  * Presents a form for the user to enter their server URL, validates it
  * in real-time, and attempts to establish a connection on submit.
@@ -102,10 +102,6 @@ export default function ConnectionScreen() {
   const handleClearInput = useCallback(() => {
     setValue('serverUrl', '', { shouldValidate: true });
   }, [setValue]);
-
-  if (!hydrated) {
-    return <Loading />;
-  }
 
   const isSubmitting = connectionStatus === 'connecting';
 

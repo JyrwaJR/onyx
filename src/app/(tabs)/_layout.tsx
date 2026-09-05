@@ -1,21 +1,27 @@
 import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 
 export default function TabLayout() {
   return (
-    <Tabs screenOptions={{ tabBarActiveTintColor: '#007AFF' }}>
+    <Tabs screenOptions={{ tabBarActiveTintColor: '#007AFF', headerShown: false }}>
       <Tabs.Screen
         name="projects"
         options={{
           title: 'Projects',
-          tabBarIcon: ({ color }) => <Ionicons name="folder" size={24} color={color} />,
+          tabBarActiveTintColor: '#1e1b18',
+          tabBarStyle: {
+            backgroundColor: '#fcf9f6',
+          },
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="cloud-download" size={24} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           title: 'Settings',
-          tabBarIcon: ({ color }) => <Ionicons name="settings" size={24} color={color} />,
+          tabBarIcon: ({ color }) => <MaterialIcons name="settings" size={24} color={color} />,
         }}
       />
     </Tabs>

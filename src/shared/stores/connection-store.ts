@@ -12,6 +12,7 @@ import { setApiBaseUrl } from '@utils/http/constants';
 import http from '@utils/http/client';
 import { HEALTH_CHECK } from '@/shared/api/endpoints';
 import { HealthResponse } from '../api';
+import { router } from 'expo-router';
 
 const STORAGE_KEY = 'onyx-connection';
 
@@ -89,6 +90,7 @@ export const useConnectionStore = create<ConnectionState>()((set, get) => ({
   disconnect: () => {
     set({ connectionStatus: 'idle', error: null, serverUrl: '' });
     AsyncStorage.removeItem(STORAGE_KEY).catch(() => {});
+    router.replace('/');
   },
 
   hydrate: async () => {
