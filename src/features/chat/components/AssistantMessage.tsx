@@ -1,5 +1,5 @@
-import { memo } from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { memo, useCallback, useState } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import type { V2Message } from '../../../shared/api/types';
 
@@ -28,15 +28,12 @@ export const AssistantMessage = memo(function AssistantMessage({
   const reasoningBlocks = message.content?.filter((b) => b.type === 'reasoning') ?? [];
   const textBlocks = message.content?.filter((b) => b.type === 'text') ?? [];
   const toolBlocks = message.content?.filter((b) => b.type === 'tool') ?? [];
-  const [expandedIds, setExpandedIds] = useState(new Set<string>());
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
   const toggleExpanded = useCallback((id: string) => {
-    setExpandedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+    setExpandedId((prev) => (prev === id ? null : id));
   }, []);
+
   return (
     <View className="mb-4 mr-2">
       {/* Agent Metadata Header */}
@@ -107,7 +104,7 @@ export const AssistantMessage = memo(function AssistantMessage({
 
         {/* Tool Execution Badges */}
         {toolBlocks.map((block, idx) => {
-          const isExpanded = expandedIds.has(block.id);
+          const isExpanded = expandedId === block.id;
           return (
             <TouchableOpacity
               key={idx}
