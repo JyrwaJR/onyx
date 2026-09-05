@@ -72,8 +72,8 @@ export function EmptySessionsScreen() {
               No Active Sessions
             </Text>
             <Text className="mb-4 max-w-[280px] text-center text-sm leading-5 text-[#54433e]">
-              You don't have any agent execution threads running or saved. Start a new session to
-              review code, generate specs, or debug.
+              You don&apos;t have any agent execution threads running or saved. Start a new session
+              to review code, generate specs, or debug.
             </Text>
 
             {/* Primary Action Button */}
