@@ -4,6 +4,7 @@ import {
   CREATE_SESSION,
   DELETE_SESSION_MESSAGE,
   GET_SESSION_MESSAGES,
+  GET_QUESTIONS,
   SEND_SESSION_MESSAGE,
   INTERRUPT_SESSION,
   RUN_SHELL_COMMAND,
@@ -12,6 +13,7 @@ import {
 } from '../../../shared/api/endpoints';
 import { mapRawMessageToMessage } from '../../../shared/api/types';
 import type { Message, SessionT, RawMessage } from '../../../shared/api/types';
+import type { QuestionRequest } from '../types';
 
 /**
  * Creates a new session.
@@ -159,6 +161,22 @@ export async function runShellCommand(
  */
 export async function abortSession(sessionId: string): Promise<void> {
   await http.post(INTERRUPT_SESSION(sessionId));
+}
+
+/**
+ * Lists all pending question requests across all sessions.
+ *
+ * Uses the v1 `GET /question` endpoint. Pending requests are kept server-side
+ * until answered or rejected, so this restores unanswered questions that were
+ * asked before the app subscribed to the live SSE stream (e.g. when entering
+ * an existing chat whose last message is an unanswered question).
+ *
+ * @returns The pending question requests across all sessions. Filter by
+ * `sessionID` to find the requests belonging to one chat.
+ */
+export async function listPendingQuestions(): Promise<QuestionRequest[]> {
+  const response = await http.get<QuestionRequest[]>(GET_QUESTIONS);
+  return response.data;
 }
 
 /**

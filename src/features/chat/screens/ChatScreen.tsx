@@ -30,7 +30,7 @@ import { Ternary } from '@/shared/components/ui/ternary';
 import { SquareLoadingBar } from '../components/square-loading-bar';
 import { useChatStore } from '../store/chat-store';
 import { useSessionStatus } from '@/shared/hooks';
-import { replyToQuestion, rejectQuestion } from '../api/chat-api';
+import { replyToQuestion, rejectQuestion, listPendingQuestions } from '../api/chat-api';
 
 /**
  * Main chat screen with SSE streaming and message management.
@@ -255,6 +255,39 @@ export default function ChatScreen() {
     },
     handleQuestion
   );
+
+  // Restore unanswered questions when entering an existing chat. The
+  // `question.asked` SSE event only fires live; for historical questions
+  // (e.g. the last message is an unanswered question) the server keeps the
+  // request pending and `GET /question` returns it. Re-runs whenever the
+  // message list refreshes so a restored question stays in sync.
+  useEffect(() => {
+    if (!sessionId) return;
+    let cancelled = false;
+
+    listPendingQuestions()
+      .then((requests) => {
+        if (cancelled) return;
+        const pending = requests.find((request) => request.sessionID === sessionId);
+        if (!pending) return;
+
+        // Keep the current question untouched when it is the same request so
+        // a question the user is mid-answering is never reset.
+        setActiveQuestion((prev) => (prev && prev.id === pending.id ? prev : pending));
+        setQuestionAnswers((prev) =>
+          prev.length === pending.questions.length
+            ? prev
+            : Array(pending.questions.length).fill(null)
+        );
+      })
+      .catch(() => {
+        // Best-effort restore; a list failure must not break the chat.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionId, messages]);
 
   // Auto-submit the question request once every question has an answer.
   // The answers array mirrors `question.asked`'s question order, matching
