@@ -7,6 +7,8 @@ import {
   SEND_SESSION_MESSAGE,
   INTERRUPT_SESSION,
   RUN_SHELL_COMMAND,
+  QUESTION_REPLY,
+  QUESTION_REJECT,
 } from '../../../shared/api/endpoints';
 import { mapRawMessageToMessage } from '../../../shared/api/types';
 import type { Message, SessionT, RawMessage } from '../../../shared/api/types';
@@ -157,4 +159,30 @@ export async function runShellCommand(
  */
 export async function abortSession(sessionId: string): Promise<void> {
   await http.post(INTERRUPT_SESSION(sessionId));
+}
+
+/**
+ * Replies to a pending question request from the assistant.
+ *
+ * Uses the v1 `POST /question/:id/reply` endpoint. `answers` must contain
+ * exactly one entry per question (in the same order as the request), each
+ * entry being an array of selected option labels.
+ *
+ * @param requestId - The question request ID (`^que`).
+ * @param answers - Selected option labels per question, in question order.
+ */
+export async function replyToQuestion(requestId: string, answers: string[][]): Promise<void> {
+  await http.post(QUESTION_REPLY(requestId), { answers });
+}
+
+/**
+ * Rejects a pending question request from the assistant.
+ *
+ * Uses the v1 `POST /question/:id/reject` endpoint. The assistant continues
+ * without an answer for the rejected question.
+ *
+ * @param requestId - The question request ID (`^que`).
+ */
+export async function rejectQuestion(requestId: string): Promise<void> {
+  await http.post(QUESTION_REJECT(requestId));
 }

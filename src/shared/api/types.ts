@@ -69,8 +69,7 @@ export type MessageContentBlock =
         output?: unknown;
         title?: string;
       };
-    }
-  | { type: 'selection'; id: string; question: string; options: string[] };
+    };
 
 /**
  * A single chat message (from GET /api/session/:id/message).
@@ -143,15 +142,6 @@ export type MessagePart =
       type: 'reasoning';
       text: string;
       time?: { start: number; end?: number };
-      metadata?: Record<string, unknown>;
-    }
-  | {
-      id: string;
-      sessionID: string;
-      messageID: string;
-      type: 'selection';
-      question: string;
-      options: string[];
       metadata?: Record<string, unknown>;
     };
 
@@ -248,13 +238,6 @@ export function mapRawMessageToMessage(message: RawMessage): Message {
         callID: part.callID,
         tool: part.tool,
         state: part.state as any,
-      });
-    } else if (part.type === 'selection') {
-      contentBlocks.push({
-        type: 'selection',
-        id: part.id,
-        question: part.question,
-        options: part.options,
       });
     }
   }

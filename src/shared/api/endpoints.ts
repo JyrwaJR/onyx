@@ -73,3 +73,22 @@ export const GET_PATH = '/path';
 
 /** Get VCS info for the current project. */
 export const GET_VCS = '/vcs';
+
+/**
+ * List all pending question requests across sessions. Returns
+ * `QuestionRequest[]`. Query params: `directory`, `workspace`.
+ */
+export const GET_QUESTIONS = '/question';
+
+/**
+ * Reply to a question request. POST body `{ answers: string[][] }` — one
+ * array of selected option labels per question, in order.
+ * Template: `QUESTION_REPLY(requestId)`.
+ */
+export const QUESTION_REPLY = (requestId: string) => `/question/${requestId}/reply` as const;
+
+/**
+ * Reject a question request.
+ * Template: `QUESTION_REJECT(requestId)`.
+ */
+export const QUESTION_REJECT = (requestId: string) => `/question/${requestId}/reject` as const;

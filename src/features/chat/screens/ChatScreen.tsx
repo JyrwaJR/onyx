@@ -13,13 +13,13 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { useMessages, useSendMessage } from '../hooks';
 import { useSSE } from '../hooks/use-sse';
-import type { StreamingState } from '../types';
+import type { StreamingState, QuestionRequest } from '../types';
 import type { MessageContentBlock, Message } from '../../../shared/api/types';
 import { Loading } from '@/shared/components/screens';
 import { useSession } from '@/features/sessions';
 import { StackHeader } from '@components/ui/header';
 import { MessageInput } from '../components/MessageInput';
-import { ChatSelection, type ChatQuestion } from '../components/ChatSelection';
+import { ChatSelection } from '../components/ChatSelection';
 import { ChatHeaderBar } from '../components/ChatHeaderBar';
 import { ContextBar } from '../components/ContextBar';
 import { UserMessage } from '../components/UserMessage';
@@ -30,6 +30,7 @@ import { Ternary } from '@/shared/components/ui/ternary';
 import { SquareLoadingBar } from '../components/square-loading-bar';
 import { useChatStore } from '../store/chat-store';
 import { useSessionStatus } from '@/shared/hooks';
+import { replyToQuestion, rejectQuestion } from '../api/chat-api';
 
 /**
  * Main chat screen with SSE streaming and message management.
@@ -93,8 +94,8 @@ export default function ChatScreen() {
   const { isBusy: isSessionBusy } = useSessionStatus({ sessionId });
 
   const [streaming, setStreaming] = useState<Map<string, StreamingState>>(new Map());
-  const [activeInteraction, setActiveInteraction] = useState<ChatQuestion | null>(null);
-  const processedSelectionId = useRef<string | null>(null);
+  const [activeQuestion, setActiveQuestion] = useState<QuestionRequest | null>(null);
+  const [questionAnswers, setQuestionAnswers] = useState<(string[] | null)[]>([]);
   const [isReasoningOpen, setIsReasoningOpen] = useState(true);
 
   // User messages rendered optimistically before the server confirms them.
@@ -208,6 +209,29 @@ export default function ChatScreen() {
     setIsReasoningOpen((prev) => !prev);
   }, []);
 
+  /** Called when the assistant emits a `question.asked` SSE event. */
+  const handleQuestion = useCallback((request: QuestionRequest) => {
+    setActiveQuestion(request);
+    setQuestionAnswers(Array(request.questions.length).fill(null));
+  }, []);
+
+  /** Records the selected labels for one question of the active request. */
+  const handleQuestionSelect = useCallback((questionIndex: number, labels: string[]) => {
+    setQuestionAnswers((prev) => {
+      const next = [...prev];
+      next[questionIndex] = labels;
+      return next;
+    });
+  }, []);
+
+  /** Rejects the active question request and dismisses the prompt. */
+  const handleRejectQuestion = useCallback(() => {
+    if (!activeQuestion) return;
+    const requestId = activeQuestion.id;
+    setActiveQuestion(null);
+    rejectQuestion(requestId).catch((err) => console.warn('Failed to reject question:', err));
+  }, [activeQuestion]);
+
   const handleScroll = useCallback(
     (e: { nativeEvent: { contentOffset: { y: number } } }) => {
       if (e.nativeEvent.contentOffset.y < 50 && hasNextPage && !isFetchingNextPage) {
@@ -219,34 +243,34 @@ export default function ChatScreen() {
 
   // --- SSE subscription ---
 
-  useSSE(sessionId, ({ assistantMessageID, delta }) => {
-    setStreaming((prev) => {
-      const next = new Map(prev);
-      const cur = next.get(assistantMessageID) ?? { text: '', reasoning: '' };
-      next.set(assistantMessageID, { ...cur, text: cur.text + delta });
-      return next;
-    });
-  });
+  useSSE(
+    sessionId,
+    ({ assistantMessageID, delta }) => {
+      setStreaming((prev) => {
+        const next = new Map(prev);
+        const cur = next.get(assistantMessageID) ?? { text: '', reasoning: '' };
+        next.set(assistantMessageID, { ...cur, text: cur.text + delta });
+        return next;
+      });
+    },
+    handleQuestion
+  );
 
-  // Handle incoming selection blocks
+  // Auto-submit the question request once every question has an answer.
+  // The answers array mirrors `question.asked`'s question order, matching
+  // the `POST /question/:id/reply` body contract (`answers: string[][]`).
   useEffect(() => {
-    const lastMessage = allMessages[allMessages.length - 1];
-    if (lastMessage?.type === 'assistant' && lastMessage.content) {
-      const selectionBlock = lastMessage.content.find((b) => b.type === 'selection');
-      if (
-        selectionBlock &&
-        selectionBlock.type === 'selection' &&
-        processedSelectionId.current !== lastMessage.id
-      ) {
-        processedSelectionId.current = lastMessage.id;
-        setActiveInteraction({
-          id: lastMessage.id,
-          question: selectionBlock.question,
-          options: selectionBlock.options,
-        });
-      }
-    }
-  }, [allMessages]);
+    if (!activeQuestion || activeQuestion.questions.length === 0) return;
+    if (questionAnswers.length !== activeQuestion.questions.length) return;
+    const allAnswered = questionAnswers.every((answer) => answer !== null && answer.length > 0);
+    if (!allAnswered) return;
+
+    const requestId = activeQuestion.id;
+    const answers = questionAnswers as string[][];
+    replyToQuestion(requestId, answers)
+      .catch((err) => console.warn('Failed to reply to question:', err))
+      .finally(() => setActiveQuestion(null));
+  }, [activeQuestion, questionAnswers]);
 
   // Prune pending messages once the server confirms them. This is a
   // render-phase state adjustment (React re-renders immediately with the
@@ -337,17 +361,20 @@ export default function ChatScreen() {
               <SquareLoadingBar isLoading={isBusy} />
             </View>
             <Ternary
-              condition={activeInteraction ? true : false}
+              condition={activeQuestion ? true : false}
               truthy={
                 <>
-                  {activeInteraction && (
-                    <ChatSelection
-                      question={activeInteraction}
-                      onSelect={(option) => {
-                        handleSend(option);
-                        setActiveInteraction(null);
-                      }}
-                    />
+                  {activeQuestion && (
+                    <View className="gap-2 px-4 pt-2">
+                      {activeQuestion.questions.map((question, index) => (
+                        <ChatSelection
+                          key={`${activeQuestion.id}-${index}`}
+                          question={question}
+                          onSelect={(labels) => handleQuestionSelect(index, labels)}
+                          onReject={handleRejectQuestion}
+                        />
+                      ))}
+                    </View>
                   )}
                 </>
               }

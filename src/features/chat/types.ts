@@ -67,6 +67,48 @@ type SessionNextStepEndedPayload = {
   };
 };
 
+/** A single selectable option within a question. */
+export type QuestionOption = {
+  /** Display text (1-5 words, concise). */
+  label: string;
+  /** Explanation of the choice. */
+  description?: string;
+};
+
+/** A single question posed by the assistant (mirrors server `QuestionInfo`). */
+export type QuestionInfo = {
+  /** Complete question text. */
+  question: string;
+  /** Very short label (max 30 chars). */
+  header: string;
+  /** Available choices. */
+  options: QuestionOption[];
+  /** When true the user may select multiple options. */
+  multiple?: boolean;
+  /** When true the user may type a custom answer. */
+  custom?: boolean;
+};
+
+/** An interactive question request from the assistant (server `QuestionRequest`). */
+export type QuestionRequest = {
+  /** Question request ID (`^que`). */
+  id: string;
+  /** Session the question belongs to (`^ses`). */
+  sessionID: string;
+  /** Questions to ask, answered in order. */
+  questions: QuestionInfo[];
+  /** Tool that produced the question. */
+  tool?: {
+    messageID: string;
+    callID: string;
+  };
+};
+
+type QuestionAskedPayload = {
+  type: 'question.asked';
+  properties: QuestionRequest;
+};
+
 type MessageCreatedPayload = {
   type: 'message.created';
   properties: {
@@ -93,6 +135,7 @@ type EventPayload =
   | SessionNextTextDeltaPayload
   | SessionNextReasoningDeltaPayload
   | SessionNextStepEndedPayload
+  | QuestionAskedPayload
   | MessageCreatedPayload
   | PermissionRequestedPayload
   | CustomPayload;
