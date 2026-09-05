@@ -51,7 +51,7 @@ export function MessageInput({ onSend, sessionId, agent, disabled, sending }: Me
   const canRunShell = !disabled && !sending && !!sessionId;
 
   return (
-    <View className="px-4 pt-1">
+    <View className="px-2 pt-1">
       <View className="flex-row items-end gap-1 rounded-md border border-primary-fixed bg-[#ebe8e5] p-1.5 ">
         <TouchableOpacity
           className="h-9 w-9 items-center justify-center rounded-md"

@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/shared/api/query-keys';
 import { abortSession } from '../api/chat-api';
-import { useSessionsStatus } from '@/shared/hooks/use-session-status';
+import { useSessionStatus } from '@/shared/hooks/use-session-status';
 import { Button } from '@/shared/components/ui/button';
 import React from 'react';
 
@@ -12,7 +12,7 @@ import React from 'react';
  */
 export const AbortSessionButton: React.FC<{ sessionId: string }> = ({ sessionId }) => {
   const queryClient = useQueryClient();
-  const { isBusy } = useSessionsStatus({ sessionId });
+  const { isBusy } = useSessionStatus({ sessionId });
 
   const mutation = useMutation({
     mutationFn: () => abortSession(sessionId),

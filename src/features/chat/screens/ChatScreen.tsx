@@ -27,6 +27,9 @@ import { AssistantMessage } from '../components/AssistantMessage';
 import { Container } from '@/shared/components/layout/Container';
 import EmptyChat from '../components/empty-chat';
 import { Ternary } from '@/shared/components/ui/ternary';
+import { SquareLoadingBar } from '../components/square-loading-bar';
+import { useChatStore } from '../store/chat-store';
+import { useSessionStatus } from '@/shared/hooks';
 
 /**
  * Main chat screen with SSE streaming and message management.
@@ -86,6 +89,7 @@ export default function ChatScreen() {
   }>();
 
   const { data, isFetching } = useSession(sessionId);
+  const { isBusy: isSessionBusy } = useSessionStatus({ sessionId });
 
   const [streaming, setStreaming] = useState<Map<string, StreamingState>>(new Map());
   const [activeInteraction, setActiveInteraction] = useState<{
@@ -107,6 +111,7 @@ export default function ChatScreen() {
     hasNextPage,
     isFetchingNextPage,
   } = useMessages(sessionId);
+  const { isStreaming } = useChatStore();
 
   const sendMessage = useSendMessage(sessionId);
 
@@ -278,7 +283,11 @@ export default function ChatScreen() {
       </>
     );
   }
+
   // --- Render ---
+
+  const isBusy = isStreaming || isSessionBusy;
+
   return (
     <>
       <StackHeader title={isFetching ? 'Loading…' : data?.title} />
@@ -288,7 +297,6 @@ export default function ChatScreen() {
         className="flex-1">
         <SafeAreaView edges={['right', 'left', 'bottom']} className="flex-1 bg-[#fcf9f6]">
           <ChatHeaderBar sessionId={sessionId} />
-
           {/* Messages Stream */}
           <ScrollView
             ref={scrollViewRef}
@@ -326,8 +334,11 @@ export default function ChatScreen() {
             />
           </ScrollView>
           {/* Bottom Input Area wrapped in bottom edge SafeAreaView */}
-          <View className="border-t border-[#dac1ba]/30 bg-[#fcf9f6] pb-2">
-            <ContextBar sessionId={sessionId} />
+          <View className="gap-2 border-t border-[#dac1ba]/30 bg-[#fcf9f6] pb-2">
+            <View className="flex-row pt-2">
+              <ContextBar sessionId={sessionId} />
+              <SquareLoadingBar isLoading={isBusy} />
+            </View>
             <Ternary
               condition={activeInteraction ? true : false}
               truthy={

@@ -8,9 +8,9 @@ type SessionStatus = Record<
   }
 >;
 
-export function useSessionsStatus({ sessionId }: { sessionId: string }) {
+export function useSessionStatus({ sessionId }: { sessionId: string }) {
   const query = useQuery({
-    queryKey: ['session', 'status'],
+    queryKey: ['session', 'status', sessionId],
     queryFn: () => http.get<SessionStatus>(`/api/session/status`),
     select: (data) => data.data,
     staleTime: 1000,
