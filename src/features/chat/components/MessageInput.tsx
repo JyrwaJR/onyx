@@ -10,13 +10,12 @@ interface MessageInputProps {
   sessionId: string;
   agent: string;
   disabled?: boolean;
-  sending?: boolean;
 }
 
 /**
  * Text input with auto-grow and send button.
  */
-export function MessageInput({ onSend, sessionId, agent, disabled, sending }: MessageInputProps) {
+export function MessageInput({ onSend, sessionId, agent, disabled }: MessageInputProps) {
   const [text, setText] = useState('');
   const [isCommand, setIsCommand] = useState(false);
   const inputRef = useRef<TextInput>(null);
@@ -26,7 +25,7 @@ export function MessageInput({ onSend, sessionId, agent, disabled, sending }: Me
   const handleSend = () => {
     const trimmed = text.trim();
 
-    if (!trimmed || disabled || sending) return;
+    if (!trimmed || disabled) return;
 
     onSend(trimmed);
     setText('');
@@ -52,9 +51,6 @@ export function MessageInput({ onSend, sessionId, agent, disabled, sending }: Me
       return;
     }
     if (disabled) {
-      return;
-    }
-    if (sending) {
       return;
     }
     if (!sessionId) {
@@ -89,9 +85,6 @@ export function MessageInput({ onSend, sessionId, agent, disabled, sending }: Me
     if (disabled) {
       return;
     }
-    if (sending) {
-      return;
-    }
     if (!sessionId) {
       return;
     }
@@ -100,8 +93,8 @@ export function MessageInput({ onSend, sessionId, agent, disabled, sending }: Me
     setText('');
   };
 
-  const canSend = text.trim().length > 0 && !disabled && !sending;
-  const canRunShell = !disabled && !sending && !!sessionId;
+  const canSend = text.trim().length > 0 && !disabled;
+  const canRunShell = !disabled && !!sessionId;
 
   return (
     <View className="px-2 pt-1">

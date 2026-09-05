@@ -417,7 +417,6 @@ export default function ChatScreen() {
                   sessionId={sessionId}
                   agent={agent}
                   disabled={sendMessage.isPaused}
-                  sending={sendMessage.isPending}
                   onSend={handleSend}
                 />
               }
