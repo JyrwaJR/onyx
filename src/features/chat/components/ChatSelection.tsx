@@ -65,7 +65,7 @@ export const ChatSelection = memo(function ChatSelection({
       : true;
 
   return (
-    <View className="gap-3 rounded-xl border border-[#dac1ba]/30 bg-[#fcf9f6] p-4">
+    <View className="gap-3 rounded-md border border-[#dac1ba]/30 bg-[#fcf9f6] p-4">
       <View className="flex-row items-start justify-between gap-2">
         <Text className="flex-1 text-base font-semibold text-[#54433e]">
           {chatQuestion.header || chatQuestion.question}
@@ -87,7 +87,7 @@ export const ChatSelection = memo(function ChatSelection({
             <TouchableOpacity
               key={option.label}
               onPress={() => toggleOption(option.label)}
-              className={`rounded-lg border p-3 active:bg-[#edeae8] ${
+              className={`rounded-md border p-3 active:bg-[#edeae8] ${
                 isSelected ? 'border-[#8f482f] bg-[#f3e3dd]' : 'border-[#d6d3d0] bg-[#f6f3f1]'
               }`}>
               <Text className="text-sm font-medium text-[#54433e]">{option.label}</Text>
@@ -104,7 +104,7 @@ export const ChatSelection = memo(function ChatSelection({
           onChangeText={setCustomAnswer}
           placeholder="Type your answer…"
           placeholderTextColor="#a8a29a"
-          className="rounded-lg border border-[#d6d3d0] bg-[#f6f3f1] p-3 text-sm text-[#54433e]"
+          className="rounded-md border border-[#d6d3d0] bg-[#f6f3f1] p-3 text-sm text-[#54433e]"
         />
       )}
       {(isMultiple || isCustom) && (
@@ -112,7 +112,7 @@ export const ChatSelection = memo(function ChatSelection({
           onPress={submit}
           disabled={!isSubmitEnabled}
           accessibilityLabel="Submit answer"
-          className={`rounded-lg p-3 ${isSubmitEnabled ? 'bg-[#8f482f]' : 'bg-[#d6d3d0]'}`}>
+          className={`rounded-md p-3 ${isSubmitEnabled ? 'bg-[#8f482f]' : 'bg-[#d6d3d0]'}`}>
           <Text className="text-center text-sm font-semibold text-[#fff]">Send answer</Text>
         </TouchableOpacity>
       )}

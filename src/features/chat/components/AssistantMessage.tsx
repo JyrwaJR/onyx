@@ -25,6 +25,7 @@ export const AssistantMessage = memo(function AssistantMessage({
   isReasoningOpen,
   onToggleReasoning,
 }: AssistantMessageProps) {
+  console.log('Rendering AssistantMessage', JSON.stringify(message, null, 2));
   const reasoningBlocks = message.content?.filter((b) => b.type === 'reasoning') ?? [];
   const textBlocks = message.content?.filter((b) => b.type === 'text') ?? [];
   const toolBlocks = message.content?.filter((b) => b.type === 'tool') ?? [];
