@@ -1,11 +1,12 @@
 import { useState, useRef } from 'react';
-import { View, TouchableOpacity, TextInput } from 'react-native';
+import { View, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRunShellCommand } from '../hooks';
-import { useLocalSearchParams } from 'expo-router';
 
 interface MessageInputProps {
   onSend: (content: string) => void;
+  sessionId: string;
+  agent: string;
   disabled?: boolean;
   sending?: boolean;
 }
@@ -13,11 +14,10 @@ interface MessageInputProps {
 /**
  * Text input with auto-grow and send button.
  */
-export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
+export function MessageInput({ onSend, sessionId, agent, disabled, sending }: MessageInputProps) {
   const [text, setText] = useState('');
   const inputRef = useRef<TextInput>(null);
-  const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
-  const runShell = useRunShellCommand(sessionId ?? '');
+  const runShell = useRunShellCommand(sessionId);
 
   const handleSend = () => {
     const trimmed = text.trim();
@@ -29,14 +29,38 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
   };
 
   const handleShellCommand = () => {
+    console.log('handleShellCommand triggered', {
+      text,
+      trimmed: text.trim(),
+      disabled,
+      sending,
+      sessionId,
+      agent,
+    });
     const trimmed = text.trim();
-    if (!trimmed || disabled || sending || !sessionId) return;
+    if (!trimmed) {
+      console.log('Shell command blocked: no text');
+      return;
+    }
+    if (disabled) {
+      console.log('Shell command blocked: disabled');
+      return;
+    }
+    if (sending) {
+      console.log('Shell command blocked: sending');
+      return;
+    }
+    if (!sessionId) {
+      console.log('Shell command blocked: no sessionId');
+      return;
+    }
 
-    runShell.mutate({ command: trimmed, agent: 'build' });
+    runShell.mutate({ command: trimmed, agent });
     setText('');
   };
 
   const canSend = text.trim().length > 0 && !disabled && !sending;
+  const canRunShell = !disabled && !sending && !!sessionId;
 
   return (
     <View className="px-4 pt-1">
@@ -51,9 +75,13 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
         <TouchableOpacity
           className="h-9 w-9 items-center justify-center rounded-md"
           onPress={handleShellCommand}
-          disabled={!canSend || !sessionId}
+          disabled={!canRunShell || runShell.isPending}
           accessibilityLabel="Run as shell command">
-          <MaterialIcons name="terminal" size={20} color="#5e5c54" />
+          {runShell.isPending ? (
+            <ActivityIndicator size="small" color="#5e5c54" />
+          ) : (
+            <MaterialIcons name="terminal" size={20} color="#5e5c54" />
+          )}
         </TouchableOpacity>
 
         <TextInput
