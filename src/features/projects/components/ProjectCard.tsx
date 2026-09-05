@@ -45,7 +45,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
       key={project.id}
       onPress={handlePress}
       activeOpacity={0.8}
-      className="rounded-md border border-[#dac1ba]/60 bg-[#f0edeb] p-4 active:border-[#87736d]/50">
+      className="gap-y-2 rounded-md border border-[#dac1ba]/60 bg-[#f0edeb] p-4 active:border-[#87736d]/50">
       <View className="flex-row items-start justify-between gap-2">
         <View className="flex-1 flex-row items-start gap-3">
           <View className="h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[#dac1ba]/40 bg-[#ebe8e5]">

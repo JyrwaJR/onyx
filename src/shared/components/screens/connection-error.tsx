@@ -8,6 +8,8 @@ import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'rea
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Container } from '../layout/Container';
+import { useConnectionStore } from '@/shared/stores';
+import { Button } from '../ui';
 
 interface ConnectionErrorScreenProps {
   targetUrl?: string;
@@ -27,6 +29,7 @@ export function ConnectionErrorScreen({
   onOpenNetworkSettings,
 }: ConnectionErrorScreenProps) {
   // Interactive States
+  const { disconnect } = useConnectionStore();
   const [isRetrying, setIsRetrying] = useState(false);
   const [retryFailed, setRetryFailed] = useState(false);
   const [lastPingTime, setLastPingTime] = useState('Just now');
@@ -115,7 +118,7 @@ export function ConnectionErrorScreen({
             </View>
 
             {/* Diagnostic Snapshot Bento Card */}
-            <View className="mb-6 rounded-xl border border-outline-variant/30 bg-surface-container-low p-4 shadow-sm">
+            <View className="mb-6 rounded-md border border-outline-variant/30 bg-surface-container-low p-4 shadow-sm">
               <View className="mb-3 flex-row items-center justify-between">
                 <View className="flex-row items-center gap-1.5">
                   <MaterialIcons name="terminal" size={18} color="#54433e" />
@@ -176,7 +179,7 @@ export function ConnectionErrorScreen({
               <TouchableOpacity
                 onPress={handleRetry}
                 disabled={isRetrying}
-                className={`h-12 w-full flex-row items-center justify-center gap-2 rounded-xl shadow-md active:opacity-90 ${
+                className={`h-12 w-full flex-row items-center justify-center gap-2 rounded-md shadow-md active:opacity-90 ${
                   retryFailed ? 'bg-error' : 'bg-primary'
                 }`}
                 activeOpacity={0.9}>
@@ -195,10 +198,18 @@ export function ConnectionErrorScreen({
                 )}
               </TouchableOpacity>
 
+              <Button
+                variant={'destructive'}
+                onPress={() => disconnect()}
+                activeOpacity={0.8}
+                className="gap-x-2">
+                <MaterialIcons name="power-settings-new" size={18} color="#ffffff" />
+                <Text className="text-sm font-semibold text-white">Disconnect</Text>
+              </Button>
               {/* Toggle Diagnostic Logs */}
               <TouchableOpacity
                 onPress={() => setShowLogs((prev) => !prev)}
-                className="h-12 w-full flex-row items-center justify-center gap-2 rounded-xl bg-surface-container active:bg-surface-container-high"
+                className="h-12 w-full flex-row items-center justify-center gap-2 rounded-md bg-surface-container active:bg-surface-container-high"
                 activeOpacity={0.8}>
                 <MaterialIcons name="assignment-late" size={20} color="#605e58" />
                 <Text className="text-sm font-semibold text-on-surface">
@@ -209,7 +220,7 @@ export function ConnectionErrorScreen({
 
             {/* Collapsible Log Drawer Preview */}
             {showLogs && (
-              <View className="mb-6 rounded-xl bg-inverse-surface p-4 shadow-sm">
+              <View className="mb-6 rounded-md bg-inverse-surface p-4 shadow-sm">
                 <View className="mb-2 flex-row items-center justify-between">
                   <View className="flex-row items-center gap-2">
                     <View className="h-2 w-2 rounded-full bg-error" />

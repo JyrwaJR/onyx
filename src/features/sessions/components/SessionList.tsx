@@ -11,13 +11,10 @@ import { FlatList, RefreshControl } from 'react-native';
 
 import { useSessions } from '../hooks/use-sessions';
 import { SessionCard } from './SessionCard';
-import {
-  ConnectionErrorScreen,
-  Loading,
-  NotFoundSessionsScreen,
-} from '@/shared/components/screens';
+import { ConnectionErrorScreen, Loading } from '@/shared/components/screens';
 import { NewSessionForm } from './NewSessionForm';
 import { Fab } from '@/shared/components/ui';
+import { EmptySessionsScreen } from '../screens/no-session';
 
 interface SessionListProps {
   projectId: string;
@@ -52,12 +49,7 @@ export function SessionList({ projectId, dir }: SessionListProps) {
   if (sessions.length === 0) {
     return (
       <>
-        <NotFoundSessionsScreen onCreateSession={() => setFormVisible(true)} />
-        <NewSessionForm
-          projectId={projectId}
-          visible={formVisible}
-          onClose={() => setFormVisible(false)}
-        />
+        <EmptySessionsScreen />
       </>
     );
   }

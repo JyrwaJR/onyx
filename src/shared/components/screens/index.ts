@@ -4,3 +4,4 @@ export * from './loading';
 export * from './session-not-found';
 export * from './not-found';
 export * from './empty';
+export * from './settings';

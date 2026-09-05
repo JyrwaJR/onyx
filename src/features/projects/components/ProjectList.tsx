@@ -10,12 +10,8 @@ import { FlatList, RefreshControl, View, Text, TouchableOpacity, TextInput } fro
 
 import { useProjects } from '../hooks/use-projects';
 import { ProjectCard } from './ProjectCard';
-import {
-  ConnectionErrorScreen,
-  Loading,
-  NotFoundSessionsScreen,
-} from '@/shared/components/screens';
 import { MaterialIcons } from '@expo/vector-icons';
+import EmptyProjectsScreen from '../screens/no-project-screen';
 
 /**
  * Project list with pull-to-refresh, loading, error, and empty states.
@@ -23,23 +19,15 @@ import { MaterialIcons } from '@expo/vector-icons';
  * Uses Claude design system colors throughout.
  */
 export function ProjectList() {
-  const { data: projects, isLoading, isError, refetch, isFetching } = useProjects();
+  const { data: projects, refetch, isFetching } = useProjects();
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleRefresh = useCallback(() => {
     refetch();
   }, [refetch]);
 
-  if (isLoading) {
-    return <Loading />;
-  }
-
-  if (isError) {
-    return <ConnectionErrorScreen />;
-  }
-
   if (!projects || projects.length === 0) {
-    return <NotFoundSessionsScreen />;
+    return <EmptyProjectsScreen />;
   }
 
   return (

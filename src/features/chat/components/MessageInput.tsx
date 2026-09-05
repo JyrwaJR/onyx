@@ -28,7 +28,7 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
 
   return (
     <View className="px-4 pt-1">
-      <View className="flex-row items-end justify-center gap-1 rounded-md border border-primary-fixed bg-[#ebe8e5] p-1.5">
+      <View className="flex-row items-end justify-center gap-1 rounded-md border border-primary-fixed bg-[#ebe8e5] p-1.5 ">
         <TouchableOpacity
           className="h-9 w-9 items-center justify-center rounded-md"
           disabled

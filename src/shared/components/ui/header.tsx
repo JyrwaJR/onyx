@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
+import { StatusBar } from 'expo-status-bar';
 
 interface StackHeaderProps {
   /** Header title text. */
@@ -30,6 +31,7 @@ export const StackHeader = memo(({ title, showBack = true }: StackHeaderProps) =
 
   return (
     <View className="border-b border-[#dac1ba] bg-[#fcf9f6]" style={{ paddingTop: insets.top }}>
+      <StatusBar />
       <View className="min-h-[52px] flex-row items-center gap-x-3 px-4">
         <TouchableOpacity
           onPress={handleBack}
@@ -37,8 +39,10 @@ export const StackHeader = memo(({ title, showBack = true }: StackHeaderProps) =
           hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
           className="flex-1 flex-row gap-x-3"
           activeOpacity={0.7}>
-          {isShowBack && <MaterialIcons name="arrow-back-ios" size={22} color="#54433e" />}
-          <Text className="flex-1 text-lg font-semibold text-[#1c1c1a]" numberOfLines={1}>
+          {isShowBack && <MaterialIcons name="arrow-back" size={24} color="#8f482f" />}
+          <Text
+            className="mr-8 flex-1 text-center text-xl font-bold tracking-tight text-[#8f482f]"
+            numberOfLines={1}>
             {title ?? ''}
           </Text>
         </TouchableOpacity>

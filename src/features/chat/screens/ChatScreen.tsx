@@ -25,6 +25,7 @@ import { ContextBar } from '../components/ContextBar';
 import { UserMessage } from '../components/UserMessage';
 import { AssistantMessage } from '../components/AssistantMessage';
 import { Container } from '@/shared/components/layout/Container';
+import EmptyChat from '../components/empty-chat';
 
 /**
  * Main chat screen with SSE streaming and message management.
@@ -248,7 +249,6 @@ export default function ChatScreen() {
       </>
     );
   }
-
   // --- Render ---
   return (
     <>
@@ -275,17 +275,21 @@ export default function ChatScreen() {
               </View>
             )}
 
-            {allMessages.map((message) =>
-              message?.type === 'user' ? (
-                <UserMessage key={message.id} message={message} />
-              ) : (
-                <AssistantMessage
-                  key={message.id}
-                  message={message}
-                  isStreaming={streamingIds.has(message.id)}
-                  isReasoningOpen={isReasoningOpen}
-                  onToggleReasoning={handleToggleReasoning}
-                />
+            {allMessages.length === 0 ? (
+              <EmptyChat />
+            ) : (
+              allMessages.map((message) =>
+                message?.type === 'user' ? (
+                  <UserMessage key={message.id} message={message} />
+                ) : (
+                  <AssistantMessage
+                    key={message.id}
+                    message={message}
+                    isStreaming={streamingIds.has(message.id)}
+                    isReasoningOpen={isReasoningOpen}
+                    onToggleReasoning={handleToggleReasoning}
+                  />
+                )
               )
             )}
           </ScrollView>

@@ -125,12 +125,13 @@ export async function sendMessage(sessionId: string, content: string): Promise<v
 }
 
 /**
- * Fetches a single session by ID.
+ * Interrupts an active session.
  *
- * @param sessionId - The session ID to fetch.
- * @returns The session details.
+ * Uses the v1 `POST /session/:id/abort` endpoint.
+ *
+ * @param sessionId - The session to interrupt.
  */
-export async function fetchSession(sessionId: string): Promise<SessionT> {
-  const response = await http.get<SessionT>(GET_SESSION_BY_ID(sessionId));
-  return response.data;
+export async function abortSession(sessionId: string): Promise<void> {
+  await http.post(INTERRUPT_SESSION(sessionId));
 }
+

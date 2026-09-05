@@ -4,13 +4,13 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/shared/lib/cn';
 
 const buttonVariants = cva(
-  'flex-row items-center justify-center rounded-xl px-5 py-3 min-h-[40px]',
+  'flex-row items-center justify-center rounded-md px-5 py-3 min-h-[40px]',
   {
     variants: {
       variant: {
         primary: 'bg-primary shadow-md',
         secondary: 'bg-surface border shadow-xs border-outline-variant',
-        destructive: 'bg-error/10 border border-error/20',
+        destructive: 'bg-error border border-error/20',
         ghost: 'bg-transparent',
         'primary-on-dark': 'bg-inverse-surface',
       },

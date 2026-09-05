@@ -151,3 +151,22 @@ export function useSendMessage(sessionId: string) {
     },
   });
 }
+
+/**
+ * Interrupts an active session.
+ *
+ * @param sessionId - The session ID.
+ * @returns Mutation object for aborting a session.
+ */
+export function useAbortSession(sessionId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => abortSession(sessionId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.messages.bySession(sessionId),
+      });
+    },
+  });
+}

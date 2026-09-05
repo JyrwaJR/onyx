@@ -38,7 +38,7 @@ interface ConnectionState {
 }
 
 export const useConnectionStore = create<ConnectionState>()((set, get) => ({
-  serverUrl: 'http://localhost:4096',
+  serverUrl: 'https://192.168.1.18:4096',
   connectionStatus: 'idle',
   error: null,
   hydrated: false,
@@ -87,7 +87,7 @@ export const useConnectionStore = create<ConnectionState>()((set, get) => ({
   },
 
   disconnect: () => {
-    set({ connectionStatus: 'idle', error: null });
+    set({ connectionStatus: 'idle', error: null, serverUrl: '' });
     AsyncStorage.removeItem(STORAGE_KEY).catch(() => {});
   },
 
