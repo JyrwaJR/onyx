@@ -21,7 +21,7 @@ export const LoadSkillModal: React.FC<LoadSkillModalProps> = ({ sessionId, visib
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <View className="flex-1 justify-end bg-black/50">
-        <View className="max-h-[80%] rounded-t-2xl bg-white p-5">
+        <View className="max-h-[80%] rounded-t-md bg-white p-5">
           <Text className="mb-4 text-lg font-bold">Available Skills</Text>
           <ScrollView>
             {isLoading ? (
