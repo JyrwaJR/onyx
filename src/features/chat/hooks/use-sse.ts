@@ -18,10 +18,11 @@ export type OnQuestion = (request: QuestionRequest) => void;
 /**
  * Subscribes to the global v1 SSE event stream for a given session.
  *
- * Handles `session.next.text.delta`, `session.next.reasoning.delta`,
- * `session.next.step.ended`, `question.asked`, and `permission.requested`
- * events. Automatically invalidates the messages query cache when a step
- * completes.
+ * Handles the live v1 wire events (`message.part.delta`,
+ * `message.updated`, `question.asked`) plus the legacy
+ * `session.next.*` events and `permission.requested`. Automatically
+ * invalidates the messages query cache when a message is updated or a
+ * step completes.
  *
  * @param sessionId - The session to subscribe to.
  * @param onDelta - Called on each text/reasoning delta event.
@@ -45,21 +46,22 @@ export function useSSE(sessionId: string | undefined, onDelta: OnDelta, onQuesti
     if (!sessionId) return;
 
     const handleEvent = (event: { type: string; data: string }) => {
-      let eventPayload: Event;
+      let raw: Event;
       try {
-        eventPayload = JSON.parse(event.data) as Event;
+        raw = JSON.parse(event.data) as Event;
       } catch {
         return;
       }
 
-      const { payload } = eventPayload;
-      if (!payload) return;
+      // Live v1 wire format: `{ id, type, properties }` at the top level.
+      // Legacy GlobalEvent format: `{ directory?, payload: { type, properties } }`.
+      const isLegacy = raw.payload != null && typeof raw.payload.type === 'string';
+      const type = isLegacy ? raw.payload?.type : raw.type;
+      const properties = isLegacy ? raw.payload?.properties : raw.properties;
+      if (!type || !properties) return;
 
-      if (
-        payload.type === 'session.next.text.delta' ||
-        payload.type === 'session.next.reasoning.delta'
-      ) {
-        const { sessionID, assistantMessageID, delta } = payload.properties as {
+      if (type === 'session.next.text.delta' || type === 'session.next.reasoning.delta') {
+        const { sessionID, assistantMessageID, delta } = properties as {
           sessionID: string;
           assistantMessageID: string;
           delta: string;
@@ -72,20 +74,36 @@ export function useSSE(sessionId: string | undefined, onDelta: OnDelta, onQuesti
           assistantMessageID,
           delta: delta ?? '',
         });
-      } else if (payload.type === 'session.next.step.ended') {
-        const { sessionID } = payload.properties as { sessionID: string };
-        if (sessionID !== sessionId) return;
+      } else if (type === 'message.part.delta') {
+        const { sessionID, messageID, field, delta } = properties as {
+          sessionID: string;
+          messageID: string;
+          field: string;
+          delta: string;
+        };
 
+        // Only live text tokens are forwarded; reasoning/tool parts arrive
+        // as full `message.part.updated` payloads and surface on refetch.
+        if (sessionID !== sessionId || !messageID || field !== 'text') return;
+        if (delta == null) return;
+
+        onDeltaRef.current({
+          sessionId,
+          assistantMessageID: messageID,
+          delta: String(delta),
+        });
+      } else if (type === 'session.next.step.ended' || type === 'message.updated') {
+        // Completion signal: legacy step.ended or the current message.updated.
         queryClient.invalidateQueries({
           queryKey: queryKeys.messages.bySession(sessionId),
         });
-      } else if (payload.type === 'question.asked') {
-        const request = payload.properties as QuestionRequest;
+      } else if (type === 'question.asked') {
+        const request = properties as QuestionRequest;
         if (request.sessionID !== sessionId) return;
 
         onQuestionRef.current?.(request);
-      } else if (payload.type === 'permission.requested') {
-        const { request } = payload.properties as { request: PermissionRequest };
+      } else if (type === 'permission.requested') {
+        const { request } = properties as { request: PermissionRequest };
         if (request.sessionId !== sessionId) return;
 
         addPermissionRequest(request);

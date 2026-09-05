@@ -67,6 +67,25 @@ type SessionNextStepEndedPayload = {
   };
 };
 
+type MessagePartDeltaPayload = {
+  type: 'message.part.delta';
+  properties: {
+    sessionID: string;
+    messageID: string;
+    partID: string;
+    field: string;
+    delta: string;
+  };
+};
+
+type MessageUpdatedPayload = {
+  type: 'message.updated';
+  properties: {
+    sessionID: string;
+    info: unknown;
+  };
+};
+
 /** A single selectable option within a question. */
 export type QuestionOption = {
   /** Display text (1-5 words, concise). */
@@ -135,13 +154,31 @@ type EventPayload =
   | SessionNextTextDeltaPayload
   | SessionNextReasoningDeltaPayload
   | SessionNextStepEndedPayload
+  | MessagePartDeltaPayload
+  | MessageUpdatedPayload
   | QuestionAskedPayload
   | MessageCreatedPayload
   | PermissionRequestedPayload
   | CustomPayload;
 
-// Primary Event envelope
+/**
+ * A single event from the global SSE stream.
+ *
+ * The live v1 wire format places `type` and `properties` at the top level:
+ * `{ id: "evt_…", type: "question.asked", properties: { … } }`. Older
+ * server versions wrapped the event in a `payload` object instead
+ * (`{ directory?, payload: { type, properties } }`). The SSE parser accepts
+ * both shapes.
+ */
 export type Event = {
+  /** Event ID (`^evt`) — present in the top-level wire format. */
+  id?: string;
+  /** Working directory — present in the legacy `payload` wrapper format. */
   directory?: string;
-  payload: EventPayload;
+  /** Event type, e.g. `question.asked`. */
+  type?: string;
+  /** Event-specific payload. */
+  properties?: Record<string, unknown>;
+  /** Legacy (`GlobalEvent`) wrapper containing `type`/`properties`. */
+  payload?: EventPayload;
 };
