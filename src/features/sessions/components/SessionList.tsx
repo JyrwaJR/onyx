@@ -49,7 +49,7 @@ export function SessionList({ projectId, dir }: SessionListProps) {
   if (sessions.length === 0) {
     return (
       <>
-        <EmptySessionsScreen />
+        <EmptySessionsScreen dir={dir} />
       </>
     );
   }

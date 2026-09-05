@@ -1,9 +1,10 @@
 import { useState, useRef } from 'react';
 import { View, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRunShellCommand } from '../hooks';
+import { useAbortSession, useRunShellCommand } from '../hooks';
 import { useSendCommand } from '@/shared/hooks/use-send-command';
 import { Ternary } from '@/shared/components/ui/ternary';
+import { useChatStore } from '../store/chat-store';
 
 interface MessageInputProps {
   onSend: (content: string) => void;
@@ -20,7 +21,12 @@ export function MessageInput({ onSend, sessionId, agent, disabled }: MessageInpu
   const [isCommand, setIsCommand] = useState(false);
   const inputRef = useRef<TextInput>(null);
   const runShell = useRunShellCommand(sessionId);
+  const { isStreaming } = useChatStore();
   const { mutate: sendCommand, isPending: isPendingCommand } = useSendCommand();
+  const { mutate } = useAbortSession(sessionId);
+  const handleAbortSession = () => {
+    mutate();
+  };
 
   const handleSend = () => {
     const trimmed = text.trim();
@@ -155,14 +161,28 @@ export function MessageInput({ onSend, sessionId, agent, disabled }: MessageInpu
           <MaterialIcons name="mic" size={20} color="#5e5c54" />
         </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={handleSend}
-          disabled={!canSend}
-          activeOpacity={0.8}
-          className="h-9 w-9 items-center justify-center rounded-md bg-[#8f482f]"
-          accessibilityLabel="Send message">
-          <MaterialIcons name="arrow-upward" size={18} color="#ffffff" />
-        </TouchableOpacity>
+        <Ternary
+          condition={isStreaming}
+          truthy={
+            <TouchableOpacity
+              onPress={handleAbortSession}
+              activeOpacity={0.8}
+              className="h-9 w-9 items-center justify-center rounded-xl bg-[#8f482f]"
+              accessibilityLabel="Send message">
+              <MaterialIcons name="stop" size={18} color="#ffffff" />
+            </TouchableOpacity>
+          }
+          falsy={
+            <TouchableOpacity
+              onPress={handleSend}
+              disabled={!canSend}
+              activeOpacity={0.8}
+              className="h-9 w-9 items-center justify-center rounded-xl bg-[#8f482f]"
+              accessibilityLabel="Send message">
+              <MaterialIcons name="arrow-upward" size={18} color="#ffffff" />
+            </TouchableOpacity>
+          }
+        />
       </View>
     </View>
   );

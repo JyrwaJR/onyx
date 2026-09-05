@@ -1,13 +1,17 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Alert } from 'react-native';
+import { useState } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { NewSessionForm } from '../components/NewSessionForm';
 
-export function EmptySessionsScreen() {
-  const [searchQuery, setSearchQuery] = useState('');
+type Props = {
+  dir?: string;
+};
+export function EmptySessionsScreen({ dir }: Props) {
+  const [formVisible, setFormVisible] = useState(false);
 
   const handleStartSession = () => {
-    Alert.alert('Initializing Session', 'Starting local Onyx runtime...');
+    setFormVisible(true);
   };
 
   const handleBlueprint = (title: string) => {
@@ -19,13 +23,13 @@ export function EmptySessionsScreen() {
       {/* Content Container */}
       <View className="relative flex-1">
         <ScrollView
-          className="flex-1 px-4 pt-2"
+          className="flex-1 pt-2"
           contentContainerStyle={{ paddingBottom: 90 }}
           showsVerticalScrollIndicator={false}>
           {/* Runtime Status Ribbon & Search Surface */}
           <View className="gap-3 pb-2 pt-1">
             <View className="flex-row items-center justify-between">
-              <View className="flex-row items-center gap-2 rounded-full bg-[#f0edeb] px-3 py-1 shadow-sm">
+              <View className="flex-row items-center gap-2 rounded-full bg-[#f0edeb] px-3 py-1 ">
                 <View className="h-2 w-2 rounded-full bg-[#8f482f]" />
                 <Text className="text-[11px] font-semibold uppercase tracking-wider text-[#54433e]">
                   RUNTIME: ONYX-7B-Q4 • READY
@@ -36,33 +40,20 @@ export function EmptySessionsScreen() {
                 <Text className="text-xs text-[#54433e]">0.4 GB / 8 GB</Text>
               </View>
             </View>
-
-            {/* Search Input */}
-            <View className="flex-row items-center gap-2 rounded-xl bg-[#ebe8e5] px-3 py-2 opacity-90">
-              <MaterialIcons name="search" size={20} color="#54433e" />
-              <TextInput
-                className="flex-1 p-0 text-sm text-[#1c1c1a]"
-                placeholder="Search threads, repos, or tags..."
-                placeholderTextColor="#54433e"
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-              />
-              <MaterialIcons name="tune" size={18} color="#87736d" />
-            </View>
           </View>
 
           {/* Hero Empty State Canvas */}
-          <View className="relative my-3 items-center overflow-hidden rounded-xl bg-[#f6f3f1] p-5 text-center shadow-sm">
+          <View className="relative my-3 items-center overflow-hidden rounded-xl bg-[#f6f3f1] p-5 text-center ">
             {/* Ambient halo background blurs */}
             <View className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-[#ffdbd0] opacity-40" />
             <View className="absolute -bottom-10 -left-10 h-36 w-36 rounded-full bg-[#e6e2da] opacity-60" />
 
             {/* Iconographic Badge */}
             <View className="relative mb-3 mt-1">
-              <View className="h-16 w-16 items-center justify-center rounded-xl bg-white shadow-md">
+              <View className="h-16 w-16 items-center justify-center rounded-xl bg-white ">
                 <MaterialIcons name="terminal" size={32} color="#8f482f" />
               </View>
-              <View className="absolute -bottom-1 -right-1 h-6 w-6 items-center justify-center rounded-full bg-[#ad5f45] shadow-sm">
+              <View className="absolute -bottom-1 -right-1 h-6 w-6 items-center justify-center rounded-full bg-[#ad5f45] ">
                 <MaterialIcons name="auto-awesome" size={14} color="#fffbff" />
               </View>
             </View>
@@ -80,7 +71,7 @@ export function EmptySessionsScreen() {
             <TouchableOpacity
               onPress={handleStartSession}
               activeOpacity={0.8}
-              className="w-full flex-row items-center justify-center gap-2 rounded-xl bg-[#8f482f] px-4 py-3 shadow-md">
+              className="w-full flex-row items-center justify-center gap-2 rounded-xl bg-[#8f482f] px-4 py-3 ">
               <MaterialIcons name="add" size={20} color="#ffffff" />
               <Text className="text-sm font-medium text-white">Start New Session</Text>
               <MaterialIcons name="arrow-forward" size={18} color="#ffffff" />
@@ -105,8 +96,8 @@ export function EmptySessionsScreen() {
               <TouchableOpacity
                 onPress={() => handleBlueprint('Audit repo architecture')}
                 activeOpacity={0.7}
-                className="flex-row items-start gap-3 rounded-xl bg-[#f0edeb] p-4 shadow-sm">
-                <View className="mt-0.5 h-10 w-10 items-center justify-center rounded-lg bg-white shadow-sm">
+                className="flex-row items-start gap-3 rounded-xl bg-[#f0edeb] p-4 ">
+                <View className="mt-0.5 h-10 w-10 items-center justify-center rounded-lg bg-white ">
                   <MaterialIcons name="account-tree" size={22} color="#8f482f" />
                 </View>
                 <View className="flex-1">
@@ -138,8 +129,8 @@ export function EmptySessionsScreen() {
               <TouchableOpacity
                 onPress={() => handleBlueprint('Refactor authentication flow')}
                 activeOpacity={0.7}
-                className="flex-row items-start gap-3 rounded-xl bg-[#f0edeb] p-4 shadow-sm">
-                <View className="mt-0.5 h-10 w-10 items-center justify-center rounded-lg bg-white shadow-sm">
+                className="flex-row items-start gap-3 rounded-xl bg-[#f0edeb] p-4 ">
+                <View className="mt-0.5 h-10 w-10 items-center justify-center rounded-lg bg-white ">
                   <MaterialIcons name="lock-reset" size={22} color="#8f482f" />
                 </View>
                 <View className="flex-1">
@@ -171,8 +162,8 @@ export function EmptySessionsScreen() {
               <TouchableOpacity
                 onPress={() => handleBlueprint('Draft technical RFC')}
                 activeOpacity={0.7}
-                className="flex-row items-start gap-3 rounded-xl bg-[#f0edeb] p-4 shadow-sm">
-                <View className="mt-0.5 h-10 w-10 items-center justify-center rounded-lg bg-white shadow-sm">
+                className="flex-row items-start gap-3 rounded-xl bg-[#f0edeb] p-4 ">
+                <View className="mt-0.5 h-10 w-10 items-center justify-center rounded-lg bg-white ">
                   <MaterialIcons name="article" size={22} color="#8f482f" />
                 </View>
                 <View className="flex-1">
@@ -203,8 +194,8 @@ export function EmptySessionsScreen() {
           </View>
 
           {/* Privacy Footnote */}
-          <View className="mt-3 flex-row items-center gap-3 rounded-xl bg-white p-4 shadow-sm">
-            <MaterialIcons name="shield-lock" size={20} color="#8f482f" />
+          <View className="mt-3 flex-row items-center gap-3 rounded-xl bg-white p-4 ">
+            <MaterialIcons name="shield" size={20} color="#8f482f" />
             <Text className="flex-1 text-xs leading-4 text-[#54433e]">
               Onyx processes prompts on local silicon. No telemetry or code fragments leave this
               device.
@@ -212,6 +203,7 @@ export function EmptySessionsScreen() {
           </View>
         </ScrollView>
       </View>
+      <NewSessionForm dir={dir || ''} visible={formVisible} onClose={() => setFormVisible(false)} />
     </SafeAreaView>
   );
 }

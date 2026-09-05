@@ -26,7 +26,7 @@ export const ChatHeaderBar = memo(function ChatHeaderBar({ sessionId }: ChatHead
         <Text className="text-xs font-medium text-[#54433e]" numberOfLines={1}>
           {isFetching
             ? 'Loading...'
-            : `${data?.agent} - ${data?.model?.id || '-'} - (${data?.model?.variant ?? '-'})`}
+            : `${data?.agent ?? 'Onyx'} - ${data?.model?.id || '-'} - (${data?.model?.variant ?? '-'})`}
         </Text>
       </View>
 

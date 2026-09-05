@@ -31,7 +31,7 @@ export const AbortSessionButton: React.FC<{ sessionId: string }> = ({ sessionId 
     <Button
       variant="destructive"
       size="sm"
-      onClick={() => mutation.mutate()}
+      onPress={() => mutation.mutate()}
       disabled={mutation.isPending}>
       {mutation.isPending ? 'Aborting...' : 'Abort Session'}
     </Button>

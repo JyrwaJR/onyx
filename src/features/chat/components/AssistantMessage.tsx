@@ -1,7 +1,9 @@
-import { memo, useCallback, useState } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import React, { memo, useCallback, useState } from 'react';
+import { View, Text, Pressable, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import type { Message } from '../../../shared/api/types';
+import { formatDate } from '@/shared/utils/helpers/format';
+import * as Clipboard from 'expo-clipboard';
 
 interface AssistantMessageProps {
   message: Message;
@@ -29,10 +31,17 @@ export const AssistantMessage = memo(function AssistantMessage({
   const textBlocks = message.content?.filter((b) => b.type === 'text') ?? [];
   const toolBlocks = message.content?.filter((b) => b.type === 'tool') ?? [];
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const textBody = textBlocks.map((b) => b.text).join('');
 
   const toggleExpanded = useCallback((id: string) => {
     setExpandedId((prev) => (prev === id ? null : id));
   }, []);
+
+  const copyToClipboard = useCallback(async () => {
+    if (textBody) {
+      await Clipboard.setStringAsync(textBody);
+    }
+  }, [textBody]);
 
   return (
     <View className="mb-4 mr-2">
@@ -59,7 +68,7 @@ export const AssistantMessage = memo(function AssistantMessage({
       </View>
 
       {/* Agent Card */}
-      <View className="gap-3 rounded-md bg-[#f0edeb] p-1">
+      <View className="gap-3 rounded-md bg-[#f0edeb] p-4">
         {/* Collapsible Reasoning Tray */}
         {reasoningBlocks.length > 0 && (
           <View className="rounded-md bg-[#ebe8e5] p-2.5">
@@ -94,11 +103,14 @@ export const AssistantMessage = memo(function AssistantMessage({
           </View>
         )}
 
-        {/* Body Text */}
         {textBlocks.map((block, idx) => (
-          <Text key={idx} className="p-2 text-sm leading-relaxed text-[#1c1c1a]">
-            {block.text}
-          </Text>
+          <React.Fragment key={idx}>
+            {block.text !== '' && (
+              <Text key={idx} className="p-2 text-sm leading-relaxed text-[#1c1c1a]">
+                {block.text}
+              </Text>
+            )}
+          </React.Fragment>
         ))}
 
         {/* Tool Execution Badges */}
@@ -134,42 +146,20 @@ export const AssistantMessage = memo(function AssistantMessage({
             </Pressable>
           );
         })}
-
-        {/* Action Pills 
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ gap: 8 }}
-          className="pt-1">
-          <TouchableOpacity
-            activeOpacity={0.8}
-            className="flex-row items-center gap-1 rounded-md bg-[#8f482f] px-3 py-2">
-            <MaterialIcons name="check" size={16} color="#ffffff" />
-            <Text className="text-xs font-semibold text-white">Accept Changes</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            activeOpacity={0.8}
-            className="flex-row items-center gap-1 rounded-md bg-[#e6e2da] px-3 py-2">
-            <MaterialIcons name="play-arrow" size={16} color="#1c1c17" />
-            <Text className="text-xs font-semibold text-[#1c1c17]">Run Tests</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            activeOpacity={0.8}
-            className="flex-row items-center gap-1 rounded-md bg-[#ebe8e5] px-3 py-2">
-            <MaterialIcons name="help-outline" size={16} color="#1c1c1a" />
-            <Text className="text-xs font-semibold text-[#1c1c1a]">Explain logic</Text>
-          </TouchableOpacity>
-        </ScrollView>
-        */}
       </View>
-      <Text className="ml-1 mt-1 text-[11px] text-[#5e5c54]">
-        {new Date(message.time.created).toLocaleTimeString([], {
-          hour: '2-digit',
-          minute: '2-digit',
-        })}
-      </Text>
+      <View className="w-full flex-row items-center justify-between">
+        <Text className="ml-1 mt-1 text-[11px] text-[#5e5c54]">
+          {formatDate(message.time.created)}
+        </Text>
+        <View className="mt-2 flex-row items-center justify-end">
+          <TouchableOpacity
+            onPress={copyToClipboard}
+            activeOpacity={0.8}
+            className="items-center gap-1 rounded-md px-3 py-2">
+            <MaterialIcons name="content-copy" size={16} color="#8f482f" />
+          </TouchableOpacity>
+        </View>
+      </View>
     </View>
   );
 });
