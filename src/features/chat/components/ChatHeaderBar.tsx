@@ -3,6 +3,8 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useSession } from '@hooks/use-session';
 
+import { AbortSessionButton } from './AbortSessionButton';
+
 /**
  * Static sub-header bar showing the active model, branch, and socket latency.
  *
@@ -27,6 +29,7 @@ export const ChatHeaderBar = memo(function ChatHeaderBar({ sessionId }: ChatHead
       </View>
 
       <View className="flex-row items-center gap-2">
+        <AbortSessionButton sessionId={sessionId} />
         <View className="rounded bg-[#f0edeb] px-1.5 py-0.5">
           <Text className="text-[11px] text-[#5e5c54]">12ms socket</Text>
         </View>
