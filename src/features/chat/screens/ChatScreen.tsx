@@ -300,7 +300,7 @@ export default function ChatScreen() {
           </ScrollView>
           {/* Bottom Input Area wrapped in bottom edge SafeAreaView */}
           <View className="border-t border-[#dac1ba]/30 bg-[#fcf9f6] pb-2">
-            <ContextBar />
+            <ContextBar sessionId={sessionId} />
             <Ternary
               condition={activeInteraction ? true : false}
               truthy={
@@ -319,6 +319,8 @@ export default function ChatScreen() {
               }
               falsy={
                 <MessageInput
+                  sessionId={sessionId}
+                  agent={data?.agent ?? 'build'}
                   disabled={sendMessage.isPaused}
                   sending={sendMessage.isPending}
                   onSend={handleSend}

@@ -74,7 +74,16 @@ export function MessageInput({ onSend, sessionId, agent, disabled, sending }: Me
 
         <TouchableOpacity
           className="h-9 w-9 items-center justify-center rounded-md"
-          onPress={handleShellCommand}
+          onPress={() => {
+            console.log('Terminal button pressed', {
+              canRunShell,
+              isPending: runShell.isPending,
+              disabled,
+              sending,
+              sessionId,
+            });
+            handleShellCommand();
+          }}
           disabled={!canRunShell || runShell.isPending}
           accessibilityLabel="Run as shell command">
           {runShell.isPending ? (

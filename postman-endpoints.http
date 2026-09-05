@@ -1,0 +1,785 @@
+# Aggregated OpenCode API Endpoints for Postman
+# Base URL: http://localhost:4096 (local OpenCode server)
+
+# --- 00-common.http ---
+# ============================================================
+# OpenCode API v1 — Common / Shared / Global
+# Base URL: http://localhost:4096 (local OpenCode server)
+# Docs:     http://localhost:4096/doc  (OpenAPI 3.1 spec)
+# ============================================================
+
+### Get configuration
+GET {{BASE_URL}}/config
+
+### Update configuration
+PATCH {{BASE_URL}}/config
+Content-Type: application/json
+
+{
+  "shell": "bash",
+  "logLevel": "info"
+}
+
+### List configuration providers
+GET {{BASE_URL}}/config/providers
+
+### Get global configuration
+GET {{BASE_URL}}/global/config
+
+### Update global configuration
+PATCH {{BASE_URL}}/global/config
+Content-Type: application/json
+
+{
+  "shell": "bash",
+  "logLevel": "info"
+}
+
+### Health — Check server health
+GET {{BASE_URL}}/global/health
+
+### Get global events (SSE)
+GET {{BASE_URL}}/global/event
+Accept: text/event-stream
+
+### Upgrade opencode
+POST {{BASE_URL}}/global/upgrade
+Content-Type: application/json
+
+{
+  "target": "latest"
+}
+
+### Dispose instance (close server)
+POST {{BASE_URL}}/instance/dispose
+
+### Dispose global instance
+POST {{BASE_URL}}/global/dispose
+
+### Get paths (config, data, sessions locations)
+GET {{BASE_URL}}/path
+
+### Write a log entry
+POST {{BASE_URL}}/log
+Content-Type: application/json
+
+{
+  "service": "opencode",
+  "level": "info",
+  "message": "Hello from REST client",
+  "extra": {}
+}
+
+### Subscribe to events (SSE)
+GET {{BASE_URL}}/event
+Accept: text/event-stream
+
+### Get formatter status
+GET {{BASE_URL}}/formatter
+
+### Get LSP status
+GET {{BASE_URL}}/lsp
+
+# --- 01-agent.http ---
+# ============================================================
+# Agent / Command / Skill — list agents, slash-commands, and skills.
+# Docs: http://localhost:4096/doc
+# ============================================================
+
+### List agents
+GET {{BASE_URL}}/agent
+
+### List commands
+GET {{BASE_URL}}/command
+
+### List skills
+GET {{BASE_URL}}/skill
+
+# --- 02-session.http ---
+# ============================================================
+# Session — the primary interaction API (v1).
+# Docs: http://localhost:4096/doc
+# ============================================================
+
+### List sessions
+GET {{BASE_URL}}/session
+
+### Create session
+POST {{BASE_URL}}/session
+Content-Type: application/json
+
+{
+  "title": "New session",
+  "agent": "build",
+  "model": {
+    "id": "gpt-4o",
+    "providerID": "openai"
+  }
+}
+
+### Get session status
+GET {{BASE_URL}}/session/status
+
+### Get session
+GET {{BASE_URL}}/session/{{SESSION_ID}}
+
+### Delete session
+DELETE {{BASE_URL}}/session/{{SESSION_ID}}
+
+### Update session (rename / metadata / permission)
+PATCH {{BASE_URL}}/session/{{SESSION_ID}}
+Content-Type: application/json
+
+{
+  "title": "Renamed session"
+}
+
+### Get session children (subagents)
+GET {{BASE_URL}}/session/{{SESSION_ID}}/children
+
+### Initialize session (set model before first message)
+POST {{BASE_URL}}/session/{{SESSION_ID}}/init
+Content-Type: application/json
+
+{
+  "modelID": "gpt-4o",
+  "providerID": "openai",
+  "messageID": "msg_optional"
+}
+
+### Abort session execution
+POST {{BASE_URL}}/session/{{SESSION_ID}}/abort
+
+### Fork session at a message boundary
+POST {{BASE_URL}}/session/{{SESSION_ID}}/fork
+Content-Type: application/json
+
+{
+  "messageID": "msg_optional"
+}
+
+### Revert a message
+POST {{BASE_URL}}/session/{{SESSION_ID}}/revert
+Content-Type: application/json
+
+{
+  "messageID": "msg_to_revert",
+  "partID": "prt_optional_part"
+}
+
+### Restore reverted messages
+POST {{BASE_URL}}/session/{{SESSION_ID}}/unrevert
+
+### Summarize session
+POST {{BASE_URL}}/session/{{SESSION_ID}}/summarize
+Content-Type: application/json
+
+{
+  "providerID": "openai",
+  "modelID": "gpt-4o",
+  "auto": false
+}
+
+### Share session
+POST {{BASE_URL}}/session/{{SESSION_ID}}/share
+
+### Unshare session
+DELETE {{BASE_URL}}/session/{{SESSION_ID}}/share
+
+### Send an async message (non-blocking)
+POST {{BASE_URL}}/session/{{SESSION_ID}}/prompt_async
+Content-Type: application/json
+
+{
+  "parts": [
+    {
+      "type": "text",
+      "text": "Explain the codebase in a few sentences."
+    }
+  ],
+  "model": {
+    "providerID": "openai",
+    "modelID": "gpt-4o"
+  }
+}
+
+### Send message (parts-based, wait for reply)
+POST {{BASE_URL}}/session/{{SESSION_ID}}/message
+Content-Type: application/json
+
+{
+  "parts": [
+    {
+      "type": "text",
+      "text": "Explain the codebase in a few sentences."
+    }
+  ],
+  "agent": "build",
+  "model": {
+    "providerID": "openai",
+    "modelID": "gpt-4o"
+  }
+}
+
+### Run a slash command in the session
+POST {{BASE_URL}}/session/{{SESSION_ID}}/command
+Content-Type: application/json
+
+{
+  "command": "fix",
+  "arguments": "src/index.ts",
+  "agent": "build"
+}
+
+### Run a shell command in the session
+POST {{BASE_URL}}/session/{{SESSION_ID}}/shell
+Content-Type: application/json
+
+{
+  "command": "ls -la",
+  "agent": "build"
+}
+
+### Get session messages
+GET {{BASE_URL}}/session/{{SESSION_ID}}/message
+
+### Get a specific message
+GET {{BASE_URL}}/session/{{SESSION_ID}}/message/{{messageID}}
+
+### Delete a message
+DELETE {{BASE_URL}}/session/{{SESSION_ID}}/message/{{messageID}}
+
+### Get message diff
+GET {{BASE_URL}}/session/{{SESSION_ID}}/diff
+
+### Get session todos
+GET {{BASE_URL}}/session/{{SESSION_ID}}/todo
+
+### Delete a message part
+DELETE {{BASE_URL}}/session/{{SESSION_ID}}/message/{{messageID}}/part/{{partID}}
+
+### Update a message part
+PATCH {{BASE_URL}}/session/{{SESSION_ID}}/message/{{messageID}}/part/{{partID}}
+Content-Type: application/json
+
+{
+  "type": "text",
+  "text": "Updated assistant reply"
+}
+
+### Respond to a pending permission request
+POST {{BASE_URL}}/session/{{SESSION_ID}}/permissions/{{permissionID}}
+Content-Type: application/json
+
+{
+  "response": "once"
+}
+
+# --- 03-provider-auth.http ---
+# ============================================================
+# Provider / Auth — list AI providers and manage credentials.
+# Docs: http://localhost:4096/doc
+# ============================================================
+
+### List providers
+GET {{BASE_URL}}/provider
+
+### Get provider auth methods
+GET {{BASE_URL}}/provider/auth
+
+### Start OAuth authorization for a provider
+POST {{BASE_URL}}/provider/{{providerID}}/oauth/authorize
+Content-Type: application/json
+
+{
+  "method": 0,
+  "inputs": {}
+}
+
+### Handle OAuth callback for a provider
+POST {{BASE_URL}}/provider/{{providerID}}/oauth/callback
+Content-Type: application/json
+
+{
+  "method": 0,
+  "code": "oauth_code_from_redirect"
+}
+
+### Set auth credentials for a provider
+PUT {{BASE_URL}}/auth/{{providerID}}
+Content-Type: application/json
+
+{
+  "type": "api",
+  "key": "sk-xxxxxxxxxxxxxxxxxxxx"
+}
+
+### Remove auth credentials for a provider
+DELETE {{BASE_URL}}/auth/{{providerID}}
+
+# --- 04-mcp.http ---
+# ============================================================
+# MCP — manage MCP (Model Context Protocol) servers.
+# Docs: http://localhost:4096/doc
+# ============================================================
+
+### Get MCP status
+GET {{BASE_URL}}/mcp
+
+### Add MCP server (local stdio)
+POST {{BASE_URL}}/mcp
+Content-Type: application/json
+
+{
+  "name": "filesystem",
+  "config": {
+    "type": "local",
+    "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem", "/tmp"],
+    "enabled": true
+  }
+}
+
+### Add MCP server (remote URL)
+POST {{BASE_URL}}/mcp
+Content-Type: application/json
+
+{
+  "name": "remote-server",
+  "config": {
+    "type": "remote",
+    "url": "https://mcp.example.com/sse",
+    "enabled": true
+  }
+}
+
+### Connect MCP server
+POST {{BASE_URL}}/mcp/{{name}}/connect
+
+### Disconnect MCP server
+POST {{BASE_URL}}/mcp/{{name}}/disconnect
+
+### Start MCP OAuth flow
+POST {{BASE_URL}}/mcp/{{name}}/auth
+
+### Remove MCP OAuth credentials
+DELETE {{BASE_URL}}/mcp/{{name}}/auth
+
+### Authenticate MCP OAuth
+POST {{BASE_URL}}/mcp/{{name}}/auth/authenticate
+
+### Complete MCP OAuth callback
+POST {{BASE_URL}}/mcp/{{name}}/auth/callback
+Content-Type: application/json
+
+{
+  "code": "oauth_code_from_redirect"
+}
+
+# --- 05-file-find.http ---
+# ============================================================
+# File / Find — read, list, search files and symbols.
+# Docs: http://localhost:4096/doc
+# ============================================================
+
+### List files in a directory
+GET {{BASE_URL}}/file
+
+### Read file content
+GET {{BASE_URL}}/file/content
+
+### Get file status (git status of a path)
+GET {{BASE_URL}}/file/status
+
+### Find text (regex search)
+GET {{BASE_URL}}/find
+
+### Find files by name
+GET {{BASE_URL}}/find/file
+
+### Find symbols
+GET {{BASE_URL}}/find/symbol
+
+# --- 06-pty.http ---
+# ============================================================
+# PTY — manage pseudo-terminal sessions.
+# Docs: http://localhost:4096/doc
+# ============================================================
+
+### List PTY sessions
+GET {{BASE_URL}}/pty
+
+### Create PTY session
+POST {{BASE_URL}}/pty
+Content-Type: application/json
+
+{
+  "command": "bash",
+  "args": [],
+  "cwd": "/tmp",
+  "title": "dev shell",
+  "env": {}
+}
+
+### List available shells
+GET {{BASE_URL}}/pty/shells
+
+### Get PTY session
+GET {{BASE_URL}}/pty/{{ptyID}}
+
+### Update PTY session (title / size)
+PUT {{BASE_URL}}/pty/{{ptyID}}
+Content-Type: application/json
+
+{
+  "title": "renamed shell",
+  "size": {
+    "cols": 80,
+    "rows": 24
+  }
+}
+
+### Remove PTY session
+DELETE {{BASE_URL}}/pty/{{ptyID}}
+
+### Connect to PTY session (SSE / WebSocket)
+GET {{BASE_URL}}/pty/{{ptyID}}/connect
+
+### Create PTY WebSocket token
+POST {{BASE_URL}}/pty/{{ptyID}}/connect-token
+
+# --- 07-project-workspace.http ---
+# ============================================================
+# Project / Workspace / Worktree — project-level management
+# and isolated working directories.
+# Docs: http://localhost:4096/doc
+# ============================================================
+
+### List all projects
+GET {{BASE_URL}}/project
+
+### Get current project
+GET {{BASE_URL}}/project/current
+
+### Initialize git repository in current project
+POST {{BASE_URL}}/project/git/init
+
+### Update project
+PATCH {{BASE_URL}}/project/{{projectID}}
+Content-Type: application/json
+
+{
+  "name": "My project",
+  "commands": {
+    "start": "npm run dev"
+  }
+}
+
+### List project directories
+GET {{BASE_URL}}/project/{{projectID}}/directories
+
+### List workspaces
+GET {{BASE_URL}}/experimental/workspace
+
+### Create workspace
+POST {{BASE_URL}}/experimental/workspace
+Content-Type: application/json
+
+{
+  "type": "git",
+  "branch": "feature/new",
+  "extra": {}
+}
+
+### List workspace adapters
+GET {{BASE_URL}}/experimental/workspace/adapter
+
+### Get workspace status
+GET {{BASE_URL}}/experimental/workspace/status
+
+### Sync workspace list
+POST {{BASE_URL}}/experimental/workspace/sync-list
+
+### Warp session into workspace
+POST {{BASE_URL}}/experimental/workspace/warp
+Content-Type: application/json
+
+{
+  "id": "wrk_workspace_id",
+  "sessionID": "ses_session_id",
+  "copyChanges": false
+}
+
+### Remove workspace
+DELETE {{BASE_URL}}/experimental/workspace/{{id}}
+
+### List worktrees
+GET {{BASE_URL}}/experimental/worktree
+
+### Create worktree
+POST {{BASE_URL}}/experimental/worktree
+Content-Type: application/json
+
+{
+  "name": "feature/my-new-branch",
+  "startCommand": ""
+}
+
+### Remove worktree
+DELETE {{BASE_URL}}/experimental/worktree
+Content-Type: application/json
+
+{
+  "directory": "/path/to/worktree"
+}
+
+### Reset worktree
+POST {{BASE_URL}}/experimental/worktree/reset
+Content-Type: application/json
+
+{
+  "directory": "/path/to/worktree"
+}
+
+# --- 08-vcs.http ---
+# ============================================================
+# VCS — version control / git.
+# Docs: http://localhost:4096/doc
+# ============================================================
+
+### Get VCS info
+GET {{BASE_URL}}/vcs
+
+### Get VCS status
+GET {{BASE_URL}}/vcs/status
+
+### Get VCS diff
+GET {{BASE_URL}}/vcs/diff
+
+### Get raw VCS diff
+GET {{BASE_URL}}/vcs/diff/raw
+
+### Apply a VCS patch
+POST {{BASE_URL}}/vcs/apply
+Content-Type: application/json
+
+{
+  "patch": "diff --git a/src/index.ts b/src/index.ts\nindex 0000000..1111111 100644\n--- a/src/index.ts\n+++ b/src/index.ts\n@@ -1,3 +1,4 @@\n+console.log('hello')\n"
+}
+
+# --- 09-permission-question.http ---
+# ============================================================
+# Permission / Question — request, grant, deny tool permissions
+# and answer interactive questions.
+# Docs: http://localhost:4096/doc
+# ============================================================
+
+### List pending permission requests (global)
+GET {{BASE_URL}}/permission
+
+### Respond to a pending permission request
+POST {{BASE_URL}}/permission/{{requestID}}/reply
+Content-Type: application/json
+
+{
+  "reply": "once",
+  "message": "Approving this one time"
+}
+
+### List pending question requests (global)
+GET {{BASE_URL}}/question
+
+### Reject a question request
+POST {{BASE_URL}}/question/{{requestID}}/reject
+
+### Reply to a question request
+POST {{BASE_URL}}/question/{{requestID}}/reply
+Content-Type: application/json
+
+{
+  "answers": [
+    ["option-a"],
+    ["option-b", "option-c"]
+  ]
+}
+
+# --- 10-sync-tui.http ---
+# ============================================================
+# Sync / TUI — workspace sync and TUI control endpoints.
+# Docs: http://localhost:4096/doc
+# ============================================================
+
+### List sync events
+POST {{BASE_URL}}/sync/history
+Content-Type: application/json
+
+{}
+
+### Replay sync events
+POST {{BASE_URL}}/sync/replay
+Content-Type: application/json
+
+{
+  "directory": "/path/to/workspace",
+  "events": []
+}
+
+### Start workspace sync
+POST {{BASE_URL}}/sync/start
+
+### Steal session into workspace
+POST {{BASE_URL}}/sync/steal
+Content-Type: application/json
+
+{
+  "sessionID": "ses_session_id"
+}
+
+### Append to the TUI prompt
+POST {{BASE_URL}}/tui/append-prompt
+Content-Type: application/json
+
+{
+  "text": " --verbose"
+}
+
+### Clear the TUI prompt
+POST {{BASE_URL}}/tui/clear-prompt
+
+### Get next TUI request (polling)
+GET {{BASE_URL}}/tui/control/next
+
+### Submit TUI response
+POST {{BASE_URL}}/tui/control/response
+Content-Type: application/json
+
+{}
+
+### Execute a TUI command
+POST {{BASE_URL}}/tui/execute-command
+Content-Type: application/json
+
+{
+  "command": "/help"
+}
+
+### Publish a TUI event (prompt append / command / toast / session select)
+POST {{BASE_URL}}/tui/publish
+Content-Type: application/json
+
+{
+  "type": "prompt-append",
+  "text": "extra prompt text"
+}
+
+### Select a session in the TUI
+POST {{BASE_URL}}/tui/select-session
+Content-Type: application/json
+
+{
+  "sessionID": "ses_session_id"
+}
+
+### Show a toast in the TUI
+POST {{BASE_URL}}/tui/show-toast
+Content-Type: application/json
+
+{
+  "title": "Build complete",
+  "message": "All tests passed",
+  "variant": "success",
+  "duration": 3000
+}
+
+### Open help dialog
+POST {{BASE_URL}}/tui/open-help
+
+### Open models dialog
+POST {{BASE_URL}}/tui/open-models
+
+### Open sessions dialog
+POST {{BASE_URL}}/tui/open-sessions
+
+### Open themes dialog
+POST {{BASE_URL}}/tui/open-themes
+
+### Submit the TUI prompt
+POST {{BASE_URL}}/tui/submit-prompt
+
+# --- 11-experimental.http ---
+# ============================================================
+# Experimental — capabilities, Console, control plane, project
+# copy, MCP resources, sessions, and tools.
+# Docs: http://localhost:4096/doc
+# ============================================================
+
+### Get experimental capabilities
+GET {{BASE_URL}}/experimental/capabilities
+
+### Get active Console provider metadata
+GET {{BASE_URL}}/experimental/console
+
+### List switchable Console orgs
+GET {{BASE_URL}}/experimental/console/orgs
+
+### Switch active Console org
+POST {{BASE_URL}}/experimental/console/switch
+Content-Type: application/json
+
+{
+  "accountID": "account-id",
+  "orgID": "org-id"
+}
+
+### Move a session to another destination
+POST {{BASE_URL}}/experimental/control-plane/move-session
+Content-Type: application/json
+
+{
+  "sessionID": "ses_session_id",
+  "destination": {
+    "directory": "/path/to/destination"
+  },
+  "moveChanges": false
+}
+
+### Copy a project
+POST {{BASE_URL}}/experimental/project/{{projectID}}/copy
+Content-Type: application/json
+
+{
+  "strategy": "worktree",
+  "directory": "/path/to/copy",
+  "name": "project-copy"
+}
+
+### Delete a project copy
+DELETE {{BASE_URL}}/experimental/project/{{projectID}}/copy
+Content-Type: application/json
+
+{
+  "directory": "/path/to/copy",
+  "force": false
+}
+
+### Generate a project copy name
+POST {{BASE_URL}}/experimental/project/{{projectID}}/copy/generate-name
+Content-Type: application/json
+
+{
+  "context": "copy for sprint 12"
+}
+
+### Refresh a project copy
+POST {{BASE_URL}}/experimental/project/{{projectID}}/copy/refresh
+
+### Get MCP resources
+GET {{BASE_URL}}/experimental/resource
+
+### List sessions (experimental)
+GET {{BASE_URL}}/experimental/session
+
+### Background subagents in a session
+POST {{BASE_URL}}/experimental/session/{{sessionID}}/background
+
+### List tools
+GET {{BASE_URL}}/experimental/tool
