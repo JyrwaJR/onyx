@@ -1,7 +1,7 @@
 import React from 'react';
 import { Modal, View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useSkills } from '@/shared/hooks/use-skill';
-import { useRunCommand } from '../hooks/use-run-command';
+import { useSendMessage } from '../hooks/use-send-message';
 
 interface LoadSkillModalProps {
   sessionId: string;
@@ -11,22 +11,19 @@ interface LoadSkillModalProps {
 
 export const LoadSkillModal: React.FC<LoadSkillModalProps> = ({ sessionId, visible, onClose }) => {
   const { data: skills, isLoading } = useSkills();
-  const runCommand = useRunCommand(sessionId);
+  const sendMessage = useSendMessage(sessionId);
 
   const handleLoadSkill = (skillName: string) => {
-    runCommand.mutate(
-      { command: 'skill', arguments: `load ${skillName}` },
-      {
-        onSuccess: (data) => {
-          console.log(`Successfully called load skill command: ${skillName}`, data);
-          onClose();
-        },
-        onError: (error) => {
-          console.error(`Failed to call load skill command: ${skillName}`, error);
-          alert(`Failed to load skill: ${skillName}. Check logs for details.`);
-        },
-      }
-    );
+    sendMessage.mutate(`/skill load ${skillName}`, {
+      onSuccess: () => {
+        console.log(`Successfully sent load skill message: ${skillName}`);
+        onClose();
+      },
+      onError: (error) => {
+        console.error(`Failed to send load skill message: ${skillName}`, error);
+        alert(`Failed to load skill: ${skillName}. Check logs for details.`);
+      },
+    });
   };
 
   return (
