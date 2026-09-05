@@ -1,10 +1,10 @@
 import { memo } from 'react';
 import { View, Text } from 'react-native';
-import type { V2Message } from '../../../shared/api/types';
+import type { Message } from '../../../shared/api/types';
 import { formatDate } from '@/shared/utils/helpers/format';
 
 interface UserMessageProps {
-  message: V2Message;
+  message: Message;
 }
 
 /**

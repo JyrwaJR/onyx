@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '../../../shared/api/query-keys';
 import { sendMessage } from '../api/chat-api';
-import { V2Message } from '../../../shared/api/types';
+import { Message } from '../../../shared/api/types';
 
 /**
  * Sends a message to a session, triggering the AI agent response.
@@ -22,7 +22,7 @@ export function useSendMessage(sessionId: string) {
       const previousMessages = queryClient.getQueryData(queryKeys.messages.bySession(sessionId));
 
       // Optimistically update to the new value
-      const tempMessage: V2Message = {
+      const tempMessage: Message = {
         id: `temp-${Date.now()}`,
         type: 'user',
         text: content,

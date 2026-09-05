@@ -1,11 +1,11 @@
 import { useRef, useEffect } from 'react';
 import { FlatList, TouchableOpacity, ActivityIndicator, Text, View } from 'react-native';
-import type { V2Message } from '../../../shared/api/types';
+import type { Message } from '../../../shared/api/types';
 import { MessageBubble } from './MessageBubble';
 import { Loading, NotFoundSessionsScreen } from '../../../shared/components/screens';
 
 interface MessageListProps {
-  messages: V2Message[];
+  messages: Message[];
   isLoading?: boolean;
   isLoadingMore?: boolean;
   hasMore?: boolean;

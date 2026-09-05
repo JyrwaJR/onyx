@@ -1,10 +1,10 @@
 import { memo, useCallback, useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import type { V2Message } from '../../../shared/api/types';
+import type { Message } from '../../../shared/api/types';
 
 interface AssistantMessageProps {
-  message: V2Message;
+  message: Message;
   isStreaming: boolean;
   isReasoningOpen: boolean;
   onToggleReasoning: () => void;

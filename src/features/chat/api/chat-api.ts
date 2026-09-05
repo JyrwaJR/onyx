@@ -3,14 +3,12 @@ import { isAxiosError } from 'axios';
 import {
   CREATE_SESSION,
   DELETE_SESSION_MESSAGE,
-  GET_SESSION_BY_ID,
   GET_SESSION_MESSAGES,
   SEND_SESSION_MESSAGE,
   INTERRUPT_SESSION,
   RUN_SHELL_COMMAND,
 } from '../../../shared/api/endpoints';
-import { mapV1MessageToV2Message } from '../../../shared/api/types';
-import type { Message, SessionT, V2Message } from '../../../shared/api/types';
+import type { Message, SessionT, RawMessage } from '../../../shared/api/types';
 
 /**
  * Creates a new session.
@@ -35,7 +33,7 @@ export const MESSAGES_PAGE_SIZE = 50;
 /** Result from fetching a page of messages. */
 export interface FetchMessagesResult {
   /** Messages in ascending chronological order (oldest first within the page). */
-  messages: V2Message[];
+  messages: Message[];
   /**
    * Pagination cursor for loading older messages: the oldest message ID in
    * this page. Pass it as `before` to fetch the previous page. `null` when
@@ -75,21 +73,21 @@ export async function fetchMessages(
   }
 
   try {
-    const response = await http.get<Message[]>(GET_SESSION_MESSAGES(sessionId), { params });
-    const messages = response.data.map(mapV1MessageToV2Message);
+    const response = await http.get<RawMessage[]>(GET_SESSION_MESSAGES(sessionId), { params });
+    const messages = response.data;
 
     return {
       messages,
-      before: messages.length === limit ? (messages[0]?.id ?? null) : null,
+      before: messages.length === limit ? (messages[0]?.info.id ?? null) : null,
       usedFallback: false,
     };
   } catch (error) {
     // The v1 server rejects the `before` cursor with HTTP 400 on versions
     // where paging is not implemented. Fall back to the full message list.
     if (isAxiosError(error) && error.response?.status === 400 && before) {
-      const response = await http.get<Message[]>(GET_SESSION_MESSAGES(sessionId));
+      const response = await http.get<RawMessage[]>(GET_SESSION_MESSAGES(sessionId));
       return {
-        messages: response.data.map(mapV1MessageToV2Message),
+        messages: response.data,
         before: null,
         usedFallback: true,
       };

@@ -14,7 +14,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useMessages, useSendMessage } from '../hooks';
 import { useSSE } from '../hooks/use-sse';
 import type { StreamingState } from '../types';
-import type { MessageContentBlock, V2Message } from '../../../shared/api/types';
+import type { MessageContentBlock, Message } from '../../../shared/api/types';
 import { Loading } from '@/shared/components/screens';
 import { useSession } from '@/features/sessions';
 import { StackHeader } from '@components/ui/header';
@@ -51,9 +51,9 @@ import { Ternary } from '@/shared/components/ui/ternary';
  * @returns The pending messages still awaiting confirmation, keyed by temp id.
  */
 function getUnconfirmedPending(
-  pendingMessages: Map<string, V2Message>,
-  messages: V2Message[] | undefined
-): Map<string, V2Message> {
+  pendingMessages: Map<string, Message>,
+  messages: Message[] | undefined
+): Map<string, Message> {
   const confirmedCountByText = new Map<string, number>();
   for (const m of messages ?? []) {
     if (m.type === 'user' && m.text) {
@@ -65,7 +65,7 @@ function getUnconfirmedPending(
     (a, b) => (a.time?.created ?? 0) - (b.time?.created ?? 0)
   );
   const skippedByText = new Map<string, number>();
-  const kept = new Map<string, V2Message>();
+  const kept = new Map<string, Message>();
   for (const pendingMsg of pendingList) {
     const text = pendingMsg.text ?? '';
     const skipped = skippedByText.get(text) ?? 0;
@@ -96,7 +96,7 @@ export default function ChatScreen() {
   const [isReasoningOpen, setIsReasoningOpen] = useState(true);
 
   // User messages rendered optimistically before the server confirms them.
-  const [pendingMessages, setPendingMessages] = useState<Map<string, V2Message>>(new Map());
+  const [pendingMessages, setPendingMessages] = useState<Map<string, Message>>(new Map());
   const pendingIdRef = useRef(0);
   const insets = useSafeAreaInsets();
   const {
@@ -117,10 +117,10 @@ export default function ChatScreen() {
 
   // --- Derived state ---
 
-  const allMessages: V2Message[] = useMemo(() => {
+  const allMessages: Message[] = useMemo(() => {
     if (!messages && streaming.size === 0 && pendingMessages.size === 0) return [];
 
-    const merged: V2Message[] = messages ? [...messages] : [];
+    const merged: Message[] = messages ? [...messages] : [];
 
     streaming.forEach((state, msgId) => {
       const existingIndex = merged.findIndex((m) => m.id === msgId);
@@ -132,7 +132,7 @@ export default function ChatScreen() {
         blocks.push({ type: 'text', id: 'text-0', text: state.text });
       }
       const existing = existingIndex >= 0 ? merged[existingIndex] : undefined;
-      const streamMsg: V2Message = {
+      const streamMsg: Message = {
         id: msgId,
         type: 'assistant',
         time: { created: existing?.time?.created ?? 0 },

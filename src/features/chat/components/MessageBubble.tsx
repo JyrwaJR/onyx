@@ -1,10 +1,10 @@
 import { View, Text, TouchableOpacity, Alert } from 'react-native';
-import type { MessageContentBlock, V2Message } from '../../../shared/api/types';
+import type { MessageContentBlock, Message } from '../../../shared/api/types';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { ToolCallBlock } from './ToolCallBlock';
 
 interface MessageBubbleProps {
-  message: V2Message;
+  message: Message;
   onDelete?: (messageId: string) => void;
 }
 
