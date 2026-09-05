@@ -1,4 +1,10 @@
-export { useMessages, useCreateSession, useDeleteMessage, useSendMessage } from './hooks/use-chat';
+export {
+  useMessages,
+  useCreateSession,
+  useDeleteMessage,
+  useSendMessage,
+  useAbortSession,
+} from './hooks';
 export { useChatStore } from './store/chat-store';
 export { messageSchema } from './validators/message';
 export type { MessageFormData } from './validators/message';

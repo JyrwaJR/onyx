@@ -12,6 +12,7 @@ import { useRouter } from 'expo-router';
 import type { SessionT } from '../../../shared/api/types';
 import { useDeleteSession } from '../hooks/use-sessions';
 import { MaterialIcons } from '@expo/vector-icons';
+import { formatDate } from '@/shared/utils/helpers/format';
 
 interface SessionCardProps {
   session: SessionT;
@@ -51,8 +52,8 @@ export function SessionCard({ session, projectId }: SessionCardProps) {
       onPress={handlePress}
       onLongPress={handleLongPress}
       activeOpacity={0.8}
-      className="flex-row items-center justify-between rounded-xl border border-[#dac1ba] bg-[#efe7e1] p-4 active:border-[#87736d]">
-      <View className="flex-1 flex-row items-center gap-3.5 pr-2">
+      className="flex-row items-center justify-between rounded-md border border-[#dac1ba] bg-[#efe7e1] p-5 active:border-[#87736d]">
+      <View className="flex-1 flex-row items-center gap-4 pr-2">
         <View className="h-10 w-10 items-center justify-center rounded-lg bg-white">
           <MaterialIcons name={'terminal'} size={20} color="#8f482f" />
         </View>
@@ -61,7 +62,9 @@ export function SessionCard({ session, projectId }: SessionCardProps) {
           <Text className="text-base font-medium text-[#1e1b18]" numberOfLines={1}>
             {session.title}
           </Text>
-          <Text className="mt-0.5 text-xs font-normal text-[#615e56]">{session.time.updated}</Text>
+          <Text className="mt-0.5 text-xs font-normal text-[#615e56]">
+            {formatDate(session.time.updated)}
+          </Text>
         </View>
       </View>
 

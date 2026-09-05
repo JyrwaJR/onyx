@@ -11,7 +11,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useMessages, useSendMessage } from '../hooks/use-chat';
+import { useMessages, useSendMessage } from '../hooks';
 import { useSSE } from '../hooks/useSSE';
 import type { StreamingState } from '../types';
 import type { MessageContentBlock, V2Message } from '../../../shared/api/types';
