@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Modal, View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import React from 'react';
+import { Modal, View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useSkills } from '@/shared/hooks/use-skill';
 import { useRunCommand } from '../hooks/use-run-command';
 
@@ -20,9 +20,9 @@ export const LoadSkillModal: React.FC<LoadSkillModalProps> = ({ sessionId, visib
 
   return (
     <Modal visible={visible} animationType="slide" transparent>
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-          <Text style={styles.title}>Available Skills</Text>
+      <View className="flex-1 justify-end bg-black/50">
+        <View className="max-h-[80%] rounded-t-2xl bg-white p-5">
+          <Text className="mb-4 text-lg font-bold">Available Skills</Text>
           <ScrollView>
             {isLoading ? (
               <Text>Loading skills...</Text>
@@ -30,7 +30,7 @@ export const LoadSkillModal: React.FC<LoadSkillModalProps> = ({ sessionId, visib
               skills.map((skill) => (
                 <TouchableOpacity
                   key={skill.name}
-                  style={styles.skillItem}
+                  className="border-b border-gray-100 p-4"
                   onPress={() => handleLoadSkill(skill.name)}>
                   <Text>{skill.name}</Text>
                 </TouchableOpacity>
@@ -39,32 +39,13 @@ export const LoadSkillModal: React.FC<LoadSkillModalProps> = ({ sessionId, visib
               <Text>No skills available.</Text>
             )}
           </ScrollView>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Text style={styles.closeButtonText}>Close</Text>
+          <TouchableOpacity
+            onPress={onClose}
+            className="mt-4 items-center rounded-lg bg-gray-100 p-3">
+            <Text className="font-bold">Close</Text>
           </TouchableOpacity>
         </View>
       </View>
     </Modal>
   );
 };
-
-const styles = StyleSheet.create({
-  modalContainer: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
-  modalContent: {
-    backgroundColor: 'white',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-    maxHeight: '80%',
-  },
-  title: { fontSize: 18, fontWeight: 'bold', marginBottom: 15 },
-  skillItem: { padding: 15, borderBottomWidth: 1, borderBottomColor: '#eee' },
-  closeButton: {
-    marginTop: 15,
-    padding: 10,
-    alignItems: 'center',
-    backgroundColor: '#eee',
-    borderRadius: 10,
-  },
-  closeButtonText: { fontWeight: 'bold' },
-});
