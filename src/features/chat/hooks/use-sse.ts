@@ -31,6 +31,9 @@ export type OnQuestion = (request: QuestionRequest) => void;
 export function useSSE(sessionId: string | undefined, onDelta: OnDelta, onQuestion?: OnQuestion) {
   const queryClient = useQueryClient();
   const addPermissionRequest = useChatStore((state) => state.addPermissionRequest);
+  const startStreaming = useChatStore((state) => state.startStreaming);
+  const finishStreaming = useChatStore((state) => state.finishStreaming);
+
   // Keep the latest callback without re-subscribing to SSE on every render.
   const onDeltaRef = useRef(onDelta);
   useEffect(() => {
@@ -69,6 +72,10 @@ export function useSSE(sessionId: string | undefined, onDelta: OnDelta, onQuesti
 
         if (sessionID !== sessionId || !assistantMessageID) return;
 
+        // Mark the AI response as streaming so the busy indicator and the
+        // refetch intervals reflect that a generation is in flight.
+        startStreaming(sessionId, assistantMessageID);
+
         onDeltaRef.current({
           sessionId,
           assistantMessageID,
@@ -87,6 +94,8 @@ export function useSSE(sessionId: string | undefined, onDelta: OnDelta, onQuesti
         if (sessionID !== sessionId || !messageID || field !== 'text') return;
         if (delta == null) return;
 
+        startStreaming(sessionId, messageID);
+
         onDeltaRef.current({
           sessionId,
           assistantMessageID: messageID,
@@ -94,6 +103,7 @@ export function useSSE(sessionId: string | undefined, onDelta: OnDelta, onQuesti
         });
       } else if (type === 'session.next.step.ended' || type === 'message.updated') {
         // Completion signal: legacy step.ended or the current message.updated.
+        finishStreaming();
         queryClient.invalidateQueries({
           queryKey: queryKeys.messages.bySession(sessionId),
         });
@@ -119,5 +129,5 @@ export function useSSE(sessionId: string | undefined, onDelta: OnDelta, onQuesti
     return () => {
       sse.close();
     };
-  }, [sessionId, queryClient, addPermissionRequest]);
+  }, [sessionId, queryClient, addPermissionRequest, startStreaming, finishStreaming]);
 }
