@@ -56,6 +56,12 @@ export const SEND_SESSION_MESSAGE = (sessionId: string) => `/session/${sessionId
 export const DELETE_SESSION_MESSAGE = (sessionId: string, messageId: string) =>
   `/session/${sessionId}/message/${messageId}` as const;
 
+/**
+ * Get the todo list for a session. Returns `Todo[]`. Query params:
+ * `directory`, `workspace`. Template: `GET_SESSION_TODOS(sessionId)`.
+ */
+export const GET_SESSION_TODOS = (sessionId: string) => `/session/${sessionId}/todo` as const;
+
 /** Interrupt an active session. Template: `INTERRUPT_SESSION(sessionId)`. */
 export const INTERRUPT_SESSION = (sessionId: string) => `/session/${sessionId}/abort` as const;
 
