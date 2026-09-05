@@ -17,6 +17,9 @@ export function useRunCommand(sessionId: string) {
       queryClient.invalidateQueries({
         queryKey: ['session', sessionId, 'messages'],
       });
+      queryClient.invalidateQueries({
+        queryKey: ['skills'],
+      });
     },
   });
 }
