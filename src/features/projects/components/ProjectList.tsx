@@ -9,6 +9,7 @@ import { useCallback, useState } from 'react';
 import { FlatList, RefreshControl, View, Text, TouchableOpacity, TextInput } from 'react-native';
 
 import { useProjects } from '../hooks/use-projects';
+import { sortProjectsByQuery } from '../utils/filter';
 import { ProjectCard } from './ProjectCard';
 import { MaterialIcons } from '@expo/vector-icons';
 import EmptyProjectsScreen from '../screens/no-project-screen';
@@ -30,6 +31,8 @@ export function ProjectList() {
   if (!projects || projects.length === 0) {
     return <EmptyProjectsScreen />;
   }
+
+  const sortedProjects = sortProjectsByQuery(projects, searchQuery);
 
   return (
     <SafeAreaView className="flex-1 gap-y-4 pt-2" edges={['right', 'left']}>
@@ -64,7 +67,7 @@ export function ProjectList() {
       </View>
 
       <FlatList
-        data={projects}
+        data={sortedProjects}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <ProjectCard project={item} />}
         contentContainerClassName="gap-5"
