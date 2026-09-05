@@ -31,9 +31,8 @@ export const AssistantMessage = memo(function AssistantMessage({
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const toggleExpanded = useCallback((id: string) => {
-    console.log('toggleExpanded called with:', id, 'current:', expandedId);
     setExpandedId((prev) => (prev === id ? null : id));
-  }, [expandedId]);
+  }, []);
 
   return (
     <View className="mb-4 mr-2">
