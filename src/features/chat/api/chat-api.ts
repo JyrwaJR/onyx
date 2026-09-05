@@ -5,6 +5,7 @@ import {
   DELETE_SESSION_MESSAGE,
   GET_SESSION_MESSAGES,
   GET_QUESTIONS,
+  GET_SESSION_TODOS,
   SEND_SESSION_MESSAGE,
   INTERRUPT_SESSION,
   RUN_SHELL_COMMAND,
@@ -12,7 +13,7 @@ import {
   QUESTION_REJECT,
 } from '../../../shared/api/endpoints';
 import { mapRawMessageToMessage } from '../../../shared/api/types';
-import type { Message, SessionT, RawMessage } from '../../../shared/api/types';
+import type { Message, SessionT, RawMessage, Todo } from '../../../shared/api/types';
 import type { QuestionRequest } from '../types';
 
 /**
@@ -203,4 +204,18 @@ export async function replyToQuestion(requestId: string, answers: string[][]): P
  */
 export async function rejectQuestion(requestId: string): Promise<void> {
   await http.post(QUESTION_REJECT(requestId));
+}
+
+/**
+ * Fetches the todo list for a session.
+ *
+ * Uses the v1 `GET /session/:id/todo` endpoint, which returns a plain
+ * `Todo[]` array (no pagination envelope).
+ *
+ * @param sessionId - The session to fetch todos for.
+ * @returns The session's todo list.
+ */
+export async function fetchTodos(sessionId: string): Promise<Todo[]> {
+  const response = await http.get<Todo[]>(GET_SESSION_TODOS(sessionId));
+  return response.data;
 }
