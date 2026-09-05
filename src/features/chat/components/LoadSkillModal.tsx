@@ -18,8 +18,8 @@ export const LoadSkillModal: React.FC<LoadSkillModalProps> = ({ sessionId, visib
     runCommand.mutate(
       { command: 'skill', arguments: `load ${skillName}` },
       {
-        onSuccess: () => {
-          console.log(`Successfully called load skill command: ${skillName}`);
+        onSuccess: (data) => {
+          console.log(`Successfully called load skill command: ${skillName}`, data);
         },
         onError: (error) => {
           console.error(`Failed to call load skill command: ${skillName}`, error);

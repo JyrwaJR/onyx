@@ -82,8 +82,8 @@ export const useConnectionStore = create<ConnectionState>()(
       },
 
       disconnect: () => {
-        set((state) => ({ connectionStatus: 'idle', error: null, serverUrl: state.serverUrl }));
-        router.replace('/');
+        set(() => ({ connectionStatus: 'idle', error: null, serverUrl: '' }));
+        router.replace('/(connection)');
       },
     }),
     {

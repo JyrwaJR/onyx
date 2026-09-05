@@ -4,7 +4,6 @@
  * Renders a header with the "Projects" title and the ProjectList component.
  */
 
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { ProjectList } from '../components/ProjectList';
 import { Container } from '@/shared/components/layout/Container';
 import { StackHeader } from '@/shared/components/ui/header';
@@ -19,9 +18,7 @@ export default function ProjectsScreen() {
     <>
       <StackHeader title="Projects" />
       <Container>
-        <SafeAreaView edges={['left', 'right']} className="flex-1">
-          <ProjectList />
-        </SafeAreaView>
+        <ProjectList />
       </Container>
     </>
   );

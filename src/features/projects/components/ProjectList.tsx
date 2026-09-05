@@ -12,6 +12,7 @@ import { useProjects } from '../hooks/use-projects';
 import { ProjectCard } from './ProjectCard';
 import { MaterialIcons } from '@expo/vector-icons';
 import EmptyProjectsScreen from '../screens/no-project-screen';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 /**
  * Project list with pull-to-refresh, loading, error, and empty states.
@@ -31,7 +32,7 @@ export function ProjectList() {
   }
 
   return (
-    <View className="gap-y-4 pt-2">
+    <SafeAreaView className="flex-1 gap-y-4 pt-2" edges={['right', 'left']}>
       {/* Search Bar */}
       <View className="flex-row items-center rounded-md border border-[#dac1ba]/40 bg-[#f6f3f1] px-3 py-2.5">
         <MaterialIcons name="search" size={18} color="#615e56" />
@@ -66,10 +67,10 @@ export function ProjectList() {
         data={projects}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <ProjectCard project={item} />}
-        contentContainerClassName="gap-5 pb-5"
+        contentContainerClassName="gap-5"
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isFetching} onRefresh={handleRefresh} />}
       />
-    </View>
+    </SafeAreaView>
   );
 }

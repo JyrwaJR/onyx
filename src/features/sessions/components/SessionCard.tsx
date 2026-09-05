@@ -10,9 +10,9 @@ import { Text, TouchableOpacity, Alert, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import type { SessionT } from '../../../shared/api/types';
-import { useDeleteSession } from '../hooks/use-sessions';
 import { MaterialIcons } from '@expo/vector-icons';
 import { formatDate } from '@/shared/utils/helpers/format';
+import { useDeleteSession } from '../hooks';
 
 interface SessionCardProps {
   session: SessionT;
