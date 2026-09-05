@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { create } from 'axios';
 import { getApiBaseUrl } from './constants';
 import { createRequestInterceptor } from './request-interceptor';
 import { createResponseInterceptor } from './response-interceptor';
@@ -8,7 +8,7 @@ import { createResponseInterceptor } from './response-interceptor';
  * The baseURL is set dynamically via a request interceptor that reads
  * the current value from getApiBaseUrl() on every request.
  */
-const apiClient = axios.create({
+const apiClient = create({
   withCredentials: true,
   timeout: 15000,
   headers: { 'Content-Type': 'application/json' },

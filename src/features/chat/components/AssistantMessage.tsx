@@ -21,7 +21,7 @@ interface AssistantMessageProps {
  */
 export const AssistantMessage = memo(function AssistantMessage({
   message,
-  isStreaming,
+  isStreaming = true,
   isReasoningOpen,
   onToggleReasoning,
 }: AssistantMessageProps) {

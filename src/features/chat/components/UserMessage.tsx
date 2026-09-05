@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
+import { View, Text } from 'react-native';
 import type { V2Message } from '../../../shared/api/types';
 
 interface UserMessageProps {
@@ -17,10 +17,9 @@ export const UserMessage = memo(function UserMessage({ message }: UserMessagePro
 
   return (
     <View className="mb-4 ml-8 items-end">
-      <View className={`rounded-xl bg-[#8f482f] p-4 ${isPending ? 'opacity-50' : ''}`}>
+      <View className={`rounded-xl bg-[#8f482f] p-4 ${isPending || isSending ? 'opacity-50' : ''}`}>
         <Text className="text-sm leading-relaxed text-white">{message.text}</Text>
       </View>
-      {isSending && <Text className="text-end text-sm leading-relaxed text-black">sending</Text>}
       <Text className="mr-1 mt-1 text-[11px] text-[#5e5c54]">
         {new Date(message.time.created).toLocaleTimeString([], {
           hour: '2-digit',
