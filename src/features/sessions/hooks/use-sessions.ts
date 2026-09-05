@@ -28,6 +28,8 @@ export function useSessions(projectId: string, dir: string) {
     queryFn: () => fetchSessions(projectId, dir),
     enabled: !!projectId,
     staleTime: 30_000,
+    refetchInterval: 10_000,
+    refetchIntervalInBackground: false,
   });
 }
 
