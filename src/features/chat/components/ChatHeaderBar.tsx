@@ -4,6 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useMcpStatus } from '@hooks/use-mcp-status';
 
 import { AbortSessionButton } from './AbortSessionButton';
+import { useSession } from '@/shared/hooks';
 
 /**
  * Static sub-header bar showing the active model, branch, and socket latency.
