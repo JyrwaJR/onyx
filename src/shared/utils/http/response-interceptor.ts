@@ -30,11 +30,9 @@ import { triggerSessionExpired } from './session-expired-handler';
 export const createResponseInterceptor = (apiClient: AxiosInstance) => {
   return [
     (response: AxiosResponse) => {
-      console.log('<=', response.config.url, response.status);
       return response;
     },
     async (error: AxiosError) => {
-      console.log('<=', error.config?.url, error.response);
       const originalRequest = error.config as InternalAxiosRequestConfig & {
         _retry?: boolean;
       };

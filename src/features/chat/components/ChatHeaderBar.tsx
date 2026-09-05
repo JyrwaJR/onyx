@@ -13,6 +13,7 @@ type ChatHeaderBarProps = {
 };
 
 export const ChatHeaderBar = memo(function ChatHeaderBar({ sessionId }: ChatHeaderBarProps) {
+  console.log('sessionId', sessionId);
   const { data, isFetching } = useSession(sessionId);
   return (
     <View className="flex-row items-center justify-between bg-[#f6f3f1] px-4 py-2">
@@ -21,7 +22,7 @@ export const ChatHeaderBar = memo(function ChatHeaderBar({ sessionId }: ChatHead
         <Text className="text-xs font-medium text-[#54433e]" numberOfLines={1}>
           {isFetching
             ? 'Loading...'
-            : `${data?.agent} - ${data?.model.id} - (${data?.model.variant})`}
+            : `${data?.agent} - ${data?.model?.id || '-'} - (${data?.model?.variant ?? '-'})`}
         </Text>
       </View>
 

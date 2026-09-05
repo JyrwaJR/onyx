@@ -1,10 +1,10 @@
 import { forwardRef } from 'react';
 import { TouchableOpacity, Text, View, type TouchableOpacityProps } from 'react-native';
 import { cn } from '@/shared/lib/cn';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface FabProps extends TouchableOpacityProps {
   /** Icon content (emoji or text). */
-  icon?: string;
 }
 
 /**
@@ -16,7 +16,7 @@ interface FabProps extends TouchableOpacityProps {
  * @param icon - Icon content (default: "+").
  * @param touchableProps - Additional TouchableOpacity props.
  */
-export const Fab = forwardRef<View, FabProps>(({ icon = '+', className, ...props }, ref) => {
+export const Fab = forwardRef<View, FabProps>(({ className, ...props }, ref) => {
   return (
     <TouchableOpacity
       ref={ref}
@@ -26,7 +26,7 @@ export const Fab = forwardRef<View, FabProps>(({ icon = '+', className, ...props
       )}
       activeOpacity={0.8}
       {...props}>
-      <Text className="text-2xl font-bold text-primary-on">{icon}</Text>
+      <MaterialIcons name="add" size={24} color="#ffffff" />
     </TouchableOpacity>
   );
 });

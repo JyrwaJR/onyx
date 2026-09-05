@@ -20,8 +20,11 @@ import type { Message, SessionT, V2Message } from '../../../shared/api/types';
  * @param title - Optional session title.
  * @returns The newly created session.
  */
-export async function createSession(title?: string): Promise<SessionT> {
-  const response = await http.post<SessionT>(CREATE_SESSION, title ? { title } : {});
+export async function createSession(title?: string, dir?: string): Promise<SessionT> {
+  const response = await http.post<SessionT>(
+    CREATE_SESSION,
+    title ? { title, location: { directory: dir } } : {}
+  );
   return response.data;
 }
 

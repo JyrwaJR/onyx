@@ -66,9 +66,9 @@ export function useCreateSession() {
 
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ title }: NewSessionFormData) => createSession(title),
+    mutationFn: ({ title, dir }: NewSessionFormData) => createSession(title, dir),
     onSuccess: (session) => {
-      if (session.projectID) {
+      if (session.projectID && session.id) {
         router.push(`/chat?sessionId=${session.id}&projectId=${session.projectID}` as never);
         queryClient.invalidateQueries({
           queryKey: queryKeys.sessions.byProject(session.projectID),

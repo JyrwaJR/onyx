@@ -63,12 +63,8 @@ export function SessionList({ projectId, dir }: SessionListProps) {
         contentContainerClassName="gap-4 py-1"
         refreshControl={<RefreshControl refreshing={isFetching} onRefresh={handleRefresh} />}
       />
-      <Fab onPress={() => setFormVisible(true)} icon="plus" />
-      <NewSessionForm
-        projectId={projectId}
-        visible={formVisible}
-        onClose={() => setFormVisible(false)}
-      />
+      <Fab onPress={() => setFormVisible(true)} />
+      <NewSessionForm dir={dir} visible={formVisible} onClose={() => setFormVisible(false)} />
     </>
   );
 }

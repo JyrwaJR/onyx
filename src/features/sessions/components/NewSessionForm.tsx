@@ -14,11 +14,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '@/shared/components/ui/input';
 import { Button } from '@/shared/components/ui/button';
 import { newSessionSchema, type NewSessionFormData } from '../validators/new-session';
+import { useCreateSession } from '@/features/chat';
 
 interface NewSessionFormProps {
-  projectId: string;
   visible: boolean;
   onClose: () => void;
+  dir: string;
 }
 
 /**
@@ -31,9 +32,7 @@ interface NewSessionFormProps {
  * @param visible - Whether the modal is visible.
  * @param onClose - Callback to close the modal.
  */
-export function NewSessionForm({ projectId, visible, onClose }: NewSessionFormProps) {
-  const router = useRouter();
-
+export function NewSessionForm({ visible, dir, onClose }: NewSessionFormProps) {
   const {
     control,
     handleSubmit,
@@ -44,10 +43,21 @@ export function NewSessionForm({ projectId, visible, onClose }: NewSessionFormPr
     defaultValues: { title: '' },
   });
 
+  const { mutate } = useCreateSession();
+
   const onSubmit = (data: NewSessionFormData) => {
-    reset();
-    onClose();
-    router.push(`/sessions`);
+    mutate(
+      {
+        title: data.title,
+        dir,
+      },
+      {
+        onSuccess: (data) => {
+          reset();
+          onClose();
+        },
+      }
+    );
   };
 
   const handleCancel = () => {
