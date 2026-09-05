@@ -44,13 +44,12 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
         </TouchableOpacity>
 
         <TextInput
-          className="h-full max-h-[120px] flex-1 px-1 py-1.5 text-sm text-[#1c1c1a]"
+          className="max-h-[120px] min-h-[36px] flex-1 px-1 py-1.5 text-sm text-[#1c1c1a]"
           placeholder="Ask Onyx or type '/' for commands..."
           placeholderTextColor="#5e5c54"
           ref={inputRef}
-          onSubmitEditing={() => handleSend()}
+          returnKeyType="default"
           multiline
-          numberOfLines={4}
           value={text}
           onChangeText={setText}
         />

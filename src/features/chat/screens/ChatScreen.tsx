@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useMessages, useSendMessage } from '../hooks/use-chat';
 import { useSSE } from '../hooks/useSSE';
@@ -26,6 +26,7 @@ import { UserMessage } from '../components/UserMessage';
 import { AssistantMessage } from '../components/AssistantMessage';
 import { Container } from '@/shared/components/layout/Container';
 import EmptyChat from '../components/empty-chat';
+import { Ternary } from '@/shared/components/ui/ternary';
 
 /**
  * Main chat screen with SSE streaming and message management.
@@ -96,7 +97,7 @@ export default function ChatScreen() {
   // User messages rendered optimistically before the server confirms them.
   const [pendingMessages, setPendingMessages] = useState<Map<string, V2Message>>(new Map());
   const pendingIdRef = useRef(0);
-
+  const insets = useSafeAreaInsets();
   const {
     data: messages,
     isLoading,
@@ -254,17 +255,18 @@ export default function ChatScreen() {
   return (
     <>
       <StackHeader title={isFetching ? 'Loading…' : data?.title} />
-      <SafeAreaView edges={['right', 'left', 'bottom']} className="flex-1 bg-[#fcf9f6]">
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          className="flex-1">
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={0}
+        className="flex-1">
+        <SafeAreaView edges={['right', 'left', 'bottom']} className="flex-1 bg-[#fcf9f6]">
           <ChatHeaderBar sessionId={sessionId} />
 
           {/* Messages Stream */}
           <ScrollView
             ref={scrollViewRef}
             className="flex-1 px-4 py-3"
-            contentContainerStyle={{ paddingBottom: 24 }}
+            contentContainerStyle={{ paddingBottom: insets.bottom }}
             showsVerticalScrollIndicator={false}
             onScroll={handleScroll}
             onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: false })}
@@ -275,48 +277,57 @@ export default function ChatScreen() {
                 <Text className="mt-1 text-xs text-[#5e5c54]">Loading older messages…</Text>
               </View>
             )}
-
-            {allMessages.length === 0 ? (
-              <EmptyChat />
-            ) : (
-              allMessages.map((message) =>
-                message?.type === 'user' ? (
-                  <UserMessage key={message.id} message={message} />
-                ) : (
-                  <AssistantMessage
-                    key={message.id}
-                    message={message}
-                    isStreaming={streamingIds.has(message.id)}
-                    isReasoningOpen={isReasoningOpen}
-                    onToggleReasoning={handleToggleReasoning}
-                  />
-                )
-              )
-            )}
+            <Ternary
+              condition={allMessages.length === 0}
+              truthy={<EmptyChat />}
+              falsy={allMessages.map((message) => (
+                <Ternary
+                  key={message.id}
+                  condition={message.type === 'user'}
+                  truthy={<UserMessage message={message} />}
+                  falsy={
+                    <AssistantMessage
+                      key={message.id}
+                      message={message}
+                      isStreaming={streamingIds.has(message.id)}
+                      isReasoningOpen={isReasoningOpen}
+                      onToggleReasoning={handleToggleReasoning}
+                    />
+                  }
+                />
+              ))}
+            />
           </ScrollView>
-
-          {/* Bottom Input Area */}
-          <View className="border-t border-[#dac1ba]/30 bg-[#fcf9f6]/95 pb-2">
+          {/* Bottom Input Area wrapped in bottom edge SafeAreaView */}
+          <View className="border-t border-[#dac1ba]/30 bg-[#fcf9f6] pb-2">
             <ContextBar />
-            {activeInteraction ? (
-              <ChatSelection
-                question={activeInteraction.question}
-                options={activeInteraction.options}
-                onSelect={(option) => {
-                  handleSend(option);
-                  setActiveInteraction(null);
-                }}
-              />
-            ) : (
-              <MessageInput
-                disabled={sendMessage.isPaused}
-                sending={sendMessage.isPending}
-                onSend={handleSend}
-              />
-            )}
+            <Ternary
+              condition={activeInteraction ? true : false}
+              truthy={
+                <>
+                  {activeInteraction && (
+                    <ChatSelection
+                      question={activeInteraction?.question}
+                      options={activeInteraction?.options}
+                      onSelect={(option) => {
+                        handleSend(option);
+                        setActiveInteraction(null);
+                      }}
+                    />
+                  )}
+                </>
+              }
+              falsy={
+                <MessageInput
+                  disabled={sendMessage.isPaused}
+                  sending={sendMessage.isPending}
+                  onSend={handleSend}
+                />
+              }
+            />
           </View>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
+        </SafeAreaView>
+      </KeyboardAvoidingView>
     </>
   );
 }

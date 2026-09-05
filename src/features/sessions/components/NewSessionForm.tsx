@@ -1,13 +1,4 @@
-/**
- * @file Modal form for creating a new session.
- *
- * Uses React Hook Form with Zod validation. On submit, the title
- * is passed as a query param and the user navigates to the chat screen.
- * The actual session is created when the first message is sent.
- */
-
-import { View, Text, Modal } from 'react-native';
-import { useRouter } from 'expo-router';
+import { View, Text, Modal, KeyboardAvoidingView, Platform } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -22,16 +13,6 @@ interface NewSessionFormProps {
   dir: string;
 }
 
-/**
- * Modal form for creating a new session with title input.
- *
- * Uses Claude design system styling with canvas background
- * and primary coral for the submit button.
- *
- * @param projectId - The project ID to create the session in.
- * @param visible - Whether the modal is visible.
- * @param onClose - Callback to close the modal.
- */
 export function NewSessionForm({ visible, dir, onClose }: NewSessionFormProps) {
   const {
     control,
@@ -52,7 +33,7 @@ export function NewSessionForm({ visible, dir, onClose }: NewSessionFormProps) {
         dir,
       },
       {
-        onSuccess: (data) => {
+        onSuccess: () => {
           reset();
           onClose();
         },
@@ -66,38 +47,49 @@ export function NewSessionForm({ visible, dir, onClose }: NewSessionFormProps) {
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent>
-      <View className="flex-1 justify-end bg-black/50">
-        <View className="rounded-t-2xl bg-surface p-6 pb-8">
-          <Text className="mb-4 text-headline-md font-semibold text-on-surface">New Session</Text>
+    <Modal visible={visible} animationType="slide" transparent statusBarTranslucent>
+      <KeyboardAvoidingView
+        className="flex-1"
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={0}>
+        <View className="flex-1 justify-end bg-black/50">
+          <View className="rounded-t-2xl bg-surface p-6 pb-8">
+            <Text className="mb-4 text-headline-md font-semibold text-on-surface">New Session</Text>
 
-          <Controller
-            control={control}
-            name="title"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                label="Session title"
-                placeholder="Optional"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                autoFocus
-                error={errors.title?.message}
-              />
-            )}
-          />
-
-          <View className="mt-6 flex-row gap-3">
-            <Button title="Cancel" onPress={handleCancel} variant="secondary" className="flex-1" />
-            <Button
-              title="Start"
-              onPress={handleSubmit(onSubmit)}
-              variant="primary"
-              className="flex-1"
+            <Controller
+              control={control}
+              name="title"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  label="Session title"
+                  placeholder="Optional"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  autoFocus
+                  error={errors.title?.message}
+                />
+              )}
             />
+
+            <View className="mt-6 flex-row gap-3">
+              <Button
+                title="Cancel"
+                onPress={handleCancel}
+                variant="secondary"
+                className="flex-1"
+              />
+
+              <Button
+                title="Start"
+                onPress={handleSubmit(onSubmit)}
+                variant="primary"
+                className="flex-1"
+              />
+            </View>
           </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
