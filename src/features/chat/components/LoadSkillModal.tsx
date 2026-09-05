@@ -14,10 +14,10 @@ export const LoadSkillModal: React.FC<LoadSkillModalProps> = ({ sessionId, visib
   const sendMessage = useSendMessage(sessionId);
 
   const handleLoadSkill = (skillName: string) => {
+    onClose(); // Close immediately
     sendMessage.mutate(`/skill load ${skillName}`, {
       onSuccess: () => {
         console.log(`Successfully sent load skill message: ${skillName}`);
-        onClose();
       },
       onError: (error) => {
         console.error(`Failed to send load skill message: ${skillName}`, error);
