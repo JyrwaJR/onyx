@@ -7,6 +7,7 @@ import {
   GET_SESSION_MESSAGES,
   SEND_SESSION_MESSAGE,
   INTERRUPT_SESSION,
+  RUN_SHELL_COMMAND,
 } from '../../../shared/api/endpoints';
 import { mapV1MessageToV2Message } from '../../../shared/api/types';
 import type { Message, SessionT, V2Message } from '../../../shared/api/types';
@@ -125,6 +126,26 @@ export async function deleteMessage(sessionId: string, messageId: string): Promi
 export async function sendMessage(sessionId: string, content: string): Promise<void> {
   await http.post(SEND_SESSION_MESSAGE(sessionId), {
     parts: [{ type: 'text', text: content }],
+  });
+}
+
+/**
+ * Runs a shell command in a session.
+ *
+ * Uses the v1 `POST /session/:id/shell` endpoint.
+ *
+ * @param sessionId - The session ID.
+ * @param command - The shell command to run.
+ * @param agent - The agent to run the command with.
+ */
+export async function runShellCommand(
+  sessionId: string,
+  command: string,
+  agent: string = 'build'
+): Promise<void> {
+  await http.post(RUN_SHELL_COMMAND(sessionId), {
+    command,
+    agent,
   });
 }
 

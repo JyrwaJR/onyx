@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react';
 import { View, TouchableOpacity, TextInput } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useRunShellCommand } from '../hooks';
+import { useLocalSearchParams } from 'expo-router';
 
 interface MessageInputProps {
   onSend: (content: string) => void;
@@ -14,6 +16,8 @@ interface MessageInputProps {
 export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
   const [text, setText] = useState('');
   const inputRef = useRef<TextInput>(null);
+  const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
+  const runShell = useRunShellCommand(sessionId ?? '');
 
   const handleSend = () => {
     const trimmed = text.trim();
@@ -21,6 +25,14 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
     if (!trimmed || disabled || sending) return;
 
     onSend(trimmed);
+    setText('');
+  };
+
+  const handleShellCommand = () => {
+    const trimmed = text.trim();
+    if (!trimmed || disabled || sending || !sessionId) return;
+
+    runShell.mutate({ command: trimmed, agent: 'build' });
     setText('');
   };
 
@@ -38,8 +50,9 @@ export function MessageInput({ onSend, disabled, sending }: MessageInputProps) {
 
         <TouchableOpacity
           className="h-9 w-9 items-center justify-center rounded-md"
-          disabled
-          accessibilityLabel="Slash commands">
+          onPress={handleShellCommand}
+          disabled={!canSend || !sessionId}
+          accessibilityLabel="Run as shell command">
           <MaterialIcons name="terminal" size={20} color="#5e5c54" />
         </TouchableOpacity>
 

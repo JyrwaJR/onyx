@@ -59,6 +59,12 @@ export const DELETE_SESSION_MESSAGE = (sessionId: string, messageId: string) =>
 /** Interrupt an active session. Template: `INTERRUPT_SESSION(sessionId)`. */
 export const INTERRUPT_SESSION = (sessionId: string) => `/session/${sessionId}/abort` as const;
 
+/**
+ * Run a shell command in a session. POST body `{ command, agent }`.
+ * Template: `RUN_SHELL_COMMAND(sessionId)`.
+ */
+export const RUN_SHELL_COMMAND = (sessionId: string) => `/session/${sessionId}/shell` as const;
+
 /** Global SSE event stream. Returns `Event` objects (bare v1 route). */
 export const GLOBAL_EVENT_STREAM = '/event';
 
