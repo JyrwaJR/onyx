@@ -67,10 +67,11 @@ export default function ConnectionScreen() {
 
   const onSubmit = useCallback(
     async (data: ServerUrlFormData) => {
+      onAddNewServer(data.serverUrl);
       setServerUrl(data.serverUrl);
       await connect();
     },
-    [setServerUrl, connect]
+    [setServerUrl, connect, onAddNewServer]
   );
 
   const handleSuggestionPress = useCallback(
