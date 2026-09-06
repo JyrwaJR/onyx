@@ -48,7 +48,7 @@ const priorityLabel: Record<TodoPriority, string> = {
 };
 
 /** Filter chip identifiers for the horizontal filter bar. */
-type FilterKey = 'all' | 'in_progress' | 'completed';
+type FilterKey = 'all' | 'in_progress' | 'completed' | 'pending';
 
 /** A rendered task card derived from a server-returned `Todo`. */
 type TaskItem = {
@@ -60,16 +60,6 @@ type TaskItem = {
   completed: boolean;
 };
 
-/**
- * Bottom sheet that lists the agent's todos for a session.
- *
- * Renders an Onyx-themed sheet with a drag grabber, a header showing pending
- * and completed counts, horizontal filter chips (All / In progress /
- * Completed), and grouped pending/completed task cards with custom checkboxes,
- * status badges, and priority metadata. Completion toggles are local-only UI
- * state because the server exposes no todo mutation endpoint. Shows loading,
- * error (with Retry), and empty ("No todos yet") states.
- */
 export function TodoModal({ visible, onClose, sessionId }: TodoModalProps) {
   const { data: todos, isLoading, isError, refetch } = useTodos(sessionId, visible);
   const [activeFilter, setActiveFilter] = useState<FilterKey>('all');
@@ -79,27 +69,37 @@ export function TodoModal({ visible, onClose, sessionId }: TodoModalProps) {
     () =>
       (todos ?? []).map((todo, index) => {
         const key = `${todo.status}:${todo.priority}:${todo.content}:${index}`;
+        const isCompleted = completedOverrides[key] ?? todo.status === 'completed';
+        const effectiveStatus: TodoStatus = isCompleted ? 'completed' : todo.status;
+
         return {
           key,
           title: todo.content,
-          status: todo.status,
+          status: effectiveStatus,
           priority: todo.priority,
-          completed: completedOverrides[key] ?? todo.status === 'completed',
+          completed: isCompleted,
         };
       }),
     [todos, completedOverrides]
   );
 
-  const pendingTasks = tasks.filter((task) => !task.completed);
-  const completedTasks = tasks.filter((task) => task.completed);
-  const showPending = activeFilter !== 'completed';
-  const showCompleted = activeFilter !== 'in_progress';
+  const pendingTasks = tasks.filter((task) => task.status === 'pending');
+  const progressTasks = tasks.filter((task) => task.status === 'in_progress');
+  const completedTasks = tasks.filter((task) => task.status === 'completed');
+
+  const showPending = activeFilter === 'all' || activeFilter === 'pending';
+  const showProgress = activeFilter === 'all' || activeFilter === 'in_progress';
+  const showCompleted = activeFilter === 'all' || activeFilter === 'completed';
+
   const shownCount =
-    (showPending ? pendingTasks.length : 0) + (showCompleted ? completedTasks.length : 0);
+    (showProgress ? progressTasks.length : 0) +
+    (showPending ? pendingTasks.length : 0) +
+    (showCompleted ? completedTasks.length : 0);
 
   const chipLabels: Record<FilterKey, string> = {
     all: `All (${tasks.length})`,
-    in_progress: `In progress (${pendingTasks.length})`,
+    pending: `Pending (${pendingTasks.length})`,
+    in_progress: `In progress (${progressTasks.length})`,
     completed: `Completed (${completedTasks.length})`,
   };
 
@@ -116,10 +116,9 @@ export function TodoModal({ visible, onClose, sessionId }: TodoModalProps) {
       onDismiss={onClose}
       onRequestClose={onClose}>
       <View className="flex-1 justify-end bg-black/35">
-        {/* Bottom sheet container */}
         <SafeAreaView
           edges={['right', 'left']}
-          className="max-h-[88%] w-full  max-w-[420px] self-center overflow-hidden rounded-t-md border-t border-[#eae6e1] bg-[#fcf9f6] py-2">
+          className="max-h-[88%] w-full max-w-[420px] self-center overflow-hidden rounded-t-md border-t border-[#eae6e1] bg-[#fcf9f6] py-2">
           {/* Header */}
           <View className="flex-row items-center justify-between border-b border-[#eae6e1]/80 px-5 pb-3 pt-1">
             <View className="flex-row items-center gap-2.5">
@@ -129,7 +128,8 @@ export function TodoModal({ visible, onClose, sessionId }: TodoModalProps) {
               <View>
                 <Text className="text-2xl font-medium text-[#1a1918]">Session Tasks Preview</Text>
                 <Text className="text-[11px] font-medium text-[#6e6962]">
-                  {pendingTasks.length} pending · {completedTasks.length} completed
+                  {pendingTasks.length + progressTasks.length} active · {completedTasks.length}{' '}
+                  completed
                 </Text>
               </View>
             </View>
@@ -151,8 +151,6 @@ export function TodoModal({ visible, onClose, sessionId }: TodoModalProps) {
             }
             falsy={
               <Ternary
-                // Prefer cached data over the error state when data exists
-                // (e.g. a background refetch failed on a reopened modal).
                 condition={!todos || todos.length === 0}
                 truthy={
                   <Ternary
@@ -221,6 +219,55 @@ export function TodoModal({ visible, onClose, sessionId }: TodoModalProps) {
                         </View>
                       )}
 
+                      {/* In Progress section */}
+                      {showProgress && progressTasks.length > 0 && (
+                        <>
+                          <View className="flex-row items-center justify-between pb-0.5 pt-1">
+                            <Text className="text-[10px] font-medium uppercase tracking-wider text-[#9e9992]">
+                              Progress ({progressTasks.length})
+                            </Text>
+                            <Text className="font-mono text-[10px] text-[#9e9992]">Onyx Queue</Text>
+                          </View>
+
+                          {progressTasks.map((task) => (
+                            <View
+                              key={task.key}
+                              className="flex-row items-center gap-3 rounded-md border border-[#eae6e1] bg-white p-3.5">
+                              <TouchableOpacity
+                                onPress={() => toggleTaskCompletion(task)}
+                                className="mt-0.5 h-5 w-5 items-center justify-center rounded-md border-2 border-[#cc785c] bg-white">
+                                <View className="h-2 w-2 rounded-[2px] bg-[#cc785c]" />
+                              </TouchableOpacity>
+
+                              <View className="flex-1">
+                                <View className="flex-row items-center justify-between gap-2">
+                                  <Text
+                                    numberOfLines={1}
+                                    className="flex-1 text-xs font-semibold text-[#1a1918]">
+                                    {task.title}
+                                  </Text>
+
+                                  <View className="rounded bg-[#faeae3] px-2 py-0.5">
+                                    <Text className="text-[10px] font-medium text-[#cc785c]">
+                                      {statusLabel[task.status]}
+                                    </Text>
+                                  </View>
+                                </View>
+
+                                <View className="mt-2 flex-row items-center gap-2.5">
+                                  <View className="flex-row items-center gap-1">
+                                    <MaterialIcons name="flag" size={13} color={COLORS.primary} />
+                                    <Text className="text-[10px] text-[#9e9992]">
+                                      {priorityLabel[task.priority]}
+                                    </Text>
+                                  </View>
+                                </View>
+                              </View>
+                            </View>
+                          ))}
+                        </>
+                      )}
+
                       {/* Pending section */}
                       {showPending && pendingTasks.length > 0 && (
                         <>
@@ -234,15 +281,12 @@ export function TodoModal({ visible, onClose, sessionId }: TodoModalProps) {
                           {pendingTasks.map((task) => (
                             <View
                               key={task.key}
-                              className="flex-row items-center  gap-3 rounded-md border border-[#eae6e1] bg-white p-3.5">
-                              {/* Custom checkbox */}
+                              className="flex-row items-center gap-3 rounded-md border border-[#eae6e1] bg-white p-3.5">
                               <TouchableOpacity
                                 onPress={() => toggleTaskCompletion(task)}
-                                className="mt-0.5 h-5 w-5 items-center justify-center rounded-md border-2 border-[#cc785c] bg-white">
-                                <View className="h-2 w-2 rounded-[2px] bg-[#cc785c]" />
-                              </TouchableOpacity>
+                                className="mt-0.5 h-5 w-5 items-center justify-center rounded-md border-2 border-[#eae6e1] bg-white"
+                              />
 
-                              {/* Content */}
                               <View className="flex-1">
                                 <View className="flex-row items-center justify-between gap-2">
                                   <Text
@@ -251,36 +295,16 @@ export function TodoModal({ visible, onClose, sessionId }: TodoModalProps) {
                                     {task.title}
                                   </Text>
 
-                                  {/* Status badge */}
-                                  <View
-                                    className={`rounded px-2 py-0.5 ${
-                                      task.status === 'in_progress'
-                                        ? 'bg-[#faeae3]'
-                                        : 'bg-[#f0edeb]'
-                                    }`}>
-                                    <Text
-                                      className={`text-[10px] font-medium ${
-                                        task.status === 'in_progress'
-                                          ? 'text-[#cc785c]'
-                                          : 'text-[#6e6962]'
-                                      }`}>
+                                  <View className="rounded bg-[#f0edeb] px-2 py-0.5">
+                                    <Text className="text-[10px] font-medium text-[#6e6962]">
                                       {statusLabel[task.status]}
                                     </Text>
                                   </View>
                                 </View>
 
-                                {/* Priority metadata */}
                                 <View className="mt-2 flex-row items-center gap-2.5">
                                   <View className="flex-row items-center gap-1">
-                                    <MaterialIcons
-                                      name="flag"
-                                      size={13}
-                                      color={
-                                        task.status === 'in_progress'
-                                          ? COLORS.primary
-                                          : COLORS.textMuted
-                                      }
-                                    />
+                                    <MaterialIcons name="flag" size={13} color={COLORS.textMuted} />
                                     <Text className="text-[10px] text-[#9e9992]">
                                       {priorityLabel[task.priority]}
                                     </Text>
@@ -295,27 +319,23 @@ export function TodoModal({ visible, onClose, sessionId }: TodoModalProps) {
                       {/* Completed section */}
                       {showCompleted && completedTasks.length > 0 && (
                         <>
-                          {showPending && pendingTasks.length > 0 && (
-                            <View className="flex-row items-center justify-between pb-0.5 pt-3">
-                              <Text className="text-[10px] font-medium uppercase tracking-wider text-[#9e9992]">
-                                Completed ({completedTasks.length})
-                              </Text>
-                              <Text className="text-[11px] text-[#9e9992]">Verified</Text>
-                            </View>
-                          )}
+                          <View className="flex-row items-center justify-between pb-0.5 pt-3">
+                            <Text className="text-[10px] font-medium uppercase tracking-wider text-[#9e9992]">
+                              Completed ({completedTasks.length})
+                            </Text>
+                            <Text className="text-[11px] text-[#9e9992]">Verified</Text>
+                          </View>
 
                           {completedTasks.map((task) => (
                             <View
                               key={task.key}
                               className="flex-row items-start gap-3 rounded-md border border-[#eae6e1]/60 bg-[#f0edeb]/60 p-3 opacity-75">
-                              {/* Checked box */}
                               <TouchableOpacity
                                 onPress={() => toggleTaskCompletion(task)}
                                 className="mt-0.5 h-5 w-5 items-center justify-center rounded-md bg-[#cc785c]">
                                 <MaterialIcons name="check" size={14} color="white" />
                               </TouchableOpacity>
 
-                              {/* Strikethrough content */}
                               <View className="flex-1">
                                 <Text className="text-xs font-medium leading-tight text-[#6e6962] line-through">
                                   {task.title}
