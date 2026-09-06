@@ -16,7 +16,7 @@ export function useAgent() {
   return useQuery({
     queryKey: ['agent'],
     queryFn: () => http.get<AgentAPIResponse>(`/agent`),
-    select: (data) => data.data,
+    select: (data) => data.data?.data,
     refetchInterval: isStreaming ? 3000 : false,
     refetchIntervalInBackground: false,
   });
