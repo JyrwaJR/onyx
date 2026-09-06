@@ -14,7 +14,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useMessages, useSendMessage } from '../hooks';
-import { useSSE } from '../hooks/use-sse';
+import { useSessionStream } from '../hooks/use-session-stream';
 import type { StreamingState, QuestionRequest } from '../types';
 import type { MessageContentBlock, Message } from '../../../shared/api/types';
 import { Loading } from '@/shared/components/screens';
@@ -309,16 +309,16 @@ export default function ChatScreen() {
     });
   }, []);
 
-  useSSE(
+  useSessionStream({
     sessionId,
-    ({ assistantMessageID, delta }) => {
+    onDelta: ({ assistantMessageID, delta }) => {
       const pending = pendingDeltasRef.current;
       pending.set(assistantMessageID, (pending.get(assistantMessageID) ?? '') + delta);
       scheduleFlush();
     },
-    handleQuestion,
-    handleComplete
-  );
+    onQuestion: handleQuestion,
+    onComplete: handleComplete,
+  });
 
   useEffect(() => {
     if (!sessionId) return;
