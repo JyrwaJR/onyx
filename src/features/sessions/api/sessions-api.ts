@@ -9,7 +9,12 @@
  */
 
 import http from '@utils/http/client';
-import { GET_SESSIONS, DELETE_SESSION, GET_SESSION_BY_ID } from '../../../shared/api/endpoints';
+import {
+  GET_SESSIONS,
+  DELETE_SESSION,
+  GET_SESSION_BY_ID,
+  GET_SESSION_CHILDREN,
+} from '../../../shared/api/endpoints';
 import type { SessionT } from '../../../shared/api/types';
 import type { SessionListResponse } from '../types/session';
 
@@ -37,6 +42,20 @@ export async function fetchSessions(
   return sessions.filter((session) => {
     return (projectId && session.projectID === projectId) || (dir && session.directory === dir);
   });
+}
+
+/**
+ * Fetches the child (subagent) sessions forked from a parent session.
+ *
+ * Uses the dedicated `GET /session/{sessionID}/children` endpoint, which
+ * returns `Session[]` whose `parentID` points back at the parent.
+ *
+ * @param sessionId - The parent session ID.
+ * @returns The child sessions of the parent.
+ */
+export async function fetchSessionChildren(sessionId: string): Promise<SessionListResponse> {
+  const response = await http.get<SessionListResponse>(GET_SESSION_CHILDREN(sessionId));
+  return response.data;
 }
 
 /**

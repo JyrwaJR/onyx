@@ -24,6 +24,7 @@ import { ChatHeaderBar } from '../components/ChatHeaderBar';
 import { ContextBar } from '../components/ContextBar';
 import { UserMessage } from '../components/UserMessage';
 import { AssistantMessage } from '../components/AssistantMessage';
+import { ParentSessionNotice } from '../components/ParentSessionNotice';
 import { Container } from '@/shared/components/layout/Container';
 import EmptyChat from '../components/empty-chat';
 import { Ternary } from '@/shared/components/ui/ternary';
@@ -352,6 +353,9 @@ export default function ChatScreen() {
         className="flex-1">
         <SafeAreaView edges={['right', 'left', 'bottom']} className="flex-1 bg-[#fcf9f6]">
           <ChatHeaderBar sessionId={sessionId} />
+          {session?.parentID ? (
+            <ParentSessionNotice parentSessionId={session.parentID} projectId={projectId} />
+          ) : null}
           {/* Messages Stream */}
           <ScrollView
             ref={scrollViewRef}
@@ -382,6 +386,8 @@ export default function ChatScreen() {
                       isStreaming={streamingIds.has(message.id)}
                       isReasoningOpen={isReasoningOpen}
                       onToggleReasoning={handleToggleReasoning}
+                      sessionId={sessionId}
+                      projectId={projectId}
                     />
                   }
                 />

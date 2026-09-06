@@ -23,6 +23,7 @@ export const queryKeys = {
     all: ['sessions'] as const,
     byProject: (projectId: string) => ['sessions', projectId] as const,
     detail: (sessionId: string) => ['sessions', 'detail', sessionId] as const,
+    children: (sessionId: string) => ['sessions', 'children', sessionId] as const,
   },
 
   messages: {

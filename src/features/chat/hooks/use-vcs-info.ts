@@ -8,6 +8,6 @@ export function useVcsInfo() {
     queryKey: ['vcsInfo'],
     queryFn: () => http.get<{ branch: string; default_branch: string }>('/vcs'),
     select: (data) => data.data,
-    refetchInterval: isStreaming ? 3000 : 60000,
+    refetchInterval: isStreaming ? 1000 : 60000,
   });
 }

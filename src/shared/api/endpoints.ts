@@ -62,6 +62,14 @@ export const DELETE_SESSION_MESSAGE = (sessionId: string, messageId: string) =>
  */
 export const GET_SESSION_TODOS = (sessionId: string) => `/session/${sessionId}/todo` as const;
 
+/**
+ * Get all child (subagent) sessions forked from a parent session.
+ * Returns `Session[]`. Query params: `directory`, `workspace`.
+ * Template: `GET_SESSION_CHILDREN(sessionId)`.
+ */
+export const GET_SESSION_CHILDREN = (sessionId: string) =>
+  `/session/${sessionId}/children` as const;
+
 /** Interrupt an active session. Template: `INTERRUPT_SESSION(sessionId)`. */
 export const INTERRUPT_SESSION = (sessionId: string) => `/session/${sessionId}/abort` as const;
 

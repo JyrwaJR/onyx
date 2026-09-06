@@ -182,3 +182,73 @@ export type Event = {
   /** Legacy (`GlobalEvent`) wrapper containing `type`/`properties`. */
   payload?: EventPayload;
 };
+
+/** Live status of a subagent session, derived from its task tool part. */
+export type SubagentStatus = 'pending' | 'running' | 'completed' | 'error';
+
+/**
+ * A child (subagent) session spawned by a main session.
+ *
+ * Created from the `session.created` SSE event (`properties.info`), enriched
+ * by subagent `task`/`agent` tool part updates (`message.part.updated`).
+ */
+export interface SubagentSession {
+  /** Child session ID (`^ses`). */
+  sessionID: string;
+  /** Parent (spawning) session ID (`^ses`). */
+  parentID: string;
+  /** Agent running the child session, e.g. `explore`, `build`, `plan`. */
+  agent?: string;
+  /** Session title from the server. */
+  title?: string;
+  /** Description from the task tool input, when known. */
+  description?: string;
+  /** Project the child session belongs to — used for navigation. */
+  projectID?: string;
+  /** Working directory of the child session. */
+  directory?: string;
+  /** Current status. */
+  status: SubagentStatus;
+  /** Tool part ID (`^prt`) that first claimed this child session. */
+  claimedByPartID?: string;
+  /** When the child session was created (ms epoch). */
+  createdAt: number;
+}
+
+/** Normalized payload of a `session.created` event (v1 `properties`). */
+export type SubagentChildInfo = {
+  sessionID: string;
+  parentID: string;
+  agent?: string;
+  title?: string;
+  projectID?: string;
+  directory?: string;
+  createdAt: number;
+};
+
+/** Normalized payload of a subagent tool part from `message.part.updated`. */
+export type SubagentToolPartInfo = {
+  /** Parent session ID the tool part belongs to (`^ses`). */
+  sessionID: string;
+  /** Tool part ID (`^prt`). */
+  partID: string;
+  /** Message the tool part belongs to (`^msg`). */
+  messageID: string;
+  /** Tool name (`task` | `agent` | `subagent`). */
+  tool: string;
+  /** Tool state status (`pending` | `running` | `completed` | `error`). */
+  status: string;
+  /** Agent name from `state.input.subagent_type` (fallback `subagent`). */
+  agent?: string;
+  /** Description from `state.input.description`. */
+  description?: string;
+  /** Tool `state.output`, used to parse the child session ID when present. */
+  output?: unknown;
+  /**
+   * Authoritative child session ID persisted by the server on the part
+   * (`state.metadata.sessionId`, falling back to `info.sessionID`). Present
+   * on historical task parts after restart, when output parsing is
+   * unavailable (`output` is null there).
+   */
+  childSessionID?: string;
+};

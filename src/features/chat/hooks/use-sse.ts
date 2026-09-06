@@ -4,6 +4,8 @@ import { createGlobalSSE, type SSEConnection } from '../../../shared/api/sse';
 import { queryKeys } from '../../../shared/api/query-keys';
 import { type Event, type PermissionRequest, type QuestionRequest } from '../types';
 import { useChatStore } from '../store/chat-store';
+import { useSubagentStore } from '../store/subagent-store';
+import { normalizeSessionCreated, normalizeSubagentToolPart } from '../utils/subagent-events';
 
 /** Callback invoked when a streaming delta arrives. */
 export type OnDelta = (event: {
@@ -33,6 +35,8 @@ export function useSSE(sessionId: string | undefined, onDelta: OnDelta, onQuesti
   const addPermissionRequest = useChatStore((state) => state.addPermissionRequest);
   const startStreaming = useChatStore((state) => state.startStreaming);
   const finishStreaming = useChatStore((state) => state.finishStreaming);
+  const registerChildSession = useSubagentStore((state) => state.registerChildSession);
+  const registerToolPartStatus = useSubagentStore((state) => state.registerToolPartStatus);
 
   // Keep the latest callback without re-subscribing to SSE on every render.
   const onDeltaRef = useRef(onDelta);
@@ -117,6 +121,23 @@ export function useSSE(sessionId: string | undefined, onDelta: OnDelta, onQuesti
         if (request.sessionId !== sessionId) return;
 
         addPermissionRequest(request);
+      } else if (type === 'session.created') {
+        // Authoritative signal that a subagent spawned: the new session's
+        // `info.parentID` points back to this chat's session.
+        const child = normalizeSessionCreated(properties);
+        if (child && child.parentID === sessionId) {
+          registerChildSession(child);
+        }
+      } else if (type === 'message.part.updated') {
+        // Tool parts for task/agent carry the subagent's name, description,
+        // and status; claim/update the matching child session.
+        const part = normalizeSubagentToolPart(properties);
+        if (part && part.sessionID === sessionId) {
+          registerToolPartStatus(sessionId, part);
+          // Refresh the message list so the mid-run tool block appears live
+          // (not only after the step completes / next `message.updated`).
+          queryClient.invalidateQueries({ queryKey: queryKeys.messages.bySession(sessionId) });
+        }
       }
     };
 
@@ -129,5 +150,13 @@ export function useSSE(sessionId: string | undefined, onDelta: OnDelta, onQuesti
     return () => {
       sse.close();
     };
-  }, [sessionId, queryClient, addPermissionRequest, startStreaming, finishStreaming]);
+  }, [
+    sessionId,
+    queryClient,
+    addPermissionRequest,
+    startStreaming,
+    finishStreaming,
+    registerChildSession,
+    registerToolPartStatus,
+  ]);
 }

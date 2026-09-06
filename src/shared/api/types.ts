@@ -26,15 +26,16 @@ interface TimeSpan {
 export interface SessionT {
   agent: string;
   cost: number;
+  /** Working directory of the session (wire schema: top-level `directory`). */
+  directory: string;
   id: string;
-  location: {
-    directory: string;
-  };
   model: {
     id: string;
     providerID: string;
     variant: string;
   };
+  /** Parent session ID (`^ses`) when this session is a subagent child session. */
+  parentID?: string;
   projectID: string;
   time: {
     created: number;
@@ -68,6 +69,8 @@ export type MessageContentBlock =
         input?: Record<string, unknown>;
         output?: unknown;
         title?: string;
+        /** Server-persisted child session link for subagent tool calls. */
+        metadata?: { sessionId?: string; parentSessionId?: string };
       };
     };
 
