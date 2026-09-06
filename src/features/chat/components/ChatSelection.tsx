@@ -17,6 +17,8 @@ type ChatSelectionProps = {
   onSelect: (labels: string[]) => void;
   /** Callback fired when the user dismisses/rejects the question. */
   onReject?: () => void;
+  /** Optional label shown above the question, e.g. "Question 2 of 3". */
+  stepLabel?: string;
 };
 
 /**
@@ -27,6 +29,8 @@ type ChatSelectionProps = {
  * tap; `multiple` questions let the user toggle several options before
  * submitting; `custom` questions expose a text input for a free-form
  * answer. An optional dismiss button rejects the whole question request.
+ * An optional `stepLabel` (e.g. "Question 2 of 3") surfaces progress when
+ * the parent shows sequential questions one at a time.
  *
  * Used to prompt the user for input during chat sessions when the assistant
  * emits a `question.asked` SSE event.
@@ -35,6 +39,7 @@ export const ChatSelection = memo(function ChatSelection({
   question: chatQuestion,
   onSelect,
   onReject,
+  stepLabel,
 }: ChatSelectionProps) {
   const [selected, setSelected] = useState<string[]>([]);
   const [customAnswer, setCustomAnswer] = useState('');
@@ -66,6 +71,11 @@ export const ChatSelection = memo(function ChatSelection({
 
   return (
     <View className="gap-3 rounded-md border border-[#dac1ba]/30 bg-[#fcf9f6] p-4">
+      {stepLabel ? (
+        <Text className="text-xs font-semibold uppercase tracking-wide text-[#8f482f]">
+          {stepLabel}
+        </Text>
+      ) : null}
       <View className="flex-row items-start justify-between gap-2">
         <Text className="flex-1 text-base font-semibold text-[#54433e]">
           {chatQuestion.header || chatQuestion.question}

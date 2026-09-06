@@ -81,11 +81,21 @@ export default function ChatScreen() {
   const [streaming, setStreaming] = useState<Map<string, StreamingState>>(new Map());
   const [activeQuestion, setActiveQuestion] = useState<QuestionRequest | null>(null);
   const [questionAnswers, setQuestionAnswers] = useState<(string[] | null)[]>([]);
+  // Index of the question currently shown. Advances forward as the user answers;
+  // only one question is rendered at a time.
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [isReasoningOpen, setIsReasoningOpen] = useState(true);
 
   const [pendingMessages, setPendingMessages] = useState<Map<string, Message>>(new Map());
   const pendingIdRef = useRef(0);
   const lastSentRef = useRef<{ text: string; at: number } | null>(null);
+  // Tracks the latest activeQuestion for the restore effect below, so the
+  // pending-question fetch does not need to re-run on every activeQuestion
+  // change (avoids extra network calls on the SSE answer path).
+  const activeQuestionRef = useRef(activeQuestion);
+  useEffect(() => {
+    activeQuestionRef.current = activeQuestion;
+  }, [activeQuestion]);
   const insets = useSafeAreaInsets();
   const {
     data: messages,
@@ -213,15 +223,26 @@ export default function ChatScreen() {
   const handleQuestion = useCallback((request: QuestionRequest) => {
     setActiveQuestion(request);
     setQuestionAnswers(Array(request.questions.length).fill(null));
+    setCurrentQuestionIndex(0);
   }, []);
 
-  const handleQuestionSelect = useCallback((questionIndex: number, labels: string[]) => {
-    setQuestionAnswers((prev) => {
-      const next = [...prev];
-      next[questionIndex] = labels;
-      return next;
-    });
-  }, []);
+  const handleQuestionSelect = useCallback(
+    (questionIndex: number, labels: string[]) => {
+      setQuestionAnswers((prev) => {
+        const next = [...prev];
+        next[questionIndex] = labels;
+        return next;
+      });
+      if (!activeQuestion) return;
+      // Single-select fires onSelect immediately on tap; multi/custom fire it via
+      // their submit button. Either way advance to the next unanswered question;
+      // on the last question the auto-submit effect posts the final reply.
+      if (questionIndex < activeQuestion.questions.length - 1) {
+        setCurrentQuestionIndex((prev) => prev + 1);
+      }
+    },
+    [activeQuestion]
+  );
 
   const handleRejectQuestion = useCallback(() => {
     if (!activeQuestion) return;
@@ -295,6 +316,11 @@ export default function ChatScreen() {
         const pending = requests.find((request) => request.sessionID === sessionId);
         if (!pending) return;
 
+        // Reset the step flow to the first question when the restored request
+        // differs from the one currently shown (or none is shown yet).
+        if (!activeQuestionRef.current || activeQuestionRef.current.id !== pending.id) {
+          setCurrentQuestionIndex(0);
+        }
         setActiveQuestion((prev) => (prev && prev.id === pending.id ? prev : pending));
         setQuestionAnswers((prev) =>
           prev.length === pending.questions.length
@@ -443,16 +469,15 @@ export default function ChatScreen() {
               condition={activeQuestion ? true : false}
               truthy={
                 <>
-                  {activeQuestion && (
+                  {activeQuestion && currentQuestionIndex < activeQuestion.questions.length && (
                     <View className="gap-2 px-4 pt-2">
-                      {activeQuestion.questions.map((question, index) => (
-                        <ChatSelection
-                          key={`${activeQuestion.id}-${index}`}
-                          question={question}
-                          onSelect={(labels) => handleQuestionSelect(index, labels)}
-                          onReject={handleRejectQuestion}
-                        />
-                      ))}
+                      <ChatSelection
+                        key={`${activeQuestion.id}-${currentQuestionIndex}`}
+                        question={activeQuestion.questions[currentQuestionIndex]}
+                        stepLabel={`Question ${currentQuestionIndex + 1} of ${activeQuestion.questions.length}`}
+                        onSelect={(labels) => handleQuestionSelect(currentQuestionIndex, labels)}
+                        onReject={handleRejectQuestion}
+                      />
                     </View>
                   )}
                 </>
