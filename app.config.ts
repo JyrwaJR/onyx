@@ -5,7 +5,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   name: 'Onyx',
   slug: 'onyx',
   version: '1.0.0',
-  scheme: 'remote-code',
+  scheme: 'onyx',
   platforms: ['ios', 'android'],
 
   web: {
@@ -16,6 +16,20 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 
   plugins: [
     'expo-router',
+    [
+      'expo-build-properties',
+      {
+        android: {
+          compileSdkVersion: 36,
+          targetSdkVersion: 36,
+          buildToolsVersion: '36.0.0',
+          architecture: 'arm64-v8a',
+        },
+        ios: {
+          deploymentTarget: '16.4',
+        },
+      },
+    ],
     [
       'expo-splash-screen',
       {
@@ -36,7 +50,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 
   orientation: 'portrait',
 
-  icon: './src/shared/assets/icon.png',
+  icon: './src/shared/assets/icon-2.png',
 
   userInterfaceStyle: 'light',
 
@@ -49,7 +63,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 
   android: {
     adaptiveIcon: {
-      foregroundImage: './src/shared/assets/adaptive-icon.png',
+      foregroundImage: './src/shared/assets/icon-2.png',
       backgroundColor: '#ffffff',
     },
     softwareKeyboardLayoutMode: 'resize',
