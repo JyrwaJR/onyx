@@ -6,9 +6,7 @@ import { CustomBottomSheet } from '@/shared/components/ui/bottom-sheet';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useModel } from '@/shared/hooks/use-model';
 
-type ModelSheetProps = {
-  // Add any props if needed, e.g., onSelectModel: (modelId: string) => void
-};
+type ModelSheetProps = Record<string, never>;
 
 /** Onyx theme color tokens used by the model bottom sheet. */
 const COLORS = {
@@ -29,7 +27,7 @@ export const ModelSheet = forwardRef<BottomSheetModal, ModelSheetProps>(
       <CustomBottomSheet ref={ref} snapPoints={snapPoints}>
         <SafeAreaView edges={['bottom', 'left', 'right']} className="flex-1">
           {/* Header */}
-          <View className="flex-row items-center justify-between border-b border-[#eae6e1]/80 px-5 pb-3 pt-1">
+          <View className="flex-row items-center justify-between border-b border-[#eae6e1]/80 pb-3 pt-1">
             <View className="flex-row items-center gap-2.5">
               <View className="h-8 w-8 items-center justify-center rounded-lg bg-[#faeae3]">
                 <MaterialIcons name="auto-awesome" size={20} color={COLORS.primary} />

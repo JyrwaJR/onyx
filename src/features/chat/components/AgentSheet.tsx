@@ -6,9 +6,7 @@ import { CustomBottomSheet } from '@/shared/components/ui/bottom-sheet';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useAgent } from '@/shared/hooks/use-agent';
 
-type AgentSheetProps = {
-  // Add any props if needed
-};
+type AgentSheetProps = Record<string, never>;
 
 /** Onyx theme color tokens used by the agent bottom sheet. */
 const COLORS = {
@@ -29,7 +27,7 @@ export const AgentSheet = forwardRef<BottomSheetModal, AgentSheetProps>(
       <CustomBottomSheet ref={ref} snapPoints={snapPoints}>
         <SafeAreaView edges={['bottom', 'left', 'right']} className="flex-1">
           {/* Header */}
-          <View className="flex-row items-center justify-between border-b border-[#eae6e1]/80 px-5 pb-3 pt-1">
+          <View className="flex-row items-center justify-between border-b border-[#eae6e1]/80 pt-1">
             <View className="flex-row items-center gap-2.5">
               <View className="h-8 w-8 items-center justify-center rounded-lg bg-[#faeae3]">
                 <MaterialIcons name="psychology" size={20} color={COLORS.primary} />
