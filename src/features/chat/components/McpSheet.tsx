@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CustomBottomSheet } from '@/shared/components/ui/bottom-sheet';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useMcpStatus } from '@/shared/hooks/use-mcp-status';
+import { cn } from '@/shared/lib/cn';
 
 type McpSheetProps = Record<string, never>;
 
@@ -17,27 +18,13 @@ const COLORS = {
   danger: '#d64545',
 } as const;
 
-export const McpSheet = forwardRef<BottomSheetModal, McpSheetProps>(function McpSheet(
-  _props,
-  ref
-) {
+export const McpSheet = forwardRef<BottomSheetModal, McpSheetProps>(function McpSheet(_props, ref) {
   const { data: mcps, isLoading, isError } = useMcpStatus();
   const snapPoints = useMemo(() => ['22', '44', '88%'], []);
 
   return (
     <CustomBottomSheet ref={ref} snapPoints={snapPoints}>
       <SafeAreaView edges={['bottom', 'left', 'right']} className="flex-1">
-        <View className="flex-row items-center justify-between border-b border-[#eae6e1]/80 px-5 pb-3 pt-1">
-          <View className="flex-row items-center gap-2.5">
-            <View className="h-8 w-8 items-center justify-center rounded-lg bg-[#faeae3]">
-              <MaterialIcons name="hub" size={20} color={COLORS.primary} />
-            </View>
-            <View>
-              <Text className="text-2xl font-medium text-[#1a1918]">MCP Status</Text>
-            </View>
-          </View>
-        </View>
-
         {isLoading ? (
           <View className="items-center py-10">
             <ActivityIndicator size="small" color={COLORS.primary} />
@@ -58,8 +45,15 @@ export const McpSheet = forwardRef<BottomSheetModal, McpSheetProps>(function Mcp
                 key={mcp.name}
                 className="flex-row items-center gap-3 rounded-md border border-[#eae6e1] bg-white p-3.5">
                 <View className="flex-1">
-                  <Text className="text-sm font-semibold text-[#1a1918]">{mcp.name}</Text>
-                  <Text className="text-xs text-[#6e6962]">{mcp.status}</Text>
+                  <Text className="text-sm font-semibold capitalize text-[#1a1918]">
+                    {mcp.name}
+                  </Text>
+                  <Text
+                    className={cn(
+                      mcp.status === 'connected' ? 'text-xs text-primary' : 'text-xs text-red-500'
+                    )}>
+                    {mcp.status}
+                  </Text>
                 </View>
               </View>
             ))}

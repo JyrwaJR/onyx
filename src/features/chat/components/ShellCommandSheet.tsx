@@ -31,7 +31,7 @@ export const ShellCommandSheet = forwardRef<BottomSheetModal, ShellCommandSheetP
 
   const handleRun = () => {
     if (command.trim()) {
-      runShell({ command, agent: 'default' }); // Need to handle agent selection too?
+      runShell({ command, agent: 'default' });
       setCommand('');
     }
   };
