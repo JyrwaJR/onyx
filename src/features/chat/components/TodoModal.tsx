@@ -1,15 +1,20 @@
-import { Modal, View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { useMemo, useState } from 'react';
-import { MaterialIcons } from '@expo/vector-icons';
+import React, { forwardRef, useCallback, useMemo, useRef, useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import {
+  BottomSheetModal,
+  BottomSheetScrollView,
+  BottomSheetBackdrop,
+  type BottomSheetBackdropProps,
+  BottomSheetView,
+} from '@gorhom/bottom-sheet';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ternary } from '@/shared/components/ui/ternary';
 import { Button } from '@/shared/components/ui/button';
 import { useTodos } from '../hooks/use-todos';
-import type { TodoPriority, TodoStatus } from '../../../shared/api/types';
+import { MaterialIcons } from '@expo/vector-icons';
+import { TodoPriority, TodoStatus } from '@/shared/api';
 
 type TodoModalProps = {
-  visible: boolean;
-  onClose: () => void;
   sessionId: string;
 };
 
@@ -52,7 +57,6 @@ type FilterKey = 'all' | 'in_progress' | 'completed' | 'pending';
 
 /** A rendered task card derived from a server-returned `Todo`. */
 type TaskItem = {
-  /** Stable key derived from the todo fields (server items have no id). */
   key: string;
   title: string;
   status: TodoStatus;
@@ -60,15 +64,34 @@ type TaskItem = {
   completed: boolean;
 };
 
-export function TodoModal({ visible, onClose, sessionId }: TodoModalProps) {
-  const { data: todos, isLoading, isError, refetch } = useTodos(sessionId, visible);
+export const TodoModal = forwardRef<BottomSheetModal, TodoModalProps>(function TodoModal(
+  { sessionId },
+  ref
+) {
+  const [isOpen, setIsOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState<FilterKey>('all');
   const [completedOverrides, setCompletedOverrides] = useState<Record<string, boolean>>({});
+  const { data: todos, isLoading, isError, refetch } = useTodos(sessionId, isOpen);
+  const snapPoints = useMemo(() => ['22', '44', '88%'], []);
+
+  const renderBackdrop = useCallback(
+    (props: BottomSheetBackdropProps) => (
+      <BottomSheetBackdrop
+        {...props}
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+        pressBehavior="close"
+        opacity={0.35}
+      />
+    ),
+    []
+  );
 
   const tasks = useMemo<TaskItem[]>(
     () =>
       (todos ?? []).map((todo, index) => {
-        const key = `${todo.status}:${todo.priority}:${todo.content}:${index}`;
+        // Stable key using immutable content + index rather than mutable status
+        const key = `todo:${todo.priority}:${todo.content}:${index}`;
         const isCompleted = completedOverrides[key] ?? todo.status === 'completed';
         const effectiveStatus: TodoStatus = isCompleted ? 'completed' : todo.status;
 
@@ -108,17 +131,15 @@ export function TodoModal({ visible, onClose, sessionId }: TodoModalProps) {
   };
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent
-      statusBarTranslucent
-      onDismiss={onClose}
-      onRequestClose={onClose}>
-      <View className="flex-1 justify-end bg-black/35">
-        <SafeAreaView
-          edges={['right', 'left']}
-          className="max-h-[88%] w-full max-w-[420px] self-center overflow-hidden rounded-t-md border-t border-[#eae6e1] bg-[#fcf9f6] py-2">
+    <BottomSheetModal
+      ref={ref}
+      snapPoints={snapPoints}
+      backdropComponent={renderBackdrop}
+      onChange={(index) => setIsOpen(index >= 0)}
+      handleIndicatorStyle={{ backgroundColor: COLORS.grabber, width: 36 }}
+      backgroundStyle={{ backgroundColor: COLORS.surface }}>
+      <BottomSheetView className="flex-1">
+        <SafeAreaView edges={['bottom', 'left', 'right']} className="flex-1">
           {/* Header */}
           <View className="flex-row items-center justify-between border-b border-[#eae6e1]/80 px-5 pb-3 pt-1">
             <View className="flex-row items-center gap-2.5">
@@ -133,12 +154,6 @@ export function TodoModal({ visible, onClose, sessionId }: TodoModalProps) {
                 </Text>
               </View>
             </View>
-
-            <TouchableOpacity
-              onPress={onClose}
-              className="h-8 w-8 items-center justify-center rounded-full bg-[#f0edeb] active:opacity-70">
-              <MaterialIcons name="close" size={20} color={COLORS.textSecondary} />
-            </TouchableOpacity>
           </View>
 
           <Ternary
@@ -151,13 +166,13 @@ export function TodoModal({ visible, onClose, sessionId }: TodoModalProps) {
             }
             falsy={
               <Ternary
-                condition={!todos || todos.length === 0}
+                condition={!todos || todos.length === 0 || !!isError}
                 truthy={
                   <Ternary
                     condition={!!isError}
                     truthy={
                       <View className="items-center py-10">
-                        <MaterialIcons name="error-outline" size={32} color="#8a3a3a" />
+                        <MaterialIcons name="error-outline" size={32} color={COLORS.danger} />
                         <Text className="mt-2 text-sm text-[#5e5c54]">Failed to load todos</Text>
                         <Button
                           title="Retry"
@@ -177,7 +192,7 @@ export function TodoModal({ visible, onClose, sessionId }: TodoModalProps) {
                   />
                 }
                 falsy={
-                  <>
+                  <View className="flex-1">
                     {/* Horizontal filter chips bar */}
                     <View className="border-b border-[#eae6e1]/70 bg-white/70 px-4 py-2.5">
                       <ScrollView
@@ -208,9 +223,9 @@ export function TodoModal({ visible, onClose, sessionId }: TodoModalProps) {
                       </ScrollView>
                     </View>
 
-                    {/* Scrollable todo list */}
-                    <ScrollView
-                      className="max-h-[58%] p-4"
+                    {/* Scrollable task list */}
+                    <BottomSheetScrollView
+                      className="flex-1 px-4 pt-3"
                       showsVerticalScrollIndicator={false}
                       contentContainerStyle={{ paddingBottom: 24, gap: 10 }}>
                       {shownCount === 0 && (
@@ -228,7 +243,6 @@ export function TodoModal({ visible, onClose, sessionId }: TodoModalProps) {
                             </Text>
                             <Text className="font-mono text-[10px] text-[#9e9992]">Onyx Queue</Text>
                           </View>
-
                           {progressTasks.map((task) => (
                             <View
                               key={task.key}
@@ -238,7 +252,6 @@ export function TodoModal({ visible, onClose, sessionId }: TodoModalProps) {
                                 className="mt-0.5 h-5 w-5 items-center justify-center rounded-md border-2 border-[#cc785c] bg-white">
                                 <View className="h-2 w-2 rounded-[2px] bg-[#cc785c]" />
                               </TouchableOpacity>
-
                               <View className="flex-1">
                                 <View className="flex-row items-center justify-between gap-2">
                                   <Text
@@ -246,14 +259,12 @@ export function TodoModal({ visible, onClose, sessionId }: TodoModalProps) {
                                     className="flex-1 text-xs font-semibold text-[#1a1918]">
                                     {task.title}
                                   </Text>
-
                                   <View className="rounded bg-[#faeae3] px-2 py-0.5">
                                     <Text className="text-[10px] font-medium text-[#cc785c]">
                                       {statusLabel[task.status]}
                                     </Text>
                                   </View>
                                 </View>
-
                                 <View className="mt-2 flex-row items-center gap-2.5">
                                   <View className="flex-row items-center gap-1">
                                     <MaterialIcons name="flag" size={13} color={COLORS.primary} />
@@ -277,7 +288,6 @@ export function TodoModal({ visible, onClose, sessionId }: TodoModalProps) {
                             </Text>
                             <Text className="font-mono text-[10px] text-[#9e9992]">Onyx Queue</Text>
                           </View>
-
                           {pendingTasks.map((task) => (
                             <View
                               key={task.key}
@@ -286,7 +296,6 @@ export function TodoModal({ visible, onClose, sessionId }: TodoModalProps) {
                                 onPress={() => toggleTaskCompletion(task)}
                                 className="mt-0.5 h-5 w-5 items-center justify-center rounded-md border-2 border-[#eae6e1] bg-white"
                               />
-
                               <View className="flex-1">
                                 <View className="flex-row items-center justify-between gap-2">
                                   <Text
@@ -294,14 +303,12 @@ export function TodoModal({ visible, onClose, sessionId }: TodoModalProps) {
                                     className="flex-1 text-xs font-semibold text-[#1a1918]">
                                     {task.title}
                                   </Text>
-
                                   <View className="rounded bg-[#f0edeb] px-2 py-0.5">
                                     <Text className="text-[10px] font-medium text-[#6e6962]">
                                       {statusLabel[task.status]}
                                     </Text>
                                   </View>
                                 </View>
-
                                 <View className="mt-2 flex-row items-center gap-2.5">
                                   <View className="flex-row items-center gap-1">
                                     <MaterialIcons name="flag" size={13} color={COLORS.textMuted} />
@@ -325,7 +332,6 @@ export function TodoModal({ visible, onClose, sessionId }: TodoModalProps) {
                             </Text>
                             <Text className="text-[11px] text-[#9e9992]">Verified</Text>
                           </View>
-
                           {completedTasks.map((task) => (
                             <View
                               key={task.key}
@@ -335,29 +341,32 @@ export function TodoModal({ visible, onClose, sessionId }: TodoModalProps) {
                                 className="mt-0.5 h-5 w-5 items-center justify-center rounded-md bg-[#cc785c]">
                                 <MaterialIcons name="check" size={14} color="white" />
                               </TouchableOpacity>
-
                               <View className="flex-1">
-                                <Text className="text-xs font-medium leading-tight text-[#6e6962] line-through">
-                                  {task.title}
-                                </Text>
-                                <Text className="mt-0.5 text-[10px] text-[#9e9992]">
-                                  {priorityLabel[task.priority]}
-                                </Text>
+                                <View className="flex-row items-center justify-between gap-2">
+                                  <Text
+                                    numberOfLines={1}
+                                    className="flex-1 text-xs font-medium text-[#6e6962] line-through">
+                                    {task.title}
+                                  </Text>
+                                  <View className="rounded bg-[#eae6e1] px-2 py-0.5">
+                                    <Text className="text-[10px] font-medium text-[#6e6962]">
+                                      {statusLabel[task.status]}
+                                    </Text>
+                                  </View>
+                                </View>
                               </View>
-
-                              <MaterialIcons name="done-all" size={16} color={COLORS.textMuted} />
                             </View>
                           ))}
                         </>
                       )}
-                    </ScrollView>
-                  </>
+                    </BottomSheetScrollView>
+                  </View>
                 }
               />
             }
           />
         </SafeAreaView>
-      </View>
-    </Modal>
+      </BottomSheetView>
+    </BottomSheetModal>
   );
-}
+});
