@@ -22,6 +22,7 @@ import { useSession } from '@/features/sessions';
 import { StackHeader } from '@components/ui/header';
 import { MessageInput } from '../components/MessageInput';
 import { ChatSelection } from '../components/ChatSelection';
+import { PermissionRequestCard } from '../components/PermissionRequestCard';
 import { ChatHeaderBar } from '../components/ChatHeaderBar';
 import { ContextBar } from '../components/ContextBar';
 import { UserMessage } from '../components/UserMessage';
@@ -29,11 +30,15 @@ import { AssistantMessage } from '../components/AssistantMessage';
 import { ParentSessionNotice } from '../components/ParentSessionNotice';
 import { Container } from '@/shared/components/layout/Container';
 import EmptyChat from '../components/empty-chat';
-import { Ternary } from '@/shared/components/ui/ternary';
 import { SquareLoadingBar } from '../components/square-loading-bar';
 import { useChatStore } from '../store/chat-store';
 import { useSessionStatus } from '@/shared/hooks';
-import { replyToQuestion, rejectQuestion, listPendingQuestions } from '../api/chat-api';
+import {
+  replyToQuestion,
+  rejectQuestion,
+  listPendingQuestions,
+  listPendingPermissions,
+} from '../api/chat-api';
 import { useChatScroll } from '../components/providers/chat-scroll';
 
 /** Ignore a re-send of identical text within this window (double-tap race guard). */
@@ -105,6 +110,15 @@ export default function ChatScreen() {
     isFetchingNextPage,
   } = useMessages(sessionId);
   const isStreaming = useChatStore((state) => state.isStreaming);
+  const pendingPermissionRequests = useChatStore((state) => state.pendingPermissionRequests);
+  const addPermissionRequest = useChatStore((state) => state.addPermissionRequest);
+  const removePermissionRequest = useChatStore((state) => state.removePermissionRequest);
+
+  const sessionPermissions = useMemo(
+    () => pendingPermissionRequests.filter((r) => r.sessionID === sessionId),
+    [pendingPermissionRequests, sessionId]
+  );
+  const activePermission = sessionPermissions[0] ?? null;
 
   const sendMessage = useSendMessage(sessionId);
   const mutateRef = useRef(sendMessage.mutate);
@@ -336,6 +350,26 @@ export default function ChatScreen() {
   }, [sessionId, messages]);
 
   useEffect(() => {
+    if (!sessionId) return;
+    let cancelled = false;
+
+    listPendingPermissions()
+      .then((requests) => {
+        if (cancelled || !requests) return;
+        for (const req of requests) {
+          if (req.sessionID === sessionId) {
+            addPermissionRequest(req);
+          }
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionId, addPermissionRequest]);
+
+  useEffect(() => {
     if (!activeQuestion || activeQuestion.questions.length === 0) return;
     if (questionAnswers.length !== activeQuestion.questions.length) return;
     const allAnswered = questionAnswers.every((answer) => answer !== null && answer.length > 0);
@@ -465,32 +499,31 @@ export default function ChatScreen() {
               <ContextBar sessionId={sessionId} onToggleAgent={(v) => setAgent(v)} />
               <SquareLoadingBar isLoading={isBusy} />
             </View>
-            <Ternary
-              condition={activeQuestion ? true : false}
-              truthy={
-                <>
-                  {activeQuestion && currentQuestionIndex < activeQuestion.questions.length && (
-                    <View className="gap-2 px-4 pt-2">
-                      <ChatSelection
-                        key={`${activeQuestion.id}-${currentQuestionIndex}`}
-                        question={activeQuestion.questions[currentQuestionIndex]}
-                        stepLabel={`Question ${currentQuestionIndex + 1} of ${activeQuestion.questions.length}`}
-                        onSelect={(labels) => handleQuestionSelect(currentQuestionIndex, labels)}
-                        onReject={handleRejectQuestion}
-                      />
-                    </View>
-                  )}
-                </>
-              }
-              falsy={
-                <MessageInput
-                  sessionId={sessionId}
-                  agent={agent}
-                  disabled={sendMessage.isPaused}
-                  onSend={handleSend}
+            {activePermission ? (
+              <View className="gap-2 px-4 pt-2">
+                <PermissionRequestCard
+                  request={activePermission}
+                  onResolved={removePermissionRequest}
                 />
-              }
-            />
+              </View>
+            ) : activeQuestion && currentQuestionIndex < activeQuestion.questions.length ? (
+              <View className="gap-2 px-4 pt-2">
+                <ChatSelection
+                  key={`${activeQuestion.id}-${currentQuestionIndex}`}
+                  question={activeQuestion.questions[currentQuestionIndex]}
+                  stepLabel={`Question ${currentQuestionIndex + 1} of ${activeQuestion.questions.length}`}
+                  onSelect={(labels) => handleQuestionSelect(currentQuestionIndex, labels)}
+                  onReject={handleRejectQuestion}
+                />
+              </View>
+            ) : !activeQuestion ? (
+              <MessageInput
+                sessionId={sessionId}
+                agent={agent}
+                disabled={sendMessage.isPaused}
+                onSend={handleSend}
+              />
+            ) : null}
           </View>
         </SafeAreaView>
       </KeyboardAvoidingView>
