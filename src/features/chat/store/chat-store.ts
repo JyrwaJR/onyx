@@ -6,8 +6,10 @@ import { type Model } from '@/shared/types/model';
 
 interface ChatState {
   context: {
-    projectId: string | null;
-    activeSessionId: string | null;
+    projectId: string;
+    activeSessionId: string;
+    dir?: string | null;
+    wrk?: string | null;
   };
   chat: {
     isStreaming: boolean;
@@ -33,8 +35,10 @@ interface ChatState {
 
 export const useChatStore = create<ChatState>((set) => ({
   context: {
-    projectId: null,
-    activeSessionId: null,
+    projectId: '',
+    activeSessionId: '',
+    dir: null,
+    wrk: null,
   },
   chat: {
     isStreaming: false,
@@ -48,6 +52,8 @@ export const useChatStore = create<ChatState>((set) => ({
   },
 
   setContext: (context) => set((state) => ({ context: { ...state.context, ...context } })),
+  clearContext: () =>
+    set({ context: { projectId: '', activeSessionId: '', dir: null, wrk: null } }),
 
   setSettings: (settings) => set((state) => ({ settings: { ...state.settings, ...settings } })),
 
@@ -114,7 +120,7 @@ export const useChatStore = create<ChatState>((set) => ({
 
   reset: () =>
     set({
-      context: { projectId: null, activeSessionId: null },
+      context: { projectId: '', activeSessionId: '' },
       chat: {
         isStreaming: false,
         streamingMessageId: null,

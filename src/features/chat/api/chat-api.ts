@@ -17,6 +17,7 @@ import {
 import { mapRawMessageToMessage } from '../../../shared/api/types';
 import type { Message, SessionT, RawMessage, Todo } from '../../../shared/api/types';
 import type { PermissionReply, PermissionRequest, QuestionRequest } from '../types';
+import { Agent } from '@/shared/types/agent';
 
 /**
  * Creates a new session.
@@ -152,14 +153,9 @@ export async function sendMessage(sessionId: string, content: string): Promise<v
  * @param command - The shell command to run.
  * @param agent - The agent to run the command with.
  */
-export async function runShellCommand(
-  sessionId: string,
-  command: string,
-  agent: string = 'build'
-): Promise<void> {
+export async function runShellCommand(sessionId: string, command: string): Promise<void> {
   await http.post(RUN_SHELL_COMMAND(sessionId), {
     command,
-    agent,
   });
 }
 
@@ -170,8 +166,12 @@ export async function runShellCommand(
  *
  * @param sessionId - The session to interrupt.
  */
-export async function abortSession(sessionId: string): Promise<void> {
-  await http.post(INTERRUPT_SESSION(sessionId));
+export async function abortSession(sessionId: string, dir?: string, wrk?: string): Promise<void> {
+  const params = {
+    directory: dir,
+    ...(wrk ? { workspace: wrk } : {}),
+  };
+  await http.post(INTERRUPT_SESSION(sessionId), {}, { params: { params } });
 }
 
 /**

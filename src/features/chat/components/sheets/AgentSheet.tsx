@@ -6,7 +6,7 @@ import { CustomBottomSheet } from '@/shared/components/ui/bottom-sheet';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useAgent } from '@/shared/hooks/use-agent';
 
-type AgentSheetProps = Record<string, never>;
+type AgentSheetProps = {};
 
 export const AgentSheet = forwardRef<BottomSheetModal, AgentSheetProps>(
   function AgentSheet(_props, ref) {

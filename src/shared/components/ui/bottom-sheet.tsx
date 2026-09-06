@@ -1,7 +1,6 @@
 import React, { forwardRef, useCallback, useMemo } from 'react';
 import {
   BottomSheetModal,
-  BottomSheetView,
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
   BottomSheetScrollView,

@@ -22,14 +22,14 @@ const COLORS = {
 } as const;
 
 export const ShellCommandSheet = forwardRef<BottomSheetModal, ShellCommandSheetProps>(
-  function ShellCommandSheet({ sessionId }, ref) {
+  function ShellCommandSheet({}, ref) {
     const [command, setCommand] = useState('');
-    const { mutate: runShell, isPending } = useRunShellCommand(sessionId);
+    const { mutate: runShell, isPending } = useRunShellCommand();
     const snapPoints = useMemo(() => ['22', '44', '88%'], []);
 
     const handleRun = () => {
       if (command.trim()) {
-        runShell({ command, agent: 'default' });
+        runShell({ command });
         setCommand('');
       }
     };

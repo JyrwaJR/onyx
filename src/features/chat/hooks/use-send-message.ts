@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '../../../shared/api/query-keys';
 import { sendMessage } from '../api/chat-api';
+import { useChatStore } from '../store/chat-store';
 
 /**
  * Sends a message to a session, triggering the AI agent response.
@@ -20,7 +21,8 @@ import { sendMessage } from '../api/chat-api';
  * @param sessionId - The session ID.
  * @returns Mutation object for sending a message.
  */
-export function useSendMessage(sessionId: string) {
+export function useSendMessage() {
+  const sessionId = useChatStore((state) => state.context.activeSessionId);
   const queryClient = useQueryClient();
 
   return useMutation({

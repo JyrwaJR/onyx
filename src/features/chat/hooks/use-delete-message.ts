@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '../../../shared/api/query-keys';
 import { deleteMessage } from '../api/chat-api';
+import { useChatStore } from '../store/chat-store';
 
 /**
  * Deletes a message with cache invalidation.
@@ -8,9 +9,9 @@ import { deleteMessage } from '../api/chat-api';
  * @param sessionId - The session ID.
  * @returns Mutation object for deleting a message.
  */
-export function useDeleteMessage(sessionId: string) {
+export function useDeleteMessage() {
   const queryClient = useQueryClient();
-
+  const sessionId = useChatStore((state) => state.context.activeSessionId);
   return useMutation({
     mutationFn: (messageId: string) => deleteMessage(sessionId, messageId),
     onSuccess: () => {

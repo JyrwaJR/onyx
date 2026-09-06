@@ -34,7 +34,9 @@ export function SessionCard({ session, projectId }: SessionCardProps) {
   const deleteSession = useDeleteSession(projectId);
 
   const handlePress = () => {
-    router.push(`/chat?sessionId=${session.id}&projectId=${projectId}` as never);
+    const path =
+      `/chat?sessionId=${session.id}&projectId=${projectId}&dir=${session.directory}` as never;
+    router.push(path);
   };
 
   const handleLongPress = () => {

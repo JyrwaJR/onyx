@@ -23,8 +23,9 @@ import { useChatStore } from '../store/chat-store';
  * @param sessionId - The session to fetch messages for.
  * @returns Query result with the flattened message list in ascending order.
  */
-export function useMessages(sessionId: string) {
-  const isStreaming = useChatStore((s) => s.isStreaming);
+export function useMessages() {
+  const sessionId = useChatStore((state) => state.context.activeSessionId);
+  const isStreaming = useChatStore((s) => s.chat.isStreaming);
   const query = useInfiniteQuery({
     queryKey: queryKeys.messages.bySession(sessionId),
     // No polling while streaming: SSE deltas keep the active message current

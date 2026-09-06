@@ -4,14 +4,12 @@ import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ternary } from '@/shared/components/ui/ternary';
 import { Button } from '@/shared/components/ui/button';
-import { useTodos } from '../hooks/use-todos';
 import { MaterialIcons } from '@expo/vector-icons';
 import { TodoPriority, TodoStatus } from '@/shared/api';
 import { CustomBottomSheet } from '@/shared/components/ui/bottom-sheet';
+import { useTodos } from '../../hooks';
 
-type TodoModalProps = {
-  sessionId: string;
-};
+type TodoModalProps = {};
 
 /** Onyx theme color tokens used by the todo bottom sheet. */
 const COLORS = {
@@ -59,14 +57,11 @@ type TaskItem = {
   completed: boolean;
 };
 
-export const TodoModal = forwardRef<BottomSheetModal, TodoModalProps>(function TodoModal(
-  { sessionId },
-  ref
-) {
+export const TodoModal = forwardRef<BottomSheetModal, TodoModalProps>(function TodoModal({}, ref) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState<FilterKey>('all');
   const [completedOverrides, setCompletedOverrides] = useState<Record<string, boolean>>({});
-  const { data: todos, isLoading, isError, refetch } = useTodos(sessionId, isOpen);
+  const { data: todos, isLoading, isError, refetch } = useTodos(isOpen);
   const snapPoints = useMemo(() => ['22', '44', '88%'], []);
 
   const tasks = useMemo<TaskItem[]>(

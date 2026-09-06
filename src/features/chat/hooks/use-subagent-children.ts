@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '../../../shared/api/query-keys';
 import { fetchSessionChildren } from '../../sessions/api/sessions-api';
 import { useSubagentStore } from '../store/subagent-store';
+import { useChatStore } from '../store/chat-store';
 
 /**
  * Replays a session's child (subagent) sessions via the dedicated
@@ -15,7 +16,8 @@ import { useSubagentStore } from '../store/subagent-store';
  *
  * @param sessionId - The parent session ID to seed children for.
  */
-export function useSubagentChildren(sessionId: string | undefined) {
+export function useSubagentChildren() {
+  const sessionId = useChatStore((state) => state.context.activeSessionId);
   const registerChildSession = useSubagentStore((state) => state.registerChildSession);
 
   const { data: sessions } = useQuery({

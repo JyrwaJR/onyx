@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { http } from '../../../shared/utils/http';
 import { RUN_SHELL_COMMAND } from '../../../shared/api/endpoints';
+import { useChatStore } from '../store/chat-store';
 
 /**
  * Runs a command in a session.
@@ -8,7 +9,8 @@ import { RUN_SHELL_COMMAND } from '../../../shared/api/endpoints';
  * @param sessionId - The session ID.
  * @returns Mutation object for running a command.
  */
-export function useRunCommand(sessionId: string) {
+export function useRunCommand() {
+  const sessionId = useChatStore((state) => state.context.activeSessionId);
   const queryClient = useQueryClient();
 
   return useMutation({

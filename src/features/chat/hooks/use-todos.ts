@@ -16,8 +16,9 @@ import type { Todo } from '../../../shared/api/types';
  * @param enabled - When false the query is disabled (modal closed).
  * @returns Todo query result.
  */
-export function useTodos(sessionId: string, enabled: boolean) {
-  const isStreaming = useChatStore((s) => s.isStreaming);
+export function useTodos(enabled: boolean) {
+  const sessionId = useChatStore((state) => state.context.activeSessionId);
+  const isStreaming = useChatStore((s) => s.chat.isStreaming);
   return useQuery<Todo[]>({
     queryKey: queryKeys.todos.bySession(sessionId),
     queryFn: () => fetchTodos(sessionId),

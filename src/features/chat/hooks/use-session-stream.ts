@@ -146,7 +146,7 @@ export function useSessionStream({
 
         case 'session.next.step.ended':
         case 'message.updated': {
-          const finalMessageId = useChatStore.getState().streamingMessageId;
+          const finalMessageId = useChatStore.getState().chat.streamingMessageId;
           finishStreaming();
           scheduleQueryInvalidation();
 

@@ -7,7 +7,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useMcpStatus } from '@/shared/hooks/use-mcp-status';
 import { cn } from '@/shared/lib/cn';
 
-type McpSheetProps = Record<string, never>;
+type McpSheetProps = {};
 
 const COLORS = {
   surface: '#fcf9f6',

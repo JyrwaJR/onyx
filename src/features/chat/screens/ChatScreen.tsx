@@ -1,16 +1,12 @@
 import { useEffect, useRef, useCallback, useState, useMemo } from 'react';
 import {
   View,
-  Text,
   KeyboardAvoidingView,
   Platform,
-  ActivityIndicator,
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from 'react-native';
 import { FlashList, type ListRenderItemInfo } from '@shopify/flash-list';
-import { MaterialIcons } from '@expo/vector-icons';
-import { useLocalSearchParams } from 'expo-router';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useMessages, useSendMessage } from '../hooks';
@@ -24,11 +20,10 @@ import { MessageInput } from '../components/MessageInput';
 import { ChatSelection } from '../components/ChatSelection';
 import { PermissionRequestCard } from '../components/PermissionRequestCard';
 import { ChatHeaderBar } from '../components/ChatHeaderBar';
-import { ContextBar } from '../components/ContextBar';
+import { ContextBar } from '../components/context-bar';
 import { UserMessage } from '../components/UserMessage';
 import { AssistantMessage } from '../components/AssistantMessage';
 import { ParentSessionNotice } from '../components/ParentSessionNotice';
-import { Container } from '@/shared/components/layout/Container';
 import EmptyChat from '../components/empty-chat';
 import { SquareLoadingBar } from '../components/square-loading-bar';
 import { useChatStore } from '../store/chat-store';
@@ -40,6 +35,7 @@ import {
   listPendingPermissions,
 } from '../api/chat-api';
 import { useChatScroll } from '../components/providers/chat-scroll';
+import { Ternary } from '@/shared/components/ui/ternary';
 
 /** Ignore a re-send of identical text within this window (double-tap race guard). */
 const SEND_DEDUPE_WINDOW_MS = 500;
@@ -74,14 +70,10 @@ function getUnconfirmedPending(
 }
 
 export default function ChatScreen() {
-  const [agent, setAgent] = useState<'build' | 'plan'>('build');
-  const { sessionId, projectId } = useLocalSearchParams<{
-    sessionId: string;
-    projectId: string;
-  }>();
+  const { projectId, activeSessionId } = useChatStore((state) => state.context);
 
-  const { data: session, isFetching } = useSession(sessionId);
-  const { isBusy: isSessionBusy } = useSessionStatus({ sessionId });
+  const { data: session, isFetching } = useSession(activeSessionId);
+  const { isBusy: isSessionBusy } = useSessionStatus({ sessionId: activeSessionId });
 
   const [streaming, setStreaming] = useState<Map<string, StreamingState>>(new Map());
   const [activeQuestion, setActiveQuestion] = useState<QuestionRequest | null>(null);
@@ -108,20 +100,19 @@ export default function ChatScreen() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useMessages(sessionId);
-  const isStreaming = useChatStore((state) => state.chat.isStreaming);
+  } = useMessages();
   const pendingPermissionRequests = useChatStore((state) => state.chat.pendingPermissionRequests);
-  // const activeSessionId = useChatStore((state) => state.context.activeSessionId);
   const addPermissionRequest = useChatStore((state) => state.addPermissionRequest);
   const removePermissionRequest = useChatStore((state) => state.removePermissionRequest);
 
   const sessionPermissions = useMemo(
-    () => pendingPermissionRequests.filter((r) => r.sessionID === sessionId),
-    [pendingPermissionRequests, sessionId]
+    () => pendingPermissionRequests.filter((r) => r.sessionID === activeSessionId),
+    [pendingPermissionRequests, activeSessionId]
   );
   const activePermission = sessionPermissions[0] ?? null;
 
-  const sendMessage = useSendMessage(sessionId);
+  const sendMessage = useSendMessage();
+
   const mutateRef = useRef(sendMessage.mutate);
   // Keep the ref at the latest mutate. React Query's mutate is stable today,
   // but this guards against a future mutation-instance change (e.g. session switch).
@@ -311,7 +302,7 @@ export default function ChatScreen() {
   }, []);
 
   useSessionStream({
-    sessionId,
+    sessionId: activeSessionId,
     onDelta: ({ assistantMessageID, delta }) => {
       const pending = pendingDeltasRef.current;
       pending.set(assistantMessageID, (pending.get(assistantMessageID) ?? '') + delta);
@@ -322,13 +313,13 @@ export default function ChatScreen() {
   });
 
   useEffect(() => {
-    if (!sessionId) return;
+    if (!activeSessionId) return;
     let cancelled = false;
 
     listPendingQuestions()
       .then((requests) => {
         if (cancelled) return;
-        const pending = requests.find((request) => request.sessionID === sessionId);
+        const pending = requests.find((request) => request.sessionID === activeSessionId);
         if (!pending) return;
 
         // Reset the step flow to the first question when the restored request
@@ -348,17 +339,17 @@ export default function ChatScreen() {
     return () => {
       cancelled = true;
     };
-  }, [sessionId, messages]);
+  }, [activeSessionId, messages]);
 
   useEffect(() => {
-    if (!sessionId) return;
+    if (!activeSessionId) return;
     let cancelled = false;
 
     listPendingPermissions()
       .then((requests) => {
         if (cancelled || !requests) return;
         for (const req of requests) {
-          if (req.sessionID === sessionId) {
+          if (req.sessionID === activeSessionId) {
             addPermissionRequest(req);
           }
         }
@@ -368,7 +359,7 @@ export default function ChatScreen() {
     return () => {
       cancelled = true;
     };
-  }, [sessionId, addPermissionRequest]);
+  }, [activeSessionId, addPermissionRequest]);
 
   useEffect(() => {
     if (!activeQuestion || activeQuestion.questions.length === 0) return;
@@ -421,35 +412,14 @@ export default function ChatScreen() {
           isStreaming={streamingIds.has(item.id)}
           isReasoningOpen={isReasoningOpen}
           onToggleReasoning={handleToggleReasoning}
-          sessionId={sessionId}
+          sessionId={activeSessionId}
           projectId={projectId}
         />
       ),
-    [streamingIds, isReasoningOpen, handleToggleReasoning, sessionId, projectId]
+    [streamingIds, isReasoningOpen, handleToggleReasoning, activeSessionId, projectId]
   );
 
   if (isLoading) return <Loading />;
-
-  if (!projectId || !sessionId) {
-    return (
-      <>
-        <StackHeader title={isFetching ? 'Loading…' : session?.title} />
-        <Container>
-          <SafeAreaView
-            edges={['right', 'left', 'bottom']}
-            className="flex-1 items-center justify-center bg-[#fcf9f6]">
-            <MaterialIcons name="warning" size={48} color="#8f482f" />
-            <Text className="mt-4 text-base font-medium text-[#54433e]">Missing session info</Text>
-            <Text className="mt-2 text-sm text-[#5e5c54]">
-              projectId={projectId ?? 'undefined'} sessionId={sessionId ?? 'undefined'}
-            </Text>
-          </SafeAreaView>
-        </Container>
-      </>
-    );
-  }
-
-  const isBusy = isStreaming || isSessionBusy;
 
   return (
     <>
@@ -459,10 +429,18 @@ export default function ChatScreen() {
         keyboardVerticalOffset={0}
         className="flex-1">
         <SafeAreaView edges={['right', 'left', 'bottom']} className="flex-1 bg-[#fcf9f6]">
-          <ChatHeaderBar sessionId={sessionId} />
-          {session?.parentID ? (
-            <ParentSessionNotice parentSessionId={session.parentID} projectId={projectId} />
-          ) : null}
+          <ChatHeaderBar />
+          <Ternary
+            condition={!!session?.parentID}
+            truthy={
+              <ParentSessionNotice
+                parentSessionId={session?.parentID || ''}
+                projectId={projectId}
+              />
+            }
+            falsy={null}
+          />
+
           {allMessages.length === 0 ? (
             <View className="flex-1 px-4 py-3">
               <EmptyChat />
@@ -484,21 +462,13 @@ export default function ChatScreen() {
               showsVerticalScrollIndicator={false}
               onScroll={handleScroll}
               scrollEventThrottle={16}
-              ListHeaderComponent={
-                isFetchingNextPage ? (
-                  <View className="mb-4 items-center py-2">
-                    <ActivityIndicator size="small" color="#8f482f" />
-                    <Text className="mt-1 text-xs text-[#5e5c54]">Loading older messages…</Text>
-                  </View>
-                ) : null
-              }
               keyboardShouldPersistTaps="handled"
             />
           )}
           <View className="gap-2 border-t border-[#dac1ba]/30 bg-[#fcf9f6] pb-2">
             <View className="flex-row pt-2">
-              <ContextBar sessionId={sessionId} onToggleAgent={(v) => setAgent(v)} />
-              <SquareLoadingBar isLoading={isBusy} />
+              <ContextBar />
+              <SquareLoadingBar isLoading={isSessionBusy} />
             </View>
             {activePermission ? (
               <View className="gap-2 px-4 pt-2">
@@ -518,12 +488,7 @@ export default function ChatScreen() {
                 />
               </View>
             ) : !activeQuestion ? (
-              <MessageInput
-                sessionId={sessionId}
-                agent={agent}
-                disabled={sendMessage.isPaused}
-                onSend={handleSend}
-              />
+              <MessageInput disabled={sendMessage.isPaused} onSend={handleSend} />
             ) : null}
           </View>
         </SafeAreaView>

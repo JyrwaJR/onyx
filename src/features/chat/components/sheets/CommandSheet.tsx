@@ -6,7 +6,7 @@ import { CustomBottomSheet } from '@/shared/components/ui/bottom-sheet';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useCommand } from '@/shared/hooks/use-command';
 
-type CommandSheetProps = Record<string, never>;
+type CommandSheetProps = {};
 
 const COLORS = {
   surface: '#fcf9f6',
@@ -46,7 +46,7 @@ export const CommandSheet = forwardRef<BottomSheetModal, CommandSheetProps>(
                   className="flex-row items-center gap-3 rounded-md border border-[#eae6e1] bg-white p-3.5">
                   <View className="flex-1">
                     <Text className="text-sm font-semibold capitalize text-[#1a1918]">
-                      /{command.name}
+                      {command.name}
                     </Text>
                     <Text className="text-xs text-[#6e6962]">{command.description}</Text>
                   </View>

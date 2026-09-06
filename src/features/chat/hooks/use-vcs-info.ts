@@ -3,10 +3,12 @@ import { useQuery } from '@tanstack/react-query';
 import { useChatStore } from '../store/chat-store';
 
 export function useVcsInfo() {
-  const isStreaming = useChatStore((state) => state.isStreaming);
+  const isStreaming = useChatStore((state) => state.chat.isStreaming);
+  const dir = useChatStore((state) => state.context.dir);
+
   return useQuery({
     queryKey: ['vcsInfo'],
-    queryFn: () => http.get<{ branch: string; default_branch: string }>('/vcs'),
+    queryFn: () => http.get<{ branch: string; default_branch: string }>(`/vcs?directory=${dir}`),
     select: (data) => data.data,
     // Throttled while streaming: VCS info is not token-dependent and each
     // poll competes with the stream for the JS thread.

@@ -6,7 +6,7 @@
  * array, so there is no pagination/infinite scroll.
  */
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef } from 'react';
 import { FlatList, RefreshControl } from 'react-native';
 
 import { useSessions } from '../hooks/use-sessions';

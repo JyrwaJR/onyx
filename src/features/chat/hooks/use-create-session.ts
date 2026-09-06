@@ -17,7 +17,9 @@ export function useCreateSession() {
     mutationFn: ({ title, dir }: NewSessionFormData) => createSession(title, dir),
     onSuccess: (session) => {
       if (session.projectID && session.id) {
-        router.push(`/chat?sessionId=${session.id}&projectId=${session.projectID}` as never);
+        router.push(
+          `/chat?sessionId=${session.id}&projectId=${session.projectID}&dir=${session.directory}` as never
+        );
         // v1 `POST /session` reports `projectID: "global"` for
         // directory-scoped sessions, so invalidating byProject(session.projectID)
         // misses the visible list (which queries by the real project id).

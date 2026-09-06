@@ -5,25 +5,26 @@ import { useAbortSession, useRunShellCommand } from '../hooks';
 import { useSendCommand } from '@/shared/hooks/use-send-command';
 import { Ternary } from '@/shared/components/ui/ternary';
 import { useSessionStatus } from '@/shared/hooks';
+import { useChatStore } from '../store/chat-store';
 
 interface MessageInputProps {
   onSend: (content: string) => void;
-  sessionId: string;
-  agent: string;
   disabled?: boolean;
 }
 
 /**
  * Text input with auto-grow and send button.
  */
-export function MessageInput({ onSend, sessionId, agent, disabled }: MessageInputProps) {
+export function MessageInput({ onSend, disabled }: MessageInputProps) {
+  const sessionId = useChatStore((state) => state.context.activeSessionId);
+  const isStreaming = useChatStore((s) => s.chat.isStreaming);
   const [text, setText] = useState('');
   const [isCommand, setIsCommand] = useState(false);
   const inputRef = useRef<TextInput>(null);
-  const runShell = useRunShellCommand(sessionId);
-  const { isBusy } = useSessionStatus({ sessionId });
+  const runShell = useRunShellCommand();
+  const { isBusy } = useSessionStatus({ sessionId, isStreaming });
   const { mutate: sendCommand, isPending: isPendingCommand } = useSendCommand();
-  const { mutate } = useAbortSession(sessionId);
+  const { mutate } = useAbortSession();
   const handleAbortSession = () => {
     mutate();
   };
@@ -63,7 +64,7 @@ export function MessageInput({ onSend, sessionId, agent, disabled }: MessageInpu
       return;
     }
 
-    runShell.mutate({ command: trimmed, agent });
+    runShell.mutate({ command: trimmed });
     setText('');
   };
 
@@ -95,7 +96,7 @@ export function MessageInput({ onSend, sessionId, agent, disabled }: MessageInpu
       return;
     }
 
-    sendCommand({ agent, command: command, sessionId, args });
+    sendCommand({ agent: 'build', command: command, sessionId, args });
     setText('');
   };
 
