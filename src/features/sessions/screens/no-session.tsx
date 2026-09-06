@@ -1,13 +1,16 @@
 import { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Alert, RefreshControl } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NewSessionForm } from '../components/NewSessionForm';
 
 type Props = {
   dir?: string;
+  isRefreshing?: boolean;
+  refresh?: () => void;
 };
-export function EmptySessionsScreen({ dir }: Props) {
+
+export function EmptySessionsScreen({ dir, isRefreshing = false, refresh }: Props) {
   const [formVisible, setFormVisible] = useState(false);
 
   const handleStartSession = () => {
@@ -25,6 +28,7 @@ export function EmptySessionsScreen({ dir }: Props) {
         <ScrollView
           className="flex-1 pt-2"
           contentContainerStyle={{ paddingBottom: 90 }}
+          refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={refresh} />}
           showsVerticalScrollIndicator={false}>
           {/* Runtime Status Ribbon & Search Surface */}
           <View className="gap-3 pb-2 pt-1">

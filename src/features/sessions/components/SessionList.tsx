@@ -47,11 +47,7 @@ export function SessionList({ projectId, dir }: SessionListProps) {
   }
 
   if (sessions.length === 0) {
-    return (
-      <>
-        <EmptySessionsScreen dir={dir} />
-      </>
-    );
+    return <EmptySessionsScreen refresh={handleRefresh} isRefreshing={isFetching} dir={dir} />;
   }
 
   return (
