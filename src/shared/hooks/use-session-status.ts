@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { http } from '../utils/http';
+import { useChatStore } from '@/features/chat';
 
 type SessionStatus = Record<
   string,
@@ -9,12 +10,13 @@ type SessionStatus = Record<
 >;
 
 export function useSessionStatus({ sessionId }: { sessionId: string }) {
+  const { isStreaming } = useChatStore();
   const query = useQuery({
     queryKey: ['session', 'status', sessionId],
     queryFn: () => http.get<SessionStatus>(`/api/session/status`),
     select: (data) => data.data,
     staleTime: 1000,
-    refetchInterval: 1000,
+    refetchInterval: isStreaming ? 1000 : false,
     refetchIntervalInBackground: false,
   });
 

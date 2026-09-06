@@ -13,6 +13,7 @@ import type { SessionT } from '../../../shared/api/types';
 import { MaterialIcons } from '@expo/vector-icons';
 import { formatDate } from '@/shared/utils/helpers/format';
 import { useDeleteSession } from '../hooks';
+import { useSessionStatus } from '@/shared/hooks';
 
 interface SessionCardProps {
   session: SessionT;
@@ -28,6 +29,7 @@ interface SessionCardProps {
  * @param projectId - The parent project ID for navigation.
  */
 export function SessionCard({ session, projectId }: SessionCardProps) {
+  const { isBusy } = useSessionStatus({ sessionId: session.id });
   const router = useRouter();
   const deleteSession = useDeleteSession(projectId);
 
@@ -59,6 +61,11 @@ export function SessionCard({ session, projectId }: SessionCardProps) {
         </View>
 
         <View className="flex-1 justify-center">
+          {isBusy && (
+            <View className="w-full flex-1">
+              <Text className="text-end">Active</Text>
+            </View>
+          )}
           <Text className="text-base font-medium text-[#1e1b18]" numberOfLines={1}>
             {session.title}
           </Text>

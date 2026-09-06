@@ -41,7 +41,7 @@ export const StackHeader = memo(({ title, showBack = true }: StackHeaderProps) =
           activeOpacity={0.7}>
           {isShowBack && <MaterialIcons name="arrow-back" size={24} color="#8f482f" />}
           <Text
-            className="mr-8 flex-1 text-center text-xl font-bold tracking-tight text-[#8f482f]"
+            className="mr-8 flex-1 text-center text-lg font-semibold tracking-tight text-[#8f482f]"
             numberOfLines={1}>
             {title ?? ''}
           </Text>

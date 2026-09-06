@@ -53,12 +53,6 @@ export const ContextBar = memo(function ContextBar({ onToggleAgent, sessionId }:
         </TouchableOpacity>
         <TouchableOpacity
           activeOpacity={0.7}
-          className="flex-row items-center gap-1 rounded-full bg-[#f6f3f1] px-2.5 py-1">
-          <MaterialIcons name="alternate-email" size={14} color="#5e5c54" />
-          <Text className="text-xs text-[#5e5c54]">Repo file</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          activeOpacity={0.7}
           onPress={() => setTodoVisible(true)}
           className="flex-row items-center gap-1 rounded-full bg-[#f6f3f1] px-2.5 py-1">
           <MaterialIcons name="checklist" size={14} color="#5e5c54" />

@@ -50,7 +50,9 @@ export const AssistantMessage = memo(function AssistantMessage({
         <View className="h-6 w-6 items-center justify-center rounded-md bg-[#f0edeb]">
           <MaterialIcons name="auto-awesome" size={15} color="#8f482f" />
         </View>
-        <Text className="text-base font-medium text-[#1c1c1a]">{message.agent ?? 'Onyx'}</Text>
+        <Text className="text-base font-medium capitalize text-[#1c1c1a]">
+          {message.agent ?? 'Onyx'}
+        </Text>
         {isStreaming ? (
           <View className="flex-row items-center gap-1">
             <View className="h-1.5 w-1.5 rounded-full bg-[#8f482f]" />
@@ -60,7 +62,7 @@ export const AssistantMessage = memo(function AssistantMessage({
           <View className="rounded bg-[#f0edeb] px-1.5 py-0.5">
             <Text className="text-[11px] text-[#5e5c54]">
               {message.tokens?.output
-                ? `${(message.tokens.output / 1000).toFixed(1)}k tok`
+                ? `${(message.tokens.output / 1000).toFixed(1)}k tokens`
                 : 'Done'}
             </Text>
           </View>
@@ -103,15 +105,16 @@ export const AssistantMessage = memo(function AssistantMessage({
           </View>
         )}
 
-        {textBlocks.map((block, idx) => (
-          <React.Fragment key={idx}>
-            {block.text !== '' && (
-              <Text key={idx} className="p-2 text-sm leading-relaxed text-[#1c1c1a]">
-                {block.text}
-              </Text>
-            )}
-          </React.Fragment>
-        ))}
+        {textBlocks.length > 0 &&
+          textBlocks.map((block, idx) => (
+            <React.Fragment key={idx}>
+              {block.text !== '' && (
+                <Text key={idx} className="p-2 text-sm leading-relaxed text-[#1c1c1a]">
+                  {block.text}
+                </Text>
+              )}
+            </React.Fragment>
+          ))}
 
         {/* Tool Execution Badges */}
         {toolBlocks.map((block, idx) => {
