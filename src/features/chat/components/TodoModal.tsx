@@ -113,18 +113,13 @@ export function TodoModal({ visible, onClose, sessionId }: TodoModalProps) {
       animationType="slide"
       transparent
       statusBarTranslucent
+      onDismiss={onClose}
       onRequestClose={onClose}>
       <View className="flex-1 justify-end bg-black/35">
-        {/* Backdrop dismiss area */}
-        <TouchableOpacity activeOpacity={1} onPress={onClose} className="w-full flex-1" />
-
         {/* Bottom sheet container */}
-        <SafeAreaView className="max-h-[88%] w-full max-w-[420px] self-center overflow-hidden rounded-t-[28px] border-t border-[#eae6e1] bg-[#fcf9f6] shadow-2xl">
-          {/* Drag handle / grabber */}
-          <View className="items-center justify-center pb-2 pt-3">
-            <View className="h-1.5 w-10 rounded-full bg-[#d6d0c7]" />
-          </View>
-
+        <SafeAreaView
+          edges={['right', 'left']}
+          className="max-h-[88%] w-full  max-w-[420px] self-center overflow-hidden rounded-t-md border-t border-[#eae6e1] bg-[#fcf9f6] py-2">
           {/* Header */}
           <View className="flex-row items-center justify-between border-b border-[#eae6e1]/80 px-5 pb-3 pt-1">
             <View className="flex-row items-center gap-2.5">
@@ -239,7 +234,7 @@ export function TodoModal({ visible, onClose, sessionId }: TodoModalProps) {
                           {pendingTasks.map((task) => (
                             <View
                               key={task.key}
-                              className="flex-row items-start gap-3 rounded-xl border border-[#eae6e1] bg-white p-3.5 shadow-sm">
+                              className="flex-row items-center  gap-3 rounded-md border border-[#eae6e1] bg-white p-3.5">
                               {/* Custom checkbox */}
                               <TouchableOpacity
                                 onPress={() => toggleTaskCompletion(task)}
@@ -312,7 +307,7 @@ export function TodoModal({ visible, onClose, sessionId }: TodoModalProps) {
                           {completedTasks.map((task) => (
                             <View
                               key={task.key}
-                              className="flex-row items-start gap-3 rounded-xl border border-[#eae6e1]/60 bg-[#f0edeb]/60 p-3 opacity-75">
+                              className="flex-row items-start gap-3 rounded-md border border-[#eae6e1]/60 bg-[#f0edeb]/60 p-3 opacity-75">
                               {/* Checked box */}
                               <TouchableOpacity
                                 onPress={() => toggleTaskCompletion(task)}

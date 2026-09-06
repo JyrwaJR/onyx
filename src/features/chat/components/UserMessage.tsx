@@ -16,6 +16,8 @@ export const UserMessage = memo(function UserMessage({ message }: UserMessagePro
   const isPending = message.status === 'pending';
   const isSending = message.status === 'sending';
 
+  if (!message.text) return null;
+
   return (
     <View className="mb-4 ml-8 items-end">
       <View className={`rounded-xl bg-[#8f482f] p-4 ${isPending || isSending ? 'opacity-50' : ''}`}>

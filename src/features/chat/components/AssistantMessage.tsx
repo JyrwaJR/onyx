@@ -4,9 +4,15 @@ import { MaterialIcons } from '@expo/vector-icons';
 import type { Message } from '../../../shared/api/types';
 import { formatDate } from '@/shared/utils/helpers/format';
 import * as Clipboard from 'expo-clipboard';
+import { isSubagentTool } from '../utils/subagent-events';
+import { SubagentToolCallButton } from './SubagentToolCallButton';
 
 interface AssistantMessageProps {
   message: Message;
+  /** Current session ID — used to resolve subagent child sessions. */
+  sessionId: string;
+  /** Current project ID — used to navigate into subagent sessions. */
+  projectId: string;
   isStreaming: boolean;
   isReasoningOpen: boolean;
   onToggleReasoning: () => void;
@@ -23,6 +29,8 @@ interface AssistantMessageProps {
  */
 export const AssistantMessage = memo(function AssistantMessage({
   message,
+  sessionId,
+  projectId,
   isStreaming = true,
   isReasoningOpen,
   onToggleReasoning,
@@ -118,6 +126,16 @@ export const AssistantMessage = memo(function AssistantMessage({
 
         {/* Tool Execution Badges */}
         {toolBlocks.map((block, idx) => {
+          if (isSubagentTool(block.tool)) {
+            return (
+              <SubagentToolCallButton
+                key={block.id}
+                block={block}
+                sessionId={sessionId}
+                projectId={projectId}
+              />
+            );
+          }
           const isExpanded = expandedId === block.id;
           return (
             <Pressable

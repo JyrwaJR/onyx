@@ -2,7 +2,6 @@ import { memo } from 'react';
 import { View, Text } from 'react-native';
 import { useMcpStatus } from '@hooks/use-mcp-status';
 
-import { AbortSessionButton } from './AbortSessionButton';
 import { useSession } from '@/shared/hooks';
 
 /**
@@ -31,7 +30,6 @@ export const ChatHeaderBar = memo(function ChatHeaderBar({ sessionId }: ChatHead
       </View>
 
       <View className="flex-row items-center gap-2">
-        <AbortSessionButton sessionId={sessionId} />
         <View className="rounded bg-[#f0edeb] px-1.5 py-0.5">
           <Text className="text-[11px] text-[#5e5c54]">
             MCP: {isLoading ? '...' : `${activeServers}/${totalServers}`}

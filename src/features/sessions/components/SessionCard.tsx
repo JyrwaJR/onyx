@@ -56,19 +56,27 @@ export function SessionCard({ session, projectId }: SessionCardProps) {
       activeOpacity={0.8}
       className="flex-row items-center justify-between rounded-md border border-[#dac1ba] bg-[#efe7e1] p-5 active:border-[#87736d]">
       <View className="flex-1 flex-row items-center gap-4 pr-2">
+        {/* Terminal Icon */}
         <View className="h-10 w-10 items-center justify-center rounded-lg bg-white">
-          <MaterialIcons name={'terminal'} size={20} color="#8f482f" />
+          <MaterialIcons name="terminal" size={20} color="#8f482f" />
         </View>
 
+        {/* Details Container */}
         <View className="flex-1 justify-center">
-          {isBusy && (
-            <View className="w-full flex-1">
-              <Text className="text-end">Active</Text>
-            </View>
-          )}
-          <Text className="text-base font-medium text-[#1e1b18]" numberOfLines={1}>
-            {session.title}
-          </Text>
+          <View className="flex-row items-center justify-between gap-2">
+            <Text className="flex-1 text-base font-medium text-[#1e1b18]" numberOfLines={1}>
+              {session.title || 'Untitled'}
+            </Text>
+
+            {/* Active / Busy Pill Indicator */}
+            {isBusy && (
+              <View className="flex-row items-center gap-1.5 rounded-full bg-[#faeae3] px-2 py-0.5">
+                <View className="h-1.5 w-1.5 rounded-full bg-[#cc785c]" />
+                <Text className="text-[10px] font-semibold text-[#cc785c]">Active</Text>
+              </View>
+            )}
+          </View>
+
           <Text className="mt-0.5 text-xs font-normal text-[#615e56]">
             {formatDate(session.time.updated)}
           </Text>
