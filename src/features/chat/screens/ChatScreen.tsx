@@ -36,6 +36,9 @@ import { useSessionStatus } from '@/shared/hooks';
 import { replyToQuestion, rejectQuestion, listPendingQuestions } from '../api/chat-api';
 import { useChatScroll } from '../components/providers/chat-scroll';
 
+/** Ignore a re-send of identical text within this window (double-tap race guard). */
+const SEND_DEDUPE_WINDOW_MS = 500;
+
 function getUnconfirmedPending(
   pendingMessages: Map<string, Message>,
   messages: Message[] | undefined
@@ -82,6 +85,7 @@ export default function ChatScreen() {
 
   const [pendingMessages, setPendingMessages] = useState<Map<string, Message>>(new Map());
   const pendingIdRef = useRef(0);
+  const lastSentRef = useRef<{ text: string; at: number } | null>(null);
   const insets = useSafeAreaInsets();
   const {
     data: messages,
@@ -94,6 +98,11 @@ export default function ChatScreen() {
 
   const sendMessage = useSendMessage(sessionId);
   const mutateRef = useRef(sendMessage.mutate);
+  // Keep the ref at the latest mutate. React Query's mutate is stable today,
+  // but this guards against a future mutation-instance change (e.g. session switch).
+  useEffect(() => {
+    mutateRef.current = sendMessage.mutate;
+  }, [sendMessage.mutate]);
 
   // Consume ChatScrollContext
   const {
@@ -169,6 +178,13 @@ export default function ChatScreen() {
     (content: string) => {
       const trimmed = content.trim();
       if (!trimmed) return;
+
+      const now = Date.now();
+      const last = lastSentRef.current;
+      if (last && last.text === trimmed && now - last.at < SEND_DEDUPE_WINDOW_MS) {
+        return; // Duplicate submission from the send-button double-tap race.
+      }
+      lastSentRef.current = { text: trimmed, at: now };
 
       pendingIdRef.current += 1;
       const tempId = `pending-${Date.now()}-${pendingIdRef.current}`;
