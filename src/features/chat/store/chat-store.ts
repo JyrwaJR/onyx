@@ -58,10 +58,20 @@ export const useChatStore = create<ChatState>((set) => ({
       streamingContent: [...state.streamingContent, block],
     })),
 
+  /**
+   * Add a permission request. Skips when a request with the same id is
+   * already pending, so the same request arriving via both the pending-list
+   * fetch and the live SSE stream stays a single card.
+   */
   addPermissionRequest: (request) =>
-    set((state) => ({
-      pendingPermissionRequests: [...state.pendingPermissionRequests, request],
-    })),
+    set((state) => {
+      if (state.pendingPermissionRequests.some((r) => r.id === request.id)) {
+        return state;
+      }
+      return {
+        pendingPermissionRequests: [...state.pendingPermissionRequests, request],
+      };
+    }),
 
   removePermissionRequest: (requestId) =>
     set((state) => ({

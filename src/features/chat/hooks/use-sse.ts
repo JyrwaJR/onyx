@@ -2,7 +2,12 @@ import { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { createGlobalSSE, type SSEConnection } from '../../../shared/api/sse';
 import { queryKeys } from '../../../shared/api/query-keys';
-import { type Event, type PermissionRequest, type QuestionRequest } from '../types';
+import {
+  type Event,
+  type PermissionReply,
+  type PermissionRequest,
+  type QuestionRequest,
+} from '../types';
 import { useChatStore } from '../store/chat-store';
 import { useSubagentStore } from '../store/subagent-store';
 import { normalizeSessionCreated, normalizeSubagentToolPart } from '../utils/subagent-events';
@@ -29,8 +34,8 @@ export type OnComplete = (messageId: string | null) => void;
  * Subscribes to the global v1 SSE event stream for a given session.
  *
  * Handles the live v1 wire events (`message.part.delta`,
- * `message.updated`, `question.asked`) plus the legacy
- * `session.next.*` events and `permission.requested`. Automatically
+ * `message.updated`, `question.asked`, `permission.asked`,
+ * `permission.replied`) plus the legacy `session.next.*` events. Automatically
  * invalidates the messages query cache when a message is updated or a
  * step completes.
  *
@@ -47,6 +52,7 @@ export function useSSE(
 ) {
   const queryClient = useQueryClient();
   const addPermissionRequest = useChatStore((state) => state.addPermissionRequest);
+  const removePermissionRequest = useChatStore((state) => state.removePermissionRequest);
   const startStreaming = useChatStore((state) => state.startStreaming);
   const finishStreaming = useChatStore((state) => state.finishStreaming);
   const registerChildSession = useSubagentStore((state) => state.registerChildSession);
@@ -143,11 +149,26 @@ export function useSSE(
         if (request.sessionID !== sessionId) return;
 
         onQuestionRef.current?.(request);
-      } else if (type === 'permission.requested') {
-        const { request } = properties as { request: PermissionRequest };
-        if (request.sessionId !== sessionId) return;
+      } else if (type === 'permission.asked') {
+        const request = properties as PermissionRequest;
+        if (request.sessionID !== sessionId) return;
 
         addPermissionRequest(request);
+      } else if (type === 'permission.replied') {
+        const { requestID } = properties as {
+          sessionID: string;
+          requestID: string;
+          reply: PermissionReply;
+        };
+
+        // The SSE stream is global and request IDs (`^per`) are unique, so
+        // remove by id unconditionally. The server records the decision
+        // before emitting this event; refetching messages surfaces any tool
+        // output the decision unlocked.
+        removePermissionRequest(requestID);
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.messages.bySession(sessionId),
+        });
       } else if (type === 'session.created') {
         // Authoritative signal that a subagent spawned: the new session's
         // `info.parentID` points back to this chat's session.
@@ -181,6 +202,7 @@ export function useSSE(
     sessionId,
     queryClient,
     addPermissionRequest,
+    removePermissionRequest,
     startStreaming,
     finishStreaming,
     registerChildSession,

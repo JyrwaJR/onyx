@@ -19,13 +19,34 @@ type Message = {
   [key: string]: unknown;
 };
 
+/**
+ * A pending permission request from the assistant (server `PermissionRequest`).
+ *
+ * Mirrors the v1 wire format of the `permission.asked` SSE event
+ * (`EventPermissionAsked.properties`) and the items of `GET /permission`.
+ */
 export type PermissionRequest = {
+  /** Permission request ID (`^per`). */
   id: string;
-  sessionId: string;
-  scope: string;
-  description?: string;
-  [key: string]: unknown;
+  /** Session the permission belongs to (`^ses`). */
+  sessionID: string;
+  /** The permission being requested (e.g. `bash`, `edit`, `glob`). */
+  permission: string;
+  /** Patterns the tool would operate on (paths, command prefixes, etc.). */
+  patterns: string[];
+  /** Additional context (tool input, cwd, etc.). */
+  metadata: Record<string, unknown>;
+  /** Patterns the user may opt to allow forever ("always allow"). */
+  always: string[];
+  /** Tool that produced the permission request. */
+  tool?: {
+    messageID: string;
+    callID: string;
+  };
 };
+
+/** Valid reply choices for a permission request (server `PermissionReply`). */
+export type PermissionReply = 'once' | 'always' | 'reject';
 
 // Strongly-typed payload variants
 type SessionUpdatedPayload = {
@@ -135,10 +156,17 @@ type MessageCreatedPayload = {
   };
 };
 
-type PermissionRequestedPayload = {
-  type: 'permission.requested';
+type PermissionAskedPayload = {
+  type: 'permission.asked';
+  properties: PermissionRequest;
+};
+
+type PermissionRepliedPayload = {
+  type: 'permission.replied';
   properties: {
-    request: PermissionRequest;
+    sessionID: string;
+    requestID: string;
+    reply: PermissionReply;
   };
 };
 
@@ -158,7 +186,8 @@ type EventPayload =
   | MessageUpdatedPayload
   | QuestionAskedPayload
   | MessageCreatedPayload
-  | PermissionRequestedPayload
+  | PermissionAskedPayload
+  | PermissionRepliedPayload
   | CustomPayload;
 
 /**

@@ -106,3 +106,16 @@ export const QUESTION_REPLY = (requestId: string) => `/question/${requestId}/rep
  * Template: `QUESTION_REJECT(requestId)`.
  */
 export const QUESTION_REJECT = (requestId: string) => `/question/${requestId}/reject` as const;
+
+/**
+ * List pending permission requests.
+ * Resolves to an array of `PermissionRequest`.
+ */
+export const GET_PERMISSIONS = '/permission' as const;
+
+/**
+ * Reply to a permission request. POST body `{ reply: "once" | "always" |
+ * "reject", message?: string }`.
+ * Template: `PERMISSION_REPLY(requestId)`.
+ */
+export const PERMISSION_REPLY = (requestId: string) => `/permission/${requestId}/reply` as const;

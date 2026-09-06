@@ -11,10 +11,12 @@ import {
   RUN_SHELL_COMMAND,
   QUESTION_REPLY,
   QUESTION_REJECT,
+  GET_PERMISSIONS,
+  PERMISSION_REPLY,
 } from '../../../shared/api/endpoints';
 import { mapRawMessageToMessage } from '../../../shared/api/types';
 import type { Message, SessionT, RawMessage, Todo } from '../../../shared/api/types';
-import type { QuestionRequest } from '../types';
+import type { PermissionReply, PermissionRequest, QuestionRequest } from '../types';
 
 /**
  * Creates a new session.
@@ -212,6 +214,50 @@ export async function replyToQuestion(requestId: string, answers: string[][]): P
  */
 export async function rejectQuestion(requestId: string): Promise<void> {
   await http.post(QUESTION_REJECT(requestId));
+}
+
+/**
+ * Lists all pending permission requests across all sessions.
+ *
+ * Uses the v1 `GET /permission` endpoint. Pending requests are kept
+ * server-side until answered, so this restores unhandled permission requests
+ * that arrived before the app subscribed to the live SSE stream (e.g. when
+ * entering an existing chat whose last message is an unanswered permission).
+ *
+ * @returns The pending permission requests across all sessions. Filter by
+ * `sessionID` to find the requests belonging to one chat.
+ */
+export async function listPendingPermissions(): Promise<PermissionRequest[]> {
+  const response = await http.get<PermissionRequest[]>(GET_PERMISSIONS);
+  return response.data;
+}
+
+/**
+ * Replies to a pending permission request from the assistant.
+ *
+ * Uses the v1 `POST /permission/:id/reply` endpoint. `reply` controls how
+ * the server applies the decision: `once` allows the action a single time,
+ * `always` records it in the session's allow-list, and `reject` denies the
+ * action. `message` is an optional note sent back to the assistant.
+ *
+ * The underlying HTTP client rejects on non-2xx responses, so a failed
+ * reply throws here — callers must not treat the request as resolved unless
+ * this resolves successfully.
+ *
+ * @param requestId - The permission request ID (`^per`).
+ * @param reply - The decision for this permission request.
+ * @param message - Optional message to include with the reply.
+ * @throws When the server reports a failed reply (non-2xx response).
+ */
+export async function replyToPermission(
+  requestId: string,
+  reply: PermissionReply,
+  message?: string
+): Promise<void> {
+  await http.post(PERMISSION_REPLY(requestId), {
+    reply,
+    ...(message ? { message } : {}),
+  });
 }
 
 /**
