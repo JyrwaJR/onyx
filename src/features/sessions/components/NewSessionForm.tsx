@@ -1,9 +1,12 @@
-import { View, Text, Modal, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, KeyboardAvoidingView, Platform } from 'react-native';
+import { useRef, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
 import { Input } from '@/shared/components/ui/input';
 import { Button } from '@/shared/components/ui/button';
+import { CustomBottomSheet } from '@/shared/components/ui/bottom-sheet';
 import { newSessionSchema, type NewSessionFormData } from '../validators/new-session';
 import { useCreateSession } from '@/features/chat';
 
@@ -14,6 +17,16 @@ interface NewSessionFormProps {
 }
 
 export function NewSessionForm({ visible, dir, onClose }: NewSessionFormProps) {
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
+
+  useEffect(() => {
+    if (visible) {
+      bottomSheetRef.current?.present();
+    } else {
+      bottomSheetRef.current?.dismiss();
+    }
+  }, [visible]);
+
   const {
     control,
     handleSubmit,
@@ -47,12 +60,12 @@ export function NewSessionForm({ visible, dir, onClose }: NewSessionFormProps) {
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent statusBarTranslucent>
+    <CustomBottomSheet ref={bottomSheetRef} onClose={onClose} enableDynamicSizing>
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={0}>
-        <View className="flex-1 justify-end bg-black/50">
+        <View className="flex-1 justify-end">
           <View className="rounded-t-2xl bg-surface p-6 pb-8">
             <Text className="mb-4 text-headline-md font-semibold text-on-surface">New Session</Text>
 
@@ -90,6 +103,6 @@ export function NewSessionForm({ visible, dir, onClose }: NewSessionFormProps) {
           </View>
         </View>
       </KeyboardAvoidingView>
-    </Modal>
+    </CustomBottomSheet>
   );
 }
