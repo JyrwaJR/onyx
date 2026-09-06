@@ -30,7 +30,7 @@ export function ParentSessionNotice({ parentSessionId, projectId }: ParentSessio
       </View>
       <TouchableOpacity
         onPress={() =>
-          router.push(`/chat?sessionId=${parentSessionId}&projectId=${projectId}` as never)
+          router.replace(`/chat?sessionId=${parentSessionId}&projectId=${projectId}` as never)
         }
         activeOpacity={0.7}
         className="flex-row items-center gap-1 rounded-full bg-[#e6e2da] px-2.5 py-1">
