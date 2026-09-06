@@ -1,12 +1,6 @@
-import React, { forwardRef, useCallback, useMemo, useRef, useState } from 'react';
+import { forwardRef, useMemo, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
-import {
-  BottomSheetModal,
-  BottomSheetScrollView,
-  BottomSheetBackdrop,
-  type BottomSheetBackdropProps,
-  BottomSheetView,
-} from '@gorhom/bottom-sheet';
+import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ternary } from '@/shared/components/ui/ternary';
 import { Button } from '@/shared/components/ui/button';

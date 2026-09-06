@@ -6,7 +6,7 @@
  * array, so there is no pagination/infinite scroll.
  */
 
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { FlatList, RefreshControl } from 'react-native';
 
 import { useSessions } from '../hooks/use-sessions';
@@ -15,6 +15,7 @@ import { ConnectionErrorScreen, Loading } from '@/shared/components/screens';
 import { NewSessionForm } from './NewSessionForm';
 import { Fab } from '@/shared/components/ui';
 import { EmptySessionsScreen } from '../screens/no-session';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
 interface SessionListProps {
   projectId: string;
@@ -30,7 +31,8 @@ interface SessionListProps {
  */
 export function SessionList({ projectId, dir }: SessionListProps) {
   const { data, isLoading, isError, refetch, isFetching } = useSessions(dir);
-  const [formVisible, setFormVisible] = useState(false);
+
+  const formVisibleRef = useRef<BottomSheetModal>(null);
 
   const sessions = data ?? [];
 
@@ -59,8 +61,12 @@ export function SessionList({ projectId, dir }: SessionListProps) {
         contentContainerClassName="gap-4 py-1"
         refreshControl={<RefreshControl refreshing={isFetching} onRefresh={handleRefresh} />}
       />
-      <Fab onPress={() => setFormVisible(true)} />
-      <NewSessionForm dir={dir} visible={formVisible} onClose={() => setFormVisible(false)} />
+      <Fab onPress={() => formVisibleRef.current?.present()} />
+      <NewSessionForm
+        dir={dir}
+        ref={formVisibleRef}
+        onClose={() => formVisibleRef.current?.close()}
+      />
     </>
   );
 }

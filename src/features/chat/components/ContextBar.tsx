@@ -4,6 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useVcsInfo } from '../hooks/use-vcs-info';
 import { TodoModal } from './TodoModal';
+import { ToggleAgent } from './toggle-agent';
 
 type ContextBarProps = {
   onToggleAgent: (value: 'build' | 'plan') => void;
@@ -12,14 +13,7 @@ type ContextBarProps = {
 
 export const ContextBar = memo(function ContextBar({ onToggleAgent, sessionId }: ContextBarProps) {
   const { data: vcs, refetch, isFetching } = useVcsInfo();
-  const [agent, setAgent] = useState<'build' | 'plan'>('plan');
   const todoModalRef = useRef<BottomSheetModal>(null);
-
-  const toggleAgent = () => {
-    const selectedAgent = agent === 'build' ? 'plan' : 'build';
-    setAgent(selectedAgent);
-    onToggleAgent(selectedAgent);
-  };
 
   return (
     <>
@@ -37,17 +31,11 @@ export const ContextBar = memo(function ContextBar({ onToggleAgent, sessionId }:
           <Text className="text-xs text-[#5e5c54]">{vcs?.default_branch}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          activeOpacity={0.7}
-          onPress={toggleAgent}
-          className="flex-row items-center gap-1 rounded-full bg-[#f6f3f1] px-2.5 py-1">
-          <MaterialIcons name="support-agent" size={14} color="#5e5c54" />
-          <Text className="text-xs text-[#5e5c54]">Agent: {agent.toUpperCase()}</Text>
-        </TouchableOpacity>
-
+        <ToggleAgent sessionId={sessionId} onToggleAgent={onToggleAgent} />
         <TouchableOpacity
           activeOpacity={0.7}
           onPress={() => todoModalRef.current?.present()}
+
           className="flex-row items-center gap-1 rounded-full bg-[#f6f3f1] px-2.5 py-1">
           <MaterialIcons name="checklist" size={14} color="#5e5c54" />
           <Text className="text-xs text-[#5e5c54]">Todo</Text>
