@@ -4,6 +4,7 @@ import {
   BottomSheetView,
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
+  BottomSheetScrollView,
 } from '@gorhom/bottom-sheet';
 import { cn } from '@/shared/lib/cn';
 
@@ -15,7 +16,6 @@ export interface CustomBottomSheetProps {
   enableDynamicSizing?: boolean;
   onClose?: () => void;
   containerClassName?: string;
-  bodyClassName?: string;
 }
 
 export const CustomBottomSheet = forwardRef<BottomSheetModal, CustomBottomSheetProps>(
@@ -26,7 +26,6 @@ export const CustomBottomSheet = forwardRef<BottomSheetModal, CustomBottomSheetP
       enableDynamicSizing = false,
       onClose,
       containerClassName = 'bg-surface',
-      bodyClassName = 'px-5 pb-8',
     },
     ref
   ) => {
@@ -56,9 +55,9 @@ export const CustomBottomSheet = forwardRef<BottomSheetModal, CustomBottomSheetP
         onDismiss={onClose}
         handleIndicatorStyle={{ backgroundColor: '#cc785c', width: 36 }}
         backgroundStyle={{ backgroundColor: '#fcf9f6' }}>
-        <BottomSheetView className={cn(containerClassName, bodyClassName)}>
-          <BottomSheetView>{children}</BottomSheetView>
-        </BottomSheetView>
+        <BottomSheetScrollView className={cn('pb-10', containerClassName)}>
+          {children}
+        </BottomSheetScrollView>
       </BottomSheetModal>
     );
   }

@@ -1,12 +1,25 @@
+export interface AgentRequest {
+  headers: Record<string, string>;
+  body: Record<string, unknown>;
+}
+
+export interface AgentPermission {
+  action: string;
+  resource: string;
+  effect: 'allow' | 'deny' | 'ask';
+}
+
 export interface Agent {
+  id: string;
+  request: AgentRequest;
+  system: string;
+  description: string;
+  mode: 'primary' | 'subagent' | 'all';
+  hidden: boolean;
+  permissions: AgentPermission[];
+
   /** The prompt/instructions for the agent (from the file body or inline) */
   prompt?: string;
-
-  /** A brief description of what the agent does */
-  description?: string;
-
-  /** The execution mode for the agent */
-  mode?: 'primary' | 'subagent' | 'all';
 
   /** The model identifier (e.g., "anthropic/claude-sonnet-4-6") */
   model?: string;
@@ -16,9 +29,6 @@ export interface Agent {
 
   /** Tool permissions: either a blanket string ("allow"/"ask"/"deny") or object keyed by tool */
   permission?: string | Record<string, string>;
-
-  /** Hides the agent from the default UI/CLI selection */
-  hidden?: boolean;
 
   /** UI color for the agent */
   color?: string;

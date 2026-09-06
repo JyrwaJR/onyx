@@ -55,7 +55,7 @@ export const AgentSheet = forwardRef<BottomSheetModal, AgentSheetProps>(
               contentContainerStyle={{ paddingBottom: 24, gap: 10 }}>
               {agents?.map((agent) => (
                 <View
-                  key={agent.description} // Using description as key, adjust if Agent has an ID
+                  key={agent.id + agent.description} // Using description as key, adjust if Agent has an ID
                   className="flex-row items-center gap-3 rounded-md border border-[#eae6e1] bg-white p-3.5">
                   <View className="flex-1">
                     <Text className="text-sm font-semibold text-[#1a1918]">

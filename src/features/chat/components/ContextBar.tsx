@@ -5,6 +5,8 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useVcsInfo } from '../hooks/use-vcs-info';
 import { TodoModal } from './TodoModal';
 import { ToggleAgent } from './toggle-agent';
+import { ModelSheet } from './ModelSheet';
+import { AgentSheet } from './AgentSheet';
 
 type ContextBarProps = {
   onToggleAgent: (value: 'build' | 'plan') => void;
@@ -42,7 +44,7 @@ export const ContextBar = memo(function ContextBar({ onToggleAgent, sessionId }:
         </TouchableOpacity>
       </ScrollView>
 
-      <TodoModal ref={todoModalRef} sessionId={sessionId} />
+      <AgentSheet ref={todoModalRef} />
     </>
   );
 });
