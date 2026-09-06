@@ -1,10 +1,11 @@
 import { forwardRef } from 'react';
-import { TouchableOpacity, Text, View, type TouchableOpacityProps } from 'react-native';
+import { TouchableOpacity, View, type TouchableOpacityProps } from 'react-native';
 import { cn } from '@/shared/lib/cn';
 import { MaterialIcons } from '@expo/vector-icons';
 
 interface FabProps extends TouchableOpacityProps {
   /** Icon content (emoji or text). */
+  asChild?: boolean;
 }
 
 /**

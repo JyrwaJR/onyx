@@ -1,13 +1,8 @@
-import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function EmptyProjectsScreen() {
-  const [activeTab, setActiveTab] = useState<'projects' | 'chat' | 'memory' | 'settings'>(
-    'projects'
-  );
-
   const handleImport = () => {
     Alert.alert('Import Repository', 'Opening native folder selector...');
   };
