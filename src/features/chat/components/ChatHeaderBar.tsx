@@ -3,21 +3,22 @@ import { View, Text } from 'react-native';
 import { useMcpStatus } from '@hooks/use-mcp-status';
 
 import { useSession } from '@/shared/hooks';
+import { useChatStore } from '../store/chat-store';
 
 /**
  * Static sub-header bar showing the active model, branch, and socket latency.
  *
  * Fixed below the StackHeader, above the message list.
  */
-type ChatHeaderBarProps = {
-  sessionId: string;
-};
-
-export const ChatHeaderBar = memo(function ChatHeaderBar({ sessionId }: ChatHeaderBarProps) {
-  const { data, isFetching } = useSession(sessionId);
+export const ChatHeaderBar = memo(function ChatHeaderBar() {
+  const sessionId = useChatStore((s) => s.context.activeSessionId);
+  const { data, isFetching } = useSession(sessionId ?? '');
   const { data: mcpServers, isLoading } = useMcpStatus();
   const totalServers = mcpServers?.length;
   const activeServers = mcpServers?.filter((s) => s.status === 'connected').length;
+
+  if (!sessionId) return null;
+
   return (
     <View className="flex-row items-center justify-between bg-[#f6f3f1] px-4 py-2">
       <View className="flex-1 flex-row items-center gap-1.5 pr-2">
