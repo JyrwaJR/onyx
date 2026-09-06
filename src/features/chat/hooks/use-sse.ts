@@ -18,6 +18,14 @@ export type OnDelta = (event: {
 export type OnQuestion = (request: QuestionRequest) => void;
 
 /**
+ * Callback invoked when a message finishes streaming (the authoritative
+ * `message.updated` event). Receives the message ID that was streaming, or
+ * `null` when no stream was tracked. Consumers use it to drop local streaming
+ * state so the refetched server copy takes over.
+ */
+export type OnComplete = (messageId: string | null) => void;
+
+/**
  * Subscribes to the global v1 SSE event stream for a given session.
  *
  * Handles the live v1 wire events (`message.part.delta`,
@@ -29,8 +37,14 @@ export type OnQuestion = (request: QuestionRequest) => void;
  * @param sessionId - The session to subscribe to.
  * @param onDelta - Called on each text/reasoning delta event.
  * @param onQuestion - Called when the assistant asks an interactive question.
+ * @param onComplete - Called when a message is finalized (`message.updated`).
  */
-export function useSSE(sessionId: string | undefined, onDelta: OnDelta, onQuestion?: OnQuestion) {
+export function useSSE(
+  sessionId: string | undefined,
+  onDelta: OnDelta,
+  onQuestion?: OnQuestion,
+  onComplete?: OnComplete
+) {
   const queryClient = useQueryClient();
   const addPermissionRequest = useChatStore((state) => state.addPermissionRequest);
   const startStreaming = useChatStore((state) => state.startStreaming);
@@ -48,6 +62,11 @@ export function useSSE(sessionId: string | undefined, onDelta: OnDelta, onQuesti
   useEffect(() => {
     onQuestionRef.current = onQuestion;
   }, [onQuestion]);
+
+  const onCompleteRef = useRef(onComplete);
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
 
   useEffect(() => {
     if (!sessionId) return;
@@ -107,10 +126,18 @@ export function useSSE(sessionId: string | undefined, onDelta: OnDelta, onQuesti
         });
       } else if (type === 'session.next.step.ended' || type === 'message.updated') {
         // Completion signal: legacy step.ended or the current message.updated.
+        // Capture the streamed message ID before `finishStreaming()` nulls it.
+        const finalMessageId = useChatStore.getState().streamingMessageId;
         finishStreaming();
         queryClient.invalidateQueries({
           queryKey: queryKeys.messages.bySession(sessionId),
         });
+        // Only the authoritative `message.updated` finalizes the message;
+        // legacy `step.ended` may be followed by further deltas for the same
+        // or a new message, so it must not drop local streaming state.
+        if (type === 'message.updated') {
+          onCompleteRef.current?.(finalMessageId);
+        }
       } else if (type === 'question.asked') {
         const request = properties as QuestionRequest;
         if (request.sessionID !== sessionId) return;

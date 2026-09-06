@@ -1,12 +1,6 @@
 import { useEffect, useRef, useCallback, useState, useMemo } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-  ActivityIndicator,
-} from 'react-native';
+import { View, Text, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
+import { FlashList, type ListRenderItemInfo } from '@shopify/flash-list';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -110,15 +104,12 @@ export default function ChatScreen() {
     hasNextPage,
     isFetchingNextPage,
   } = useMessages(sessionId);
-  const { isStreaming } = useChatStore();
+  const isStreaming = useChatStore((state) => state.isStreaming);
 
   const sendMessage = useSendMessage(sessionId);
 
   // Stable reference to the mutate function.
   const mutateRef = useRef(sendMessage.mutate);
-
-  // Ref for auto-scrolling to bottom
-  const scrollViewRef = useRef<ScrollView>(null);
 
   // --- Derived state ---
 
@@ -168,18 +159,6 @@ export default function ChatScreen() {
   }, [messages, streaming, pendingMessages]);
 
   const streamingIds = useMemo(() => new Set(streaming.keys()), [streaming]);
-
-  // Auto-scroll to the bottom whenever the message list changes size. This
-  // ensures the most recent messages are visible on first load and when new
-  // content (including streaming deltas) arrives.
-  useEffect(() => {
-    if (allMessages.length > 0) {
-      const timeoutId = setTimeout(() => {
-        scrollViewRef.current?.scrollToEnd({ animated: false });
-      }, 100);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [allMessages.length]);
 
   // --- Stable callbacks ---
 
@@ -234,6 +213,8 @@ export default function ChatScreen() {
     rejectQuestion(requestId).catch((err) => console.warn('Failed to reject question:', err));
   }, [activeQuestion]);
 
+  // Older messages live at the top of the ascending list; fetch the previous
+  // page when the user scrolls near the top edge.
   const handleScroll = useCallback(
     (e: { nativeEvent: { contentOffset: { y: number } } }) => {
       if (e.nativeEvent.contentOffset.y < 50 && hasNextPage && !isFetchingNextPage) {
@@ -243,19 +224,69 @@ export default function ChatScreen() {
     [hasNextPage, isFetchingNextPage, fetchNextPage]
   );
 
+  // --- Streaming delta batching ---
+  // Coalesce SSE deltas and flush ~12 times/sec instead of re-rendering (and
+  // re-laying out the growing message text) on every token. Without this a
+  // long stream saturates the JS thread and the screen freezes.
+  const FLUSH_INTERVAL_MS = 80;
+  const pendingDeltasRef = useRef<Map<string, string>>(new Map());
+  const flushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const flushDeltas = useCallback(() => {
+    flushTimerRef.current = null;
+    const pending = pendingDeltasRef.current;
+    pendingDeltasRef.current = new Map();
+    if (pending.size === 0) return;
+    setStreaming((prev) => {
+      const next = new Map(prev);
+      for (const [msgId, delta] of pending) {
+        const cur = next.get(msgId) ?? { text: '', reasoning: '' };
+        next.set(msgId, { ...cur, text: cur.text + delta });
+      }
+      return next;
+    });
+  }, []);
+
+  const scheduleFlush = useCallback(() => {
+    if (flushTimerRef.current != null) return;
+    flushTimerRef.current = setTimeout(flushDeltas, FLUSH_INTERVAL_MS);
+  }, [flushDeltas]);
+
+  // Cancel a pending flush if the screen unmounts mid-stream.
+  useEffect(() => {
+    return () => {
+      if (flushTimerRef.current != null) {
+        clearTimeout(flushTimerRef.current);
+        flushTimerRef.current = null;
+      }
+    };
+  }, []);
+
+  /** Removes a finished message from local streaming state on completion. */
+  const handleComplete = useCallback((messageId: string | null) => {
+    if (messageId == null) return;
+    // Drop buffered deltas for the finished message so they cannot re-create
+    // a stale streaming entry after the authoritative refetch.
+    pendingDeltasRef.current.delete(messageId);
+    setStreaming((prev) => {
+      if (!prev.has(messageId)) return prev;
+      const next = new Map(prev);
+      next.delete(messageId);
+      return next;
+    });
+  }, []);
+
   // --- SSE subscription ---
 
   useSSE(
     sessionId,
     ({ assistantMessageID, delta }) => {
-      setStreaming((prev) => {
-        const next = new Map(prev);
-        const cur = next.get(assistantMessageID) ?? { text: '', reasoning: '' };
-        next.set(assistantMessageID, { ...cur, text: cur.text + delta });
-        return next;
-      });
+      const pending = pendingDeltasRef.current;
+      pending.set(assistantMessageID, (pending.get(assistantMessageID) ?? '') + delta);
+      scheduleFlush();
     },
-    handleQuestion
+    handleQuestion,
+    handleComplete
   );
 
   // Restore unanswered questions when entering an existing chat. The
@@ -317,6 +348,28 @@ export default function ChatScreen() {
     }
   }
 
+  // --- FlashList item factories (stable callbacks so the list can recycle) ---
+
+  const keyExtractor = useCallback((item: Message) => item.id, []);
+  const getItemType = useCallback((item: Message) => item.type, []);
+
+  const renderMessage = useCallback(
+    ({ item }: ListRenderItemInfo<Message>) =>
+      item.type === 'user' ? (
+        <UserMessage message={item} />
+      ) : (
+        <AssistantMessage
+          message={item}
+          isStreaming={streamingIds.has(item.id)}
+          isReasoningOpen={isReasoningOpen}
+          onToggleReasoning={handleToggleReasoning}
+          sessionId={sessionId}
+          projectId={projectId}
+        />
+      ),
+    [streamingIds, isReasoningOpen, handleToggleReasoning, sessionId, projectId]
+  );
+
   // --- Loading / error guards ---
 
   if (isLoading) return <Loading />;
@@ -357,43 +410,41 @@ export default function ChatScreen() {
             <ParentSessionNotice parentSessionId={session.parentID} projectId={projectId} />
           ) : null}
           {/* Messages Stream */}
-          <ScrollView
-            ref={scrollViewRef}
-            className="flex-1 px-4 py-3"
-            contentContainerStyle={{ paddingBottom: insets.bottom }}
-            showsVerticalScrollIndicator={false}
-            onScroll={handleScroll}
-            onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: false })}
-            scrollEventThrottle={400}>
-            {isFetchingNextPage && (
-              <View className="mb-4 items-center py-2">
-                <ActivityIndicator size="small" color="#8f482f" />
-                <Text className="mt-1 text-xs text-[#5e5c54]">Loading older messages…</Text>
-              </View>
-            )}
-            <Ternary
-              condition={allMessages.length === 0}
-              truthy={<EmptyChat />}
-              falsy={allMessages.map((message) => (
-                <Ternary
-                  key={message.id}
-                  condition={message.type === 'user'}
-                  truthy={<UserMessage message={message} />}
-                  falsy={
-                    <AssistantMessage
-                      key={message.id}
-                      message={message}
-                      isStreaming={streamingIds.has(message.id)}
-                      isReasoningOpen={isReasoningOpen}
-                      onToggleReasoning={handleToggleReasoning}
-                      sessionId={sessionId}
-                      projectId={projectId}
-                    />
-                  }
-                />
-              ))}
+          {allMessages.length === 0 ? (
+            <View className="flex-1 px-4 py-3">
+              <EmptyChat />
+            </View>
+          ) : (
+            <FlashList
+              style={{ flex: 1 }}
+              data={allMessages}
+              keyExtractor={keyExtractor}
+              getItemType={getItemType}
+              renderItem={renderMessage}
+              extraData={streamingIds}
+              contentContainerStyle={{
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+                paddingBottom: insets.bottom,
+              }}
+              showsVerticalScrollIndicator={false}
+              maintainVisibleContentPosition={{
+                autoscrollToBottomThreshold: 10,
+                startRenderingFromBottom: true,
+              }}
+              onScroll={handleScroll}
+              scrollEventThrottle={400}
+              ListHeaderComponent={
+                isFetchingNextPage ? (
+                  <View className="mb-4 items-center py-2">
+                    <ActivityIndicator size="small" color="#8f482f" />
+                    <Text className="mt-1 text-xs text-[#5e5c54]">Loading older messages…</Text>
+                  </View>
+                ) : null
+              }
+              keyboardShouldPersistTaps="handled"
             />
-          </ScrollView>
+          )}
           {/* Bottom Input Area wrapped in bottom edge SafeAreaView */}
           <View className="gap-2 border-t border-[#dac1ba]/30 bg-[#fcf9f6] pb-2">
             <View className="flex-row pt-2">
