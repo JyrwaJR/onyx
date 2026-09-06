@@ -47,11 +47,9 @@ export const useChatStore = create<ChatState>((set) => ({
     selectedModel: null,
   },
 
-  setContext: (context) =>
-    set((state) => ({ context: { ...state.context, ...context } })),
+  setContext: (context) => set((state) => ({ context: { ...state.context, ...context } })),
 
-  setSettings: (settings) =>
-    set((state) => ({ settings: { ...state.settings, ...settings } })),
+  setSettings: (settings) => set((state) => ({ settings: { ...state.settings, ...settings } })),
 
   startStreaming: (sessionId, messageId) =>
     set((state) => {
