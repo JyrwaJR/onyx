@@ -26,29 +26,9 @@ import { SquareLoadingBar } from '../components/square-loading-bar';
 import { useChatStore } from '../store/chat-store';
 import { useSessionStatus } from '@/shared/hooks';
 import { replyToQuestion, rejectQuestion, listPendingQuestions } from '../api/chat-api';
+import { ScrollToBottomFAB } from '../components/ScrollToBottmFab';
+import { useScrollToBottom } from '../hooks/use-scroll-to-bottom';
 
-/**
- * Main chat screen with SSE streaming and message management.
- *
- * Receives `sessionId` and `projectId` from route params. Subscribes to the
- * global V2 SSE event stream and builds up assistant messages incrementally.
- * User messages are rendered optimistically at send time and reconciled with
- * the authoritative server list once the server confirms them.
- */
-
-/**
- * Returns the optimistic pending user messages that are not yet confirmed by
- * the authoritative server message list.
- *
- * Matching is count-aware: for each trimmed text, the first N pending copies
- * (N = number of confirmed server messages with that text) are considered
- * mirrored and are dropped, so sending the same message twice cannot hide a
- * legitimately duplicated send.
- *
- * @param pendingMessages - Map of optimistic user messages keyed by temp id.
- * @param messages - Authoritative server message list (may be undefined).
- * @returns The pending messages still awaiting confirmation, keyed by temp id.
- */
 function getUnconfirmedPending(
   pendingMessages: Map<string, Message>,
   messages: Message[] | undefined
@@ -93,7 +73,6 @@ export default function ChatScreen() {
   const [questionAnswers, setQuestionAnswers] = useState<(string[] | null)[]>([]);
   const [isReasoningOpen, setIsReasoningOpen] = useState(true);
 
-  // User messages rendered optimistically before the server confirms them.
   const [pendingMessages, setPendingMessages] = useState<Map<string, Message>>(new Map());
   const pendingIdRef = useRef(0);
   const insets = useSafeAreaInsets();
@@ -107,11 +86,21 @@ export default function ChatScreen() {
   const isStreaming = useChatStore((state) => state.isStreaming);
 
   const sendMessage = useSendMessage(sessionId);
-
-  // Stable reference to the mutate function.
   const mutateRef = useRef(sendMessage.mutate);
 
-  // --- Derived state ---
+  const {
+    scrollViewRef,
+    showScrollToBottom,
+    scrollToBottom,
+    handleScroll: handleScrollBottom,
+  } = useScrollToBottom({
+    bottomThreshold: 60,
+    onScrollCallback: (e) => {
+      if (e.nativeEvent.contentOffset.y < 50 && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    },
+  });
 
   const allMessages: Message[] = useMemo(() => {
     if (!messages && streaming.size === 0 && pendingMessages.size === 0) return [];
@@ -141,7 +130,6 @@ export default function ChatScreen() {
       }
     });
 
-    // Append optimistic user messages the server has not confirmed yet.
     const unconfirmedPending = getUnconfirmedPending(pendingMessages, messages);
     for (const pendingMsg of unconfirmedPending.values()) {
       merged.push(pendingMsg);
@@ -160,43 +148,44 @@ export default function ChatScreen() {
 
   const streamingIds = useMemo(() => new Set(streaming.keys()), [streaming]);
 
-  // --- Stable callbacks ---
+  const handleSend = useCallback(
+    (content: string) => {
+      const trimmed = content.trim();
+      if (!trimmed) return;
 
-  const handleSend = useCallback((content: string) => {
-    const trimmed = content.trim();
-    if (!trimmed) return;
-
-    // Optimistically render the user message so it appears immediately, even
-    // though the server confirms it asynchronously (its message list is not
-    // updated until the agent pipeline commits the message).
-    pendingIdRef.current += 1;
-    const tempId = `pending-${Date.now()}-${pendingIdRef.current}`;
-    setPendingMessages((prev) => {
-      const next = new Map(prev);
-      next.set(tempId, {
-        id: tempId,
-        type: 'user',
-        text: trimmed,
-        status: 'pending',
-        time: { created: Date.now() },
+      pendingIdRef.current += 1;
+      const tempId = `pending-${Date.now()}-${pendingIdRef.current}`;
+      setPendingMessages((prev) => {
+        const next = new Map(prev);
+        next.set(tempId, {
+          id: tempId,
+          type: 'user',
+          text: trimmed,
+          status: 'pending',
+          time: { created: Date.now() },
+        });
+        return next;
       });
-      return next;
-    });
 
-    mutateRef.current(trimmed);
-  }, []);
+      mutateRef.current(trimmed);
+
+      // Scroll to bottom when user sends a message
+      setTimeout(() => {
+        scrollToBottom(true);
+      }, 50);
+    },
+    [scrollToBottom]
+  );
 
   const handleToggleReasoning = useCallback(() => {
     setIsReasoningOpen((prev) => !prev);
   }, []);
 
-  /** Called when the assistant emits a `question.asked` SSE event. */
   const handleQuestion = useCallback((request: QuestionRequest) => {
     setActiveQuestion(request);
     setQuestionAnswers(Array(request.questions.length).fill(null));
   }, []);
 
-  /** Records the selected labels for one question of the active request. */
   const handleQuestionSelect = useCallback((questionIndex: number, labels: string[]) => {
     setQuestionAnswers((prev) => {
       const next = [...prev];
@@ -205,7 +194,6 @@ export default function ChatScreen() {
     });
   }, []);
 
-  /** Rejects the active question request and dismisses the prompt. */
   const handleRejectQuestion = useCallback(() => {
     if (!activeQuestion) return;
     const requestId = activeQuestion.id;
@@ -213,21 +201,6 @@ export default function ChatScreen() {
     rejectQuestion(requestId).catch((err) => console.warn('Failed to reject question:', err));
   }, [activeQuestion]);
 
-  // Older messages live at the top of the ascending list; fetch the previous
-  // page when the user scrolls near the top edge.
-  const handleScroll = useCallback(
-    (e: { nativeEvent: { contentOffset: { y: number } } }) => {
-      if (e.nativeEvent.contentOffset.y < 50 && hasNextPage && !isFetchingNextPage) {
-        fetchNextPage();
-      }
-    },
-    [hasNextPage, isFetchingNextPage, fetchNextPage]
-  );
-
-  // --- Streaming delta batching ---
-  // Coalesce SSE deltas and flush ~12 times/sec instead of re-rendering (and
-  // re-laying out the growing message text) on every token. Without this a
-  // long stream saturates the JS thread and the screen freezes.
   const FLUSH_INTERVAL_MS = 80;
   const pendingDeltasRef = useRef<Map<string, string>>(new Map());
   const flushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -252,7 +225,6 @@ export default function ChatScreen() {
     flushTimerRef.current = setTimeout(flushDeltas, FLUSH_INTERVAL_MS);
   }, [flushDeltas]);
 
-  // Cancel a pending flush if the screen unmounts mid-stream.
   useEffect(() => {
     return () => {
       if (flushTimerRef.current != null) {
@@ -262,11 +234,8 @@ export default function ChatScreen() {
     };
   }, []);
 
-  /** Removes a finished message from local streaming state on completion. */
   const handleComplete = useCallback((messageId: string | null) => {
     if (messageId == null) return;
-    // Drop buffered deltas for the finished message so they cannot re-create
-    // a stale streaming entry after the authoritative refetch.
     pendingDeltasRef.current.delete(messageId);
     setStreaming((prev) => {
       if (!prev.has(messageId)) return prev;
@@ -275,8 +244,6 @@ export default function ChatScreen() {
       return next;
     });
   }, []);
-
-  // --- SSE subscription ---
 
   useSSE(
     sessionId,
@@ -289,11 +256,6 @@ export default function ChatScreen() {
     handleComplete
   );
 
-  // Restore unanswered questions when entering an existing chat. The
-  // `question.asked` SSE event only fires live; for historical questions
-  // (e.g. the last message is an unanswered question) the server keeps the
-  // request pending and `GET /question` returns it. Re-runs whenever the
-  // message list refreshes so a restored question stays in sync.
   useEffect(() => {
     if (!sessionId) return;
     let cancelled = false;
@@ -304,8 +266,6 @@ export default function ChatScreen() {
         const pending = requests.find((request) => request.sessionID === sessionId);
         if (!pending) return;
 
-        // Keep the current question untouched when it is the same request so
-        // a question the user is mid-answering is never reset.
         setActiveQuestion((prev) => (prev && prev.id === pending.id ? prev : pending));
         setQuestionAnswers((prev) =>
           prev.length === pending.questions.length
@@ -313,18 +273,13 @@ export default function ChatScreen() {
             : Array(pending.questions.length).fill(null)
         );
       })
-      .catch(() => {
-        // Best-effort restore; a list failure must not break the chat.
-      });
+      .catch(() => {});
 
     return () => {
       cancelled = true;
     };
   }, [sessionId, messages]);
 
-  // Auto-submit the question request once every question has an answer.
-  // The answers array mirrors `question.asked`'s question order, matching
-  // the `POST /question/:id/reply` body contract (`answers: string[][]`).
   useEffect(() => {
     if (!activeQuestion || activeQuestion.questions.length === 0) return;
     if (questionAnswers.length !== activeQuestion.questions.length) return;
@@ -338,17 +293,12 @@ export default function ChatScreen() {
       .finally(() => setActiveQuestion(null));
   }, [activeQuestion, questionAnswers]);
 
-  // Prune pending messages once the server confirms them. This is a
-  // render-phase state adjustment (React re-renders immediately with the
-  // pruned map); the equality bail-out prevents an update loop.
   if (pendingMessages.size > 0) {
     const kept = getUnconfirmedPending(pendingMessages, messages);
     if (kept.size !== pendingMessages.size) {
       setPendingMessages(kept);
     }
   }
-
-  // --- FlashList item factories (stable callbacks so the list can recycle) ---
 
   const keyExtractor = useCallback((item: Message) => item.id, []);
   const getItemType = useCallback((item: Message) => item.type, []);
@@ -369,8 +319,6 @@ export default function ChatScreen() {
       ),
     [streamingIds, isReasoningOpen, handleToggleReasoning, sessionId, projectId]
   );
-
-  // --- Loading / error guards ---
 
   if (isLoading) return <Loading />;
 
@@ -393,8 +341,6 @@ export default function ChatScreen() {
     );
   }
 
-  // --- Render ---
-
   const isBusy = isStreaming || isSessionBusy;
 
   return (
@@ -409,13 +355,13 @@ export default function ChatScreen() {
           {session?.parentID ? (
             <ParentSessionNotice parentSessionId={session.parentID} projectId={projectId} />
           ) : null}
-          {/* Messages Stream */}
           {allMessages.length === 0 ? (
             <View className="flex-1 px-4 py-3">
               <EmptyChat />
             </View>
           ) : (
             <FlashList
+              ref={scrollViewRef as any}
               style={{ flex: 1 }}
               data={allMessages}
               keyExtractor={keyExtractor}
@@ -428,12 +374,8 @@ export default function ChatScreen() {
                 paddingBottom: insets.bottom,
               }}
               showsVerticalScrollIndicator={false}
-              maintainVisibleContentPosition={{
-                autoscrollToBottomThreshold: 10,
-                startRenderingFromBottom: true,
-              }}
-              onScroll={handleScroll}
-              scrollEventThrottle={400}
+              onScroll={handleScrollBottom}
+              scrollEventThrottle={16}
               ListHeaderComponent={
                 isFetchingNextPage ? (
                   <View className="mb-4 items-center py-2">
@@ -445,7 +387,7 @@ export default function ChatScreen() {
               keyboardShouldPersistTaps="handled"
             />
           )}
-          {/* Bottom Input Area wrapped in bottom edge SafeAreaView */}
+          <ScrollToBottomFAB visible={showScrollToBottom} onPress={() => scrollToBottom(true)} />
           <View className="gap-2 border-t border-[#dac1ba]/30 bg-[#fcf9f6] pb-2">
             <View className="flex-row pt-2">
               <ContextBar sessionId={sessionId} onToggleAgent={(v) => setAgent(v)} />
