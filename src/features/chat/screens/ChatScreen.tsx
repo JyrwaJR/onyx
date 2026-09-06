@@ -329,6 +329,24 @@ export default function ChatScreen() {
     }
   }
 
+  // A failed send leaves no confirmed message: drop the optimistic pending
+  // copy and clear the dedupe guard so the user can immediately retry.
+  useEffect(() => {
+    if (!sendMessage.isError) return;
+    const failedText = lastSentRef.current?.text;
+    lastSentRef.current = null;
+    if (!failedText) return;
+    setPendingMessages((prev) => {
+      const next = new Map(prev);
+      for (const [id, msg] of prev) {
+        if (msg.type === 'user' && msg.text === failedText) {
+          next.delete(id);
+        }
+      }
+      return next;
+    });
+  }, [sendMessage.isError]);
+
   const keyExtractor = useCallback((item: Message) => item.id, []);
   const getItemType = useCallback((item: Message) => item.type, []);
 
