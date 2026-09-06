@@ -1,14 +1,13 @@
 import React, { forwardRef, useCallback, useMemo } from 'react';
-import { View, Text } from 'react-native';
 import {
   BottomSheetModal,
   BottomSheetView,
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
 } from '@gorhom/bottom-sheet';
+import { cn } from '@/shared/lib/cn';
 
 export interface CustomBottomSheetProps {
-  title?: string;
   children: React.ReactNode;
   /** Array of snap points, e.g. ['25%', '50%', '90%']. Default is ['50%'] */
   snapPoints?: string[];
@@ -16,20 +15,17 @@ export interface CustomBottomSheetProps {
   enableDynamicSizing?: boolean;
   onClose?: () => void;
   containerClassName?: string;
-  headerClassName?: string;
   bodyClassName?: string;
 }
 
 export const CustomBottomSheet = forwardRef<BottomSheetModal, CustomBottomSheetProps>(
   (
     {
-      title,
       children,
-      snapPoints = ['50%'],
+      snapPoints = ['25', '50%', '90%'],
       enableDynamicSizing = false,
       onClose,
-      containerClassName = 'bg-slate-900 rounded-t-3xl',
-      headerClassName = 'flex-row items-center justify-between border-b border-slate-800 pb-3 mb-4',
+      containerClassName = 'bg-surface',
       bodyClassName = 'px-5 pb-8',
     },
     ref
@@ -58,18 +54,10 @@ export const CustomBottomSheet = forwardRef<BottomSheetModal, CustomBottomSheetP
         enableDynamicSizing={enableDynamicSizing}
         backdropComponent={renderBackdrop}
         onDismiss={onClose}
-        handleIndicatorStyle={{ backgroundColor: '#94a3b8', width: 36 }}
-        backgroundStyle={{ backgroundColor: 'transparent' }}>
-        <BottomSheetView className={`${containerClassName} ${bodyClassName}`}>
-          {/* Header */}
-          {(title || onClose) && (
-            <View className={headerClassName}>
-              {title ? <Text className="text-lg font-semibold text-white">{title}</Text> : <View />}
-            </View>
-          )}
-
-          {/* Body Content */}
-          <View>{children}</View>
+        handleIndicatorStyle={{ backgroundColor: '#cc785c', width: 36 }}
+        backgroundStyle={{ backgroundColor: '#fcf9f6' }}>
+        <BottomSheetView className={cn(containerClassName, bodyClassName)}>
+          <BottomSheetView>{children}</BottomSheetView>
         </BottomSheetView>
       </BottomSheetModal>
     );
