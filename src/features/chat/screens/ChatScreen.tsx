@@ -1,5 +1,13 @@
 import { useEffect, useRef, useCallback, useState, useMemo } from 'react';
-import { View, Text, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  KeyboardAvoidingView,
+  Platform,
+  ActivityIndicator,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
+} from 'react-native';
 import { FlashList, type ListRenderItemInfo } from '@shopify/flash-list';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
@@ -26,8 +34,7 @@ import { SquareLoadingBar } from '../components/square-loading-bar';
 import { useChatStore } from '../store/chat-store';
 import { useSessionStatus } from '@/shared/hooks';
 import { replyToQuestion, rejectQuestion, listPendingQuestions } from '../api/chat-api';
-import { ScrollToBottomFAB } from '../components/ScrollToBottmFab';
-import { useScrollToBottom } from '../hooks/use-scroll-to-bottom';
+import { useChatScroll } from '../components/providers/chat-scroll';
 
 function getUnconfirmedPending(
   pendingMessages: Map<string, Message>,
@@ -88,19 +95,24 @@ export default function ChatScreen() {
   const sendMessage = useSendMessage(sessionId);
   const mutateRef = useRef(sendMessage.mutate);
 
+  // Consume ChatScrollContext
   const {
-    scrollViewRef,
-    showScrollToBottom,
+    listRef,
+    handleScroll: handleScrollContext,
     scrollToBottom,
-    handleScroll: handleScrollBottom,
-  } = useScrollToBottom({
-    bottomThreshold: 60,
-    onScrollCallback: (e) => {
+    notifyContentChanged,
+  } = useChatScroll<Message>();
+
+  // Combine Context Scroll tracking with top-pagination trigger
+  const handleScroll = useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      handleScrollContext(e);
       if (e.nativeEvent.contentOffset.y < 50 && hasNextPage && !isFetchingNextPage) {
         fetchNextPage();
       }
     },
-  });
+    [handleScrollContext, hasNextPage, isFetchingNextPage, fetchNextPage]
+  );
 
   const allMessages: Message[] = useMemo(() => {
     if (!messages && streaming.size === 0 && pendingMessages.size === 0) return [];
@@ -146,6 +158,11 @@ export default function ChatScreen() {
     return merged;
   }, [messages, streaming, pendingMessages]);
 
+  // Auto-scroll when messages or streaming content update
+  useEffect(() => {
+    notifyContentChanged();
+  }, [allMessages, notifyContentChanged]);
+
   const streamingIds = useMemo(() => new Set(streaming.keys()), [streaming]);
 
   const handleSend = useCallback(
@@ -168,11 +185,7 @@ export default function ChatScreen() {
       });
 
       mutateRef.current(trimmed);
-
-      // Scroll to bottom when user sends a message
-      setTimeout(() => {
-        scrollToBottom(true);
-      }, 50);
+      scrollToBottom(true);
     },
     [scrollToBottom]
   );
@@ -361,7 +374,7 @@ export default function ChatScreen() {
             </View>
           ) : (
             <FlashList
-              ref={scrollViewRef as any}
+              ref={listRef}
               style={{ flex: 1 }}
               data={allMessages}
               keyExtractor={keyExtractor}
@@ -374,7 +387,7 @@ export default function ChatScreen() {
                 paddingBottom: insets.bottom,
               }}
               showsVerticalScrollIndicator={false}
-              onScroll={handleScrollBottom}
+              onScroll={handleScroll}
               scrollEventThrottle={16}
               ListHeaderComponent={
                 isFetchingNextPage ? (
@@ -387,7 +400,6 @@ export default function ChatScreen() {
               keyboardShouldPersistTaps="handled"
             />
           )}
-          <ScrollToBottomFAB visible={showScrollToBottom} onPress={() => scrollToBottom(true)} />
           <View className="gap-2 border-t border-[#dac1ba]/30 bg-[#fcf9f6] pb-2">
             <View className="flex-row pt-2">
               <ContextBar sessionId={sessionId} onToggleAgent={(v) => setAgent(v)} />
