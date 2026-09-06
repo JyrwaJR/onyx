@@ -69,12 +69,6 @@ export function SessionCard({ session, projectId }: SessionCardProps) {
             </Text>
 
             {/* Active / Busy Pill Indicator */}
-            {isBusy && (
-              <View className="flex-row items-center gap-1.5 rounded-full bg-[#faeae3] px-2 py-0.5">
-                <View className="h-1.5 w-1.5 rounded-full bg-[#cc785c]" />
-                <Text className="text-[10px] font-semibold text-[#cc785c]">Active</Text>
-              </View>
-            )}
           </View>
 
           <Text className="mt-0.5 text-xs font-normal text-[#615e56]">
@@ -82,8 +76,15 @@ export function SessionCard({ session, projectId }: SessionCardProps) {
           </Text>
         </View>
       </View>
-
-      <MaterialIcons name="chevron-right" size={20} color="#54433e" />
+      <View className="flex-row gap-x-2">
+        {isBusy && (
+          <View className="flex-row items-center gap-1.5 rounded-full bg-[#faeae3] px-2 py-0.5">
+            <View className="h-1.5 w-1.5 rounded-full bg-[#cc785c]" />
+            <Text className="text-[10px] font-semibold text-[#cc785c]">Active</Text>
+          </View>
+        )}
+        <MaterialIcons name="chevron-right" size={20} color="#54433e" />
+      </View>
     </TouchableOpacity>
   );
 }
