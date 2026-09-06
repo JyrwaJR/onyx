@@ -1,8 +1,13 @@
-import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Alert, RefreshControl } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function EmptyProjectsScreen() {
+type Props = {
+  refresh?: () => void;
+  refreshing?: boolean;
+};
+
+export default function EmptyProjectsScreen({ refresh, refreshing }: Props) {
   const handleImport = () => {
     Alert.alert('Import Repository', 'Opening native folder selector...');
   };
@@ -16,6 +21,7 @@ export default function EmptyProjectsScreen() {
       {/* Main Scrollable Content Area */}
       <View className="relative flex-1">
         <ScrollView
+          refreshControl={<RefreshControl refreshing={refreshing || false} onRefresh={refresh} />}
           className="flex-1 px-4 pt-3"
           contentContainerStyle={{ paddingBottom: 100 }}
           showsVerticalScrollIndicator={false}>

@@ -29,7 +29,7 @@ export function ProjectList() {
   }, [refetch]);
 
   if (!projects || projects.length === 0) {
-    return <EmptyProjectsScreen />;
+    return <EmptyProjectsScreen refresh={refetch} refreshing={isFetching} />;
   }
 
   const sortedProjects = sortProjectsByQuery(projects, searchQuery);
