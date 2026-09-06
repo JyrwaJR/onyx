@@ -28,20 +28,14 @@ import type { SessionListResponse } from '../types/session';
  * @param projectId - The project ID to filter sessions by.
  * @returns Sessions scoped to the project.
  */
-export async function fetchSessions(
-  projectId?: string,
-  dir?: string
-): Promise<SessionListResponse> {
-  const response = await http.get<SessionListResponse>(GET_SESSIONS);
+export async function fetchSessions(dir?: string): Promise<SessionListResponse> {
+  const response = await http.get<SessionListResponse>(GET_SESSIONS, {
+    params: { directory: dir },
+  });
+
   const sessions = response.data;
 
-  if (!projectId && !dir) {
-    return sessions;
-  }
-
-  return sessions.filter((session) => {
-    return (projectId && session.projectID === projectId) || (dir && session.directory === dir);
-  });
+  return sessions;
 }
 
 /**

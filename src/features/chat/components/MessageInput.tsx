@@ -4,7 +4,6 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useAbortSession, useRunShellCommand } from '../hooks';
 import { useSendCommand } from '@/shared/hooks/use-send-command';
 import { Ternary } from '@/shared/components/ui/ternary';
-import { useChatStore } from '../store/chat-store';
 import { useSessionStatus } from '@/shared/hooks';
 
 interface MessageInputProps {

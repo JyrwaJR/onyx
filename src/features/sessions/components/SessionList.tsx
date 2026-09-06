@@ -29,7 +29,7 @@ interface SessionListProps {
  * @param projectId - The project ID to fetch sessions for.
  */
 export function SessionList({ projectId, dir }: SessionListProps) {
-  const { data, isLoading, isError, refetch, isFetching } = useSessions(projectId, dir);
+  const { data, isLoading, isError, refetch, isFetching } = useSessions(dir);
   const [formVisible, setFormVisible] = useState(false);
 
   const sessions = data ?? [];

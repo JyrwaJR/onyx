@@ -7,8 +7,6 @@ import { NewSessionFormData } from '@/features/sessions/validators/new-session';
 /**
  * Creates a new session and navigates to the chat screen.
  *
- * @param projectId - The project to create the session in (used to
- * invalidate the session list cache and build the chat route).
  * @returns Mutation object for creating a session.
  */
 export function useCreateSession() {
@@ -20,9 +18,12 @@ export function useCreateSession() {
     onSuccess: (session) => {
       if (session.projectID && session.id) {
         router.push(`/chat?sessionId=${session.id}&projectId=${session.projectID}` as never);
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.sessions.byProject(session.projectID),
-        });
+        // v1 `POST /session` reports `projectID: "global"` for
+        // directory-scoped sessions, so invalidating byProject(session.projectID)
+        // misses the visible list (which queries by the real project id).
+        // Invalidate every session list query instead so the new session
+        // appears on return.
+        queryClient.invalidateQueries({ queryKey: queryKeys.sessions.all });
         return session;
       }
     },

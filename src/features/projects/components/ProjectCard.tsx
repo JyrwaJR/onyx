@@ -37,7 +37,12 @@ export function ProjectCard({ project }: ProjectCardProps) {
   const router = useRouter();
 
   const handlePress = () => {
-    router.push(`/sessions?dir=${project.worktree}&projectId=${project.id}` as never);
+    // The worktree path is an absolute path that may contain spaces or
+    // other reserved characters — encode it or the `dir` route param will
+    // be truncated/mangled and sessions fall back to the server cwd.
+    router.push(
+      `/sessions?dir=${encodeURIComponent(project.worktree)}&projectId=${encodeURIComponent(project.id)}` as never
+    );
   };
 
   return (

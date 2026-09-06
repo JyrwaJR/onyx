@@ -22,13 +22,21 @@ import type { QuestionRequest } from '../types';
  * Uses the bare v1 `POST /session` endpoint. The title is set in the
  * request body at creation time — v1 has no separate rename endpoint.
  *
+ * The working directory is sent as the v1 `directory` **query parameter**,
+ * not in the body: the v1 body schema declares `additionalProperties: false`
+ * and accepts no directory/location field, so a body `location` field is
+ * silently ignored by the server. When `dir` is empty the param is omitted
+ * and the server falls back to its default working directory.
+ *
  * @param title - Optional session title.
+ * @param dir - Optional absolute working directory for the session.
  * @returns The newly created session.
  */
 export async function createSession(title?: string, dir?: string): Promise<SessionT> {
   const response = await http.post<SessionT>(
     CREATE_SESSION,
-    title ? { title, location: { directory: dir } } : {}
+    title ? { title } : {},
+    dir ? { params: { directory: dir } } : {}
   );
   return response.data;
 }
