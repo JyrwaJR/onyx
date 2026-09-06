@@ -109,10 +109,10 @@ export default function ChatScreen() {
     hasNextPage,
     isFetchingNextPage,
   } = useMessages(sessionId);
-  const isStreaming = useChatStore((state) => state.isStreaming);
-  const pendingPermissionRequests = useChatStore((state) => state.pendingPermissionRequests);
-  const addPermissionRequest = useChatStore((state) => state.addPermissionRequest);
-  const removePermissionRequest = useChatStore((state) => state.removePermissionRequest);
+  const isStreaming = useChatStore((state) => state.chat.isStreaming);
+  const pendingPermissionRequests = useChatStore((state) => state.chat.pendingPermissionRequests);
+  const addPermissionRequest = useChatStore((state) => state.chat.addPermissionRequest);
+  const removePermissionRequest = useChatStore((state) => state.chat.removePermissionRequest);
 
   const sessionPermissions = useMemo(
     () => pendingPermissionRequests.filter((r) => r.sessionID === sessionId),
@@ -458,7 +458,7 @@ export default function ChatScreen() {
         keyboardVerticalOffset={0}
         className="flex-1">
         <SafeAreaView edges={['right', 'left', 'bottom']} className="flex-1 bg-[#fcf9f6]">
-          <ChatHeaderBar sessionId={sessionId} />
+          <ChatHeaderBar />
           {session?.parentID ? (
             <ParentSessionNotice parentSessionId={session.parentID} projectId={projectId} />
           ) : null}
@@ -495,8 +495,8 @@ export default function ChatScreen() {
             />
           )}
           <View className="gap-2 border-t border-[#dac1ba]/30 bg-[#fcf9f6] pb-2">
-            <View className="flex-row pt-2">
-              <ContextBar sessionId={sessionId} onToggleAgent={(v) => setAgent(v)} />
+            <View className="flex-1 flex-row pt-2">
+              <ContextBar onToggleAgent={(v) => setAgent(v)} />
               <SquareLoadingBar isLoading={isBusy} />
             </View>
             {activePermission ? (
