@@ -35,11 +35,22 @@ export const useChatStore = create<ChatState>((set) => ({
   pendingPermissionRequests: [],
 
   startStreaming: (sessionId, messageId) =>
-    set({
-      activeSessionId: sessionId,
-      streamingMessageId: messageId,
-      isStreaming: true,
-      streamingContent: [],
+    // No-op when already streaming the same message so the per-delta SSE
+    // notifications don't re-render every store subscriber on each token.
+    set((state) => {
+      if (
+        state.isStreaming &&
+        state.streamingMessageId === messageId &&
+        state.activeSessionId === sessionId
+      ) {
+        return state;
+      }
+      return {
+        activeSessionId: sessionId,
+        streamingMessageId: messageId,
+        isStreaming: true,
+        streamingContent: [],
+      };
     }),
 
   appendContent: (block) =>

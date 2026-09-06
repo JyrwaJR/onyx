@@ -27,7 +27,11 @@ export function useMessages(sessionId: string) {
   const isStreaming = useChatStore((s) => s.isStreaming);
   const query = useInfiniteQuery({
     queryKey: queryKeys.messages.bySession(sessionId),
-    refetchInterval: isStreaming ? 3000 : 30000,
+    // No polling while streaming: SSE deltas keep the active message current
+    // and the completion (`message.updated`/`step.ended`) and tool-part
+    // (`message.part.updated`) events already invalidate the cache, so a
+    // mid-stream refetch would only add main-thread contention.
+    refetchInterval: isStreaming ? false : 30000,
     refetchIntervalInBackground: false,
     queryFn: ({ pageParam }) => {
       return fetchMessages(sessionId, pageParam as string | undefined);
