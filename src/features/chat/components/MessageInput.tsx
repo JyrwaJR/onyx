@@ -5,6 +5,7 @@ import { useAbortSession, useRunShellCommand } from '../hooks';
 import { useSendCommand } from '@/shared/hooks/use-send-command';
 import { Ternary } from '@/shared/components/ui/ternary';
 import { useChatStore } from '../store/chat-store';
+import { useSessionStatus } from '@/shared/hooks';
 
 interface MessageInputProps {
   onSend: (content: string) => void;
@@ -21,7 +22,7 @@ export function MessageInput({ onSend, sessionId, agent, disabled }: MessageInpu
   const [isCommand, setIsCommand] = useState(false);
   const inputRef = useRef<TextInput>(null);
   const runShell = useRunShellCommand(sessionId);
-  const { isStreaming } = useChatStore();
+  const { isBusy } = useSessionStatus({ sessionId });
   const { mutate: sendCommand, isPending: isPendingCommand } = useSendCommand();
   const { mutate } = useAbortSession(sessionId);
   const handleAbortSession = () => {
@@ -162,7 +163,7 @@ export function MessageInput({ onSend, sessionId, agent, disabled }: MessageInpu
         </TouchableOpacity>
 
         <Ternary
-          condition={isStreaming}
+          condition={isBusy}
           truthy={
             <TouchableOpacity
               onPress={handleAbortSession}
