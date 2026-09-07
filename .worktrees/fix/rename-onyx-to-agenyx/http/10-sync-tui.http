@@ -1,0 +1,109 @@
+# ============================================================
+# Sync / TUI — workspace sync and TUI control endpoints.
+# Docs: http://localhost:4096/doc
+# ============================================================
+
+# ------------------------------------------------------------------
+# Sync — workspace synchronization
+# ------------------------------------------------------------------
+
+### List sync events
+POST {{BASE_URL}}/sync/history
+Content-Type: application/json
+
+{}
+
+### Replay sync events
+POST {{BASE_URL}}/sync/replay
+Content-Type: application/json
+
+{
+  "directory": "/path/to/workspace",
+  "events": []
+}
+
+### Start workspace sync
+POST {{BASE_URL}}/sync/start
+
+### Steal session into workspace
+POST {{BASE_URL}}/sync/steal
+Content-Type: application/json
+
+{
+  "sessionID": "ses_session_id"
+}
+
+# ------------------------------------------------------------------
+# TUI — control the terminal UI from the API
+# ------------------------------------------------------------------
+
+### Append to the TUI prompt
+POST {{BASE_URL}}/tui/append-prompt
+Content-Type: application/json
+
+{
+  "text": " --verbose"
+}
+
+### Clear the TUI prompt
+POST {{BASE_URL}}/tui/clear-prompt
+
+### Get next TUI request (polling)
+GET {{BASE_URL}}/tui/control/next
+
+### Submit TUI response
+POST {{BASE_URL}}/tui/control/response
+Content-Type: application/json
+
+{}
+
+### Execute a TUI command
+POST {{BASE_URL}}/tui/execute-command
+Content-Type: application/json
+
+{
+  "command": "/help"
+}
+
+### Publish a TUI event (prompt append / command / toast / session select)
+POST {{BASE_URL}}/tui/publish
+Content-Type: application/json
+
+{
+  "type": "prompt-append",
+  "text": "extra prompt text"
+}
+
+### Select a session in the TUI
+POST {{BASE_URL}}/tui/select-session
+Content-Type: application/json
+
+{
+  "sessionID": "ses_session_id"
+}
+
+### Show a toast in the TUI
+POST {{BASE_URL}}/tui/show-toast
+Content-Type: application/json
+
+{
+  "title": "Build complete",
+  "message": "All tests passed",
+  "variant": "success",
+  "duration": 3000
+}
+
+### Open help dialog
+POST {{BASE_URL}}/tui/open-help
+
+### Open models dialog
+POST {{BASE_URL}}/tui/open-models
+
+### Open sessions dialog
+POST {{BASE_URL}}/tui/open-sessions
+
+### Open themes dialog
+POST {{BASE_URL}}/tui/open-themes
+
+### Submit the TUI prompt
+POST {{BASE_URL}}/tui/submit-prompt

@@ -1,0 +1,13 @@
+# ============================================================
+# Agent / Command / Skill — list agents, slash-commands, and skills.
+# Docs: http://localhost:4096/doc
+# ============================================================
+
+### List agents
+GET {{BASE_URL}}/agent
+
+### List commands
+GET {{BASE_URL}}/command
+
+### List skills
+GET {{BASE_URL}}/skill

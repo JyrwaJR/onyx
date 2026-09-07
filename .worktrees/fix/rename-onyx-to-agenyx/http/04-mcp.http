@@ -1,0 +1,60 @@
+# ============================================================
+# MCP — manage MCP (Model Context Protocol) servers.
+# Docs: http://localhost:4096/doc
+# ============================================================
+
+### Get MCP status
+GET {{BASE_URL}}/mcp
+
+### Add MCP server (local stdio)
+POST {{BASE_URL}}/mcp
+Content-Type: application/json
+
+{
+  "name": "filesystem",
+  "config": {
+    "type": "local",
+    "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem", "/tmp"],
+    "enabled": true
+  }
+}
+
+### Add MCP server (remote URL)
+POST {{BASE_URL}}/mcp
+Content-Type: application/json
+
+{
+  "name": "remote-server",
+  "config": {
+    "type": "remote",
+    "url": "https://mcp.example.com/sse",
+    "enabled": true
+  }
+}
+
+### Connect MCP server
+POST {{BASE_URL}}/mcp/{{name}}/connect
+
+### Disconnect MCP server
+POST {{BASE_URL}}/mcp/{{name}}/disconnect
+
+# ------------------------------------------------------------------
+# MCP OAuth
+# ------------------------------------------------------------------
+
+### Start MCP OAuth flow
+POST {{BASE_URL}}/mcp/{{name}}/auth
+
+### Remove MCP OAuth credentials
+DELETE {{BASE_URL}}/mcp/{{name}}/auth
+
+### Authenticate MCP OAuth
+POST {{BASE_URL}}/mcp/{{name}}/auth/authenticate
+
+### Complete MCP OAuth callback
+POST {{BASE_URL}}/mcp/{{name}}/auth/callback
+Content-Type: application/json
+
+{
+  "code": "oauth_code_from_redirect"
+}

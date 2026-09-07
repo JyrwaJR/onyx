@@ -1,0 +1,52 @@
+# ============================================================
+# Provider / Auth — list AI providers and manage credentials.
+# Docs: http://localhost:4096/doc
+# ============================================================
+
+### List providers
+GET {{BASE_URL}}/provider
+
+### Get provider auth methods
+GET {{BASE_URL}}/provider/auth
+
+### Start OAuth authorization for a provider
+POST {{BASE_URL}}/provider/{{providerID}}/oauth/authorize
+Content-Type: application/json
+
+{
+  "method": 0,
+  "inputs": {}
+}
+
+# Replace {{providerID}} with a real provider id, e.g. "openai", "anthropic".
+# GET http://localhost:4096/provider/openai
+
+### Handle OAuth callback for a provider
+POST {{BASE_URL}}/provider/{{providerID}}/oauth/callback
+Content-Type: application/json
+
+{
+  "method": 0,
+  "code": "oauth_code_from_redirect"
+}
+
+# ------------------------------------------------------------------
+# Auth credentials (login / logout provider)
+# ------------------------------------------------------------------
+
+### Set auth credentials for a provider
+PUT {{BASE_URL}}/auth/{{providerID}}
+Content-Type: application/json
+
+{
+  "type": "api",
+  "key": "sk-xxxxxxxxxxxxxxxxxxxx"
+}
+
+# The body follows the Auth schema (OAuth | ApiAuth | WellKnownAuth):
+# - API key:  { "type": "api", "key": "sk-..." }
+# - OAuth:    { "type": "oauth", "refresh": "...", "access": "...", "expires": 3600 }
+# - Wellkown: { "type": "wellknown", "key": "...", "token": "..." }
+
+### Remove auth credentials for a provider
+DELETE {{BASE_URL}}/auth/{{providerID}}

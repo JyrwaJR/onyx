@@ -1,0 +1,46 @@
+# ============================================================
+# Permission / Question — request, grant, deny tool permissions
+# and answer interactive questions.
+# Docs: http://localhost:4096/doc
+# ============================================================
+
+# ------------------------------------------------------------------
+# Permission
+# ------------------------------------------------------------------
+
+### List pending permission requests (global)
+GET {{BASE_URL}}/permission
+
+### Respond to a pending permission request
+POST {{BASE_URL}}/permission/{{requestID}}/reply
+Content-Type: application/json
+
+{
+  "reply": "once",
+  "message": "Approving this one time"
+}
+
+# reply: "once" | "always" | "reject"
+
+# ------------------------------------------------------------------
+# Question
+# ------------------------------------------------------------------
+
+### List pending question requests (global)
+GET {{BASE_URL}}/question
+
+### Reject a question request
+POST {{BASE_URL}}/question/{{requestID}}/reject
+
+### Reply to a question request
+POST {{BASE_URL}}/question/{{requestID}}/reply
+Content-Type: application/json
+
+{
+  "answers": [
+    ["option-a"],
+    ["option-b", "option-c"]
+  ]
+}
+
+# answers: array of answers, one per question, each an array of selected labels

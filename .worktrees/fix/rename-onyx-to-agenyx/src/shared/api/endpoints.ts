@@ -1,0 +1,121 @@
+/**
+ * @file API endpoint path constants.
+ *
+ * All OpenCode server endpoint paths are centralized here as
+ * SCREAMING_SNAKE_CASE constants. No hardcoded strings should
+ * appear in hooks, stores, or components.
+ *
+ * Paths were verified against the OpenCode v1 OpenAPI spec (`api.json`)
+ * on 2026-09-04. The app uses the bare v1 routes only — the legacy
+ * `/api` (V2) prefixes are intentionally absent.
+ */
+
+/** Server health check endpoint. Returns `{ healthy: boolean; version?: string }`. */
+export const HEALTH_CHECK = '/global/health';
+
+/** List all projects. Returns `Project[]`. */
+export const GET_PROJECTS = '/project';
+
+/** Get the current active project. */
+export const GET_CURRENT_PROJECT = '/project/current';
+
+/** List all sessions (optionally filtered by query params). Returns `Session[]`. */
+export const GET_SESSIONS = '/session';
+
+/**
+ * Create a new session. POST body `{ title? }` (`parentID`, `agent`,
+ * `model`, `metadata`, `permission`, `workspaceID` also accepted).
+ * Returns the created `Session`.
+ */
+export const CREATE_SESSION = '/session';
+
+/** Get a single session by ID. Template: `GET_SESSION_BY_ID(sessionId)`. */
+export const GET_SESSION_BY_ID = (sessionId: string) => `/session/${sessionId}` as const;
+
+/** Delete a session by ID. Template: `DELETE_SESSION(sessionId)`. */
+export const DELETE_SESSION = (sessionId: string) => `/session/${sessionId}` as const;
+
+/**
+ * Get messages for a session. Returns a plain `Message[]` array
+ * (`{ info: UserMessage | AssistantMessage, parts: Part[] }`) in ascending
+ * chronological order. Query params: `directory`, `workspace`, `limit`,
+ * `before`. Template: `GET_SESSION_MESSAGES(sessionId)`.
+ */
+export const GET_SESSION_MESSAGES = (sessionId: string) => `/session/${sessionId}/message` as const;
+
+/**
+ * Send a message to a session. POST body `{ parts: [{ type: 'text', text }] }`.
+ * Template: `SEND_SESSION_MESSAGE(sessionId)`.
+ */
+export const SEND_SESSION_MESSAGE = (sessionId: string) => `/session/${sessionId}/message` as const;
+
+/**
+ * Delete a single message from a session.
+ * Template: `DELETE_SESSION_MESSAGE(sessionId, messageId)`.
+ */
+export const DELETE_SESSION_MESSAGE = (sessionId: string, messageId: string) =>
+  `/session/${sessionId}/message/${messageId}` as const;
+
+/**
+ * Get the todo list for a session. Returns `Todo[]`. Query params:
+ * `directory`, `workspace`. Template: `GET_SESSION_TODOS(sessionId)`.
+ */
+export const GET_SESSION_TODOS = (sessionId: string) => `/session/${sessionId}/todo` as const;
+
+/**
+ * Get all child (subagent) sessions forked from a parent session.
+ * Returns `Session[]`. Query params: `directory`, `workspace`.
+ * Template: `GET_SESSION_CHILDREN(sessionId)`.
+ */
+export const GET_SESSION_CHILDREN = (sessionId: string) =>
+  `/session/${sessionId}/children` as const;
+
+/** Interrupt an active session. Template: `INTERRUPT_SESSION(sessionId)`. */
+export const INTERRUPT_SESSION = (sessionId: string) => `/session/${sessionId}/abort` as const;
+
+/**
+ * Run a shell command in a session. POST body `{ command, agent }`.
+ * Template: `RUN_SHELL_COMMAND(sessionId)`.
+ */
+export const RUN_SHELL_COMMAND = (sessionId: string) => `/session/${sessionId}/shell` as const;
+
+/** Global SSE event stream. Returns `Event` objects (bare v1 route). */
+export const GLOBAL_EVENT_STREAM = '/event';
+
+/** Get current working directory info. */
+export const GET_PATH = '/path';
+
+/** Get VCS info for the current project. */
+export const GET_VCS = '/vcs';
+
+/**
+ * List all pending question requests across sessions. Returns
+ * `QuestionRequest[]`. Query params: `directory`, `workspace`.
+ */
+export const GET_QUESTIONS = '/question';
+
+/**
+ * Reply to a question request. POST body `{ answers: string[][] }` — one
+ * array of selected option labels per question, in order.
+ * Template: `QUESTION_REPLY(requestId)`.
+ */
+export const QUESTION_REPLY = (requestId: string) => `/question/${requestId}/reply` as const;
+
+/**
+ * Reject a question request.
+ * Template: `QUESTION_REJECT(requestId)`.
+ */
+export const QUESTION_REJECT = (requestId: string) => `/question/${requestId}/reject` as const;
+
+/**
+ * List pending permission requests.
+ * Resolves to an array of `PermissionRequest`.
+ */
+export const GET_PERMISSIONS = '/permission' as const;
+
+/**
+ * Reply to a permission request. POST body `{ reply: "once" | "always" |
+ * "reject", message?: string }`.
+ * Template: `PERMISSION_REPLY(requestId)`.
+ */
+export const PERMISSION_REPLY = (requestId: string) => `/permission/${requestId}/reply` as const;

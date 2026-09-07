@@ -1,0 +1,46 @@
+# ============================================================
+# PTY — manage pseudo-terminal sessions.
+# Docs: http://localhost:4096/doc
+# ============================================================
+
+### List PTY sessions
+GET {{BASE_URL}}/pty
+
+### Create PTY session
+POST {{BASE_URL}}/pty
+Content-Type: application/json
+
+{
+  "command": "bash",
+  "args": [],
+  "cwd": "/tmp",
+  "title": "dev shell",
+  "env": {}
+}
+
+### List available shells
+GET {{BASE_URL}}/pty/shells
+
+### Get PTY session
+GET {{BASE_URL}}/pty/{{ptyID}}
+
+### Update PTY session (title / size)
+PUT {{BASE_URL}}/pty/{{ptyID}}
+Content-Type: application/json
+
+{
+  "title": "renamed shell",
+  "size": {
+    "cols": 80,
+    "rows": 24
+  }
+}
+
+### Remove PTY session
+DELETE {{BASE_URL}}/pty/{{ptyID}}
+
+### Connect to PTY session (SSE / WebSocket)
+GET {{BASE_URL}}/pty/{{ptyID}}/connect
+
+### Create PTY WebSocket token
+POST {{BASE_URL}}/pty/{{ptyID}}/connect-token

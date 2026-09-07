@@ -1,0 +1,105 @@
+# ============================================================
+# Project / Workspace / Worktree — project-level management
+# and isolated working directories.
+# Docs: http://localhost:4096/doc
+# ============================================================
+
+# ------------------------------------------------------------------
+# Project
+# ------------------------------------------------------------------
+
+### List all projects
+GET {{BASE_URL}}/project
+
+### Get current project
+GET {{BASE_URL}}/project/current
+
+### Initialize git repository in current project
+POST {{BASE_URL}}/project/git/init
+
+### Update project
+PATCH {{BASE_URL}}/project/{{projectID}}
+Content-Type: application/json
+
+{
+  "name": "My project",
+  "commands": {
+    "start": "npm run dev"
+  }
+}
+
+### List project directories
+GET {{BASE_URL}}/project/{{projectID}}/directories
+
+# ------------------------------------------------------------------
+# Experimental workspaces
+# ------------------------------------------------------------------
+
+### List workspaces
+GET {{BASE_URL}}/experimental/workspace
+
+### Create workspace
+POST {{BASE_URL}}/experimental/workspace
+Content-Type: application/json
+
+{
+  "type": "git",
+  "branch": "feature/new",
+  "extra": {}
+}
+
+# Query params for workspace get: directory, workspace
+
+### List workspace adapters
+GET {{BASE_URL}}/experimental/workspace/adapter
+
+### Get workspace status
+GET {{BASE_URL}}/experimental/workspace/status
+
+### Sync workspace list
+POST {{BASE_URL}}/experimental/workspace/sync-list
+
+### Warp session into workspace
+POST {{BASE_URL}}/experimental/workspace/warp
+Content-Type: application/json
+
+{
+  "id": "wrk_workspace_id",
+  "sessionID": "ses_session_id",
+  "copyChanges": false
+}
+
+### Remove workspace
+DELETE {{BASE_URL}}/experimental/workspace/{{id}}
+
+# ------------------------------------------------------------------
+# Experimental worktrees
+# ------------------------------------------------------------------
+
+### List worktrees
+GET {{BASE_URL}}/experimental/worktree
+
+### Create worktree
+POST {{BASE_URL}}/experimental/worktree
+Content-Type: application/json
+
+{
+  "name": "feature/my-new-branch",
+  "startCommand": ""
+}
+
+### Remove worktree
+DELETE {{BASE_URL}}/experimental/worktree
+Content-Type: application/json
+
+{
+  "directory": "/path/to/worktree"
+}
+
+### Reset worktree
+POST {{BASE_URL}}/experimental/worktree/reset
+Content-Type: application/json
+
+{
+  "directory": "/path/to/worktree"
+}

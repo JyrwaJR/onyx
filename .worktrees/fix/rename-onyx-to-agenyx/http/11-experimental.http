@@ -1,0 +1,104 @@
+# ============================================================
+# Experimental — capabilities, Console, control plane, project
+# copy, MCP resources, sessions, and tools.
+# Docs: http://localhost:4096/doc
+# ============================================================
+
+# ------------------------------------------------------------------
+# Capabilities / Console
+# ------------------------------------------------------------------
+
+### Get experimental capabilities
+GET {{BASE_URL}}/experimental/capabilities
+
+### Get active Console provider metadata
+GET {{BASE_URL}}/experimental/console
+
+### List switchable Console orgs
+GET {{BASE_URL}}/experimental/console/orgs
+
+### Switch active Console org
+POST {{BASE_URL}}/experimental/console/switch
+Content-Type: application/json
+
+{
+  "accountID": "account-id",
+  "orgID": "org-id"
+}
+
+# ------------------------------------------------------------------
+# Control plane
+# ------------------------------------------------------------------
+
+### Move a session to another destination
+POST {{BASE_URL}}/experimental/control-plane/move-session
+Content-Type: application/json
+
+{
+  "sessionID": "ses_session_id",
+  "destination": {
+    "directory": "/path/to/destination"
+  },
+  "moveChanges": false
+}
+
+# destination: MoveSessionDestination (e.g. local path or remote server)
+
+# ------------------------------------------------------------------
+# Project copy
+# ------------------------------------------------------------------
+
+### Copy a project
+POST {{BASE_URL}}/experimental/project/{{projectID}}/copy
+Content-Type: application/json
+
+{
+  "strategy": "worktree",
+  "directory": "/path/to/copy",
+  "name": "project-copy"
+}
+
+### Delete a project copy
+DELETE {{BASE_URL}}/experimental/project/{{projectID}}/copy
+Content-Type: application/json
+
+{
+  "directory": "/path/to/copy",
+  "force": false
+}
+
+### Generate a project copy name
+POST {{BASE_URL}}/experimental/project/{{projectID}}/copy/generate-name
+Content-Type: application/json
+
+{
+  "context": "copy for sprint 12"
+}
+
+### Refresh a project copy
+POST {{BASE_URL}}/experimental/project/{{projectID}}/copy/refresh
+
+# ------------------------------------------------------------------
+# MCP resources
+# ------------------------------------------------------------------
+
+### Get MCP resources
+GET {{BASE_URL}}/experimental/resource
+
+# ------------------------------------------------------------------
+# Experimental sessions / tools
+# ------------------------------------------------------------------
+
+### List sessions (experimental)
+GET {{BASE_URL}}/experimental/session
+
+### Background subagents in a session
+POST {{BASE_URL}}/experimental/session/{{sessionID}}/background
+
+### List tools
+GET {{BASE_URL}}/experimental/tool
+# Query params: provider (required), model (required), directory, workspace
+# Example: GET http://localhost:4096/experimental/tool?provider=openai&model=gpt-4o
+
+### List tool IDs
+GET {{BASE_URL}}/experimental/tool/ids
