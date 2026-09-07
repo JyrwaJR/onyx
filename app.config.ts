@@ -1,11 +1,24 @@
 import { ExpoConfig, ConfigContext } from 'expo/config';
 
+const getIdentifier = (): string => {
+  switch (process.env.APP_VARIANT) {
+    case 'development':
+      return 'com.jyrwajr.onyx.dev';
+    case 'production':
+      return 'com.jyrwajr.onyx';
+    case 'preview':
+      return 'com.jyrwajr.onyx.preview';
+    default:
+      return 'com.jyrwajr.onyx.dev';
+  }
+};
+
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: 'Onyx',
-  slug: 'onyx',
+  name: 'Agenyx',
+  slug: 'agenyx',
   version: '1.0.0',
-  scheme: 'onyx',
+  scheme: 'agenyx',
   platforms: ['ios', 'android'],
 
   web: {
@@ -58,7 +71,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 
   ios: {
     supportsTablet: true,
-    bundleIdentifier: 'com.jyrwajr.onyx',
+    bundleIdentifier: getIdentifier(),
   },
 
   android: {
@@ -67,13 +80,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       backgroundColor: '#ffffff',
     },
     softwareKeyboardLayoutMode: 'resize',
-    package: 'com.jyrwajr.onyx',
+    package: getIdentifier(),
   },
 
   extra: {
     router: {},
     eas: {
-      projectId: '2373d389-fd22-4dd7-bc72-ecde8c570f5d',
+      projectId: 'b9eba830-10c1-458d-a668-c52730909eb2',
     },
   },
 
