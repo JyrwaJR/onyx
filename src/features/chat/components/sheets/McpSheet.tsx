@@ -1,11 +1,13 @@
 import { forwardRef, useMemo } from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
+import { View, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CustomBottomSheet } from '@/shared/components/ui/bottom-sheet';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useMcpStatus } from '@/shared/hooks/use-mcp-status';
 import { cn } from '@/shared/lib/cn';
+import { useToggleMcp } from '@/shared/hooks/use-disconnect-mcp';
+import { SquareLoadingBar } from '../square-loading-bar';
 
 type McpSheetProps = {};
 
@@ -20,6 +22,7 @@ const COLORS = {
 
 export const McpSheet = forwardRef<BottomSheetModal, McpSheetProps>(function McpSheet(_props, ref) {
   const { data: mcps, isLoading, isError } = useMcpStatus();
+  const { mutate, isPending } = useToggleMcp();
   const snapPoints = useMemo(() => ['22', '44', '88%'], []);
 
   return (
@@ -41,21 +44,21 @@ export const McpSheet = forwardRef<BottomSheetModal, McpSheetProps>(function Mcp
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 24, gap: 10 }}>
             {mcps?.map((mcp) => (
-              <View
+              <TouchableOpacity
                 key={mcp.name}
-                className="flex-row items-center gap-3 rounded-md border border-[#eae6e1] bg-white p-3.5">
-                <View className="flex-1">
-                  <Text className="text-sm font-semibold capitalize text-[#1a1918]">
+                onPress={() => mutate({ name: mcp.name, status: mcp.status })}
+                disabled={isPending}
+                className={cn(
+                  'flex-row items-center gap-3 rounded-md border border-[#eae6e1] bg-white p-5',
+                  mcp.status === 'connected' ? 'border border-green-600' : 'border border-red-600'
+                )}>
+                <View className="flex-1 flex-row items-center justify-between">
+                  <Text className={cn('text-sm font-semibold capitalize text-[#1a1918]')}>
                     {mcp.name}
                   </Text>
-                  <Text
-                    className={cn(
-                      mcp.status === 'connected' ? 'text-xs text-primary' : 'text-xs text-red-500'
-                    )}>
-                    {mcp.status}
-                  </Text>
+                  {isPending && <SquareLoadingBar isLoading activeColor="#1a1918" />}
                 </View>
-              </View>
+              </TouchableOpacity>
             ))}
           </BottomSheetScrollView>
         )}

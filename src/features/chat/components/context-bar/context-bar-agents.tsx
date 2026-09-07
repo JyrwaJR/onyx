@@ -15,7 +15,7 @@ export const ContextBarAgent = () => {
         onPress={() => ref.current?.present()}
         className="flex-row items-center gap-1 rounded-full bg-[#f6f3f1] px-2.5 py-1">
         <MaterialIcons name="support-agent" size={14} color="#5e5c54" />
-        <Text className="text-xs text-[#5e5c54]">Agent: {agent?.id ?? 'Default'}</Text>
+        <Text className="text-xs capitalize text-[#5e5c54]">Agent: {agent?.id ?? 'Default'}</Text>
       </TouchableOpacity>
       <AgentSheet ref={ref} />
     </>

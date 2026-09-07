@@ -1,17 +1,28 @@
 import { forwardRef, useMemo } from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
+import { View, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CustomBottomSheet } from '@/shared/components/ui/bottom-sheet';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useAgent } from '@/shared/hooks/use-agent';
+import { useChatStore } from '../../store/chat-store';
+import { cn } from '@/shared/lib/cn';
+import { Agent } from '@/shared/types/agent';
 
 type AgentSheetProps = {};
 
 export const AgentSheet = forwardRef<BottomSheetModal, AgentSheetProps>(
   function AgentSheet(_props, ref) {
     const { data: agents, isLoading, isError } = useAgent();
+    const setSettings = useChatStore((state) => state.setSettings);
+    const settings = useChatStore((state) => state.settings);
     const snapPoints = useMemo(() => ['22', '44', '88%'], []);
+
+    const onAgentPress = (agent: Agent) => {
+      console.log(agent.id);
+      console.log(settings.selectedAgent?.id);
+      setSettings({ selectedAgent: agent });
+    };
 
     return (
       <CustomBottomSheet ref={ref} snapPoints={snapPoints}>
@@ -32,9 +43,13 @@ export const AgentSheet = forwardRef<BottomSheetModal, AgentSheetProps>(
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{ paddingBottom: 24, gap: 10 }}>
               {agents?.map((agent) => (
-                <View
+                <TouchableOpacity
                   key={agent.id} // Using description as key, adjust if Agent has an ID
-                  className="flex-row items-center gap-3 rounded-md border border-[#eae6e1] bg-white p-3.5">
+                  onPress={() => onAgentPress(agent)}
+                  className={cn(
+                    'flex-row items-center gap-3 rounded-md border  bg-white p-3.5',
+                    settings.selectedAgent?.id === agent.id ? 'border-primary' : 'border-[#eae6e1]'
+                  )}>
                   <View className="flex-1 gap-2">
                     <View className="flex-row items-center justify-between gap-2">
                       <Text className="text-sm font-semibold capitalize text-[#1a1918]">
@@ -51,7 +66,7 @@ export const AgentSheet = forwardRef<BottomSheetModal, AgentSheetProps>(
                       {agent.description || agent.system || 'No description'}
                     </Text>
                   </View>
-                </View>
+                </TouchableOpacity>
               ))}
             </BottomSheetScrollView>
           )}

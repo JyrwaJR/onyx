@@ -24,9 +24,19 @@ import { useChatStore } from '../store/chat-store';
 export function useSendMessage() {
   const sessionId = useChatStore((state) => state.context.activeSessionId);
   const queryClient = useQueryClient();
+  const settings = useChatStore((state) => state.settings);
 
   return useMutation({
-    mutationFn: (content: string) => sendMessage(sessionId, content),
+    mutationFn: (content: string) =>
+      sendMessage(
+        sessionId,
+        content,
+        {
+          providerID: settings.selectedModel?.providerID,
+          modelID: settings.selectedModel?.id,
+        },
+        settings.selectedAgent?.id
+      ),
     retry: 0,
     onSettled: () => {
       queryClient.invalidateQueries({

@@ -27,11 +27,11 @@ export const ContextBar = memo(function ContextBar() {
           <MaterialIcons name="account-tree" size={14} color="#5e5c54" />
           <Text className="text-xs text-[#5e5c54]">{vcs?.default_branch}</Text>
         </TouchableOpacity>
+        <ContextBarModel />
         <ContextBarAgent />
         <ContextBarTodo />
         <ContextBarSkill />
         <ContextBarMcp />
-        <ContextBarModel />
         <ContextBarCommand />
       </ScrollView>
     </>

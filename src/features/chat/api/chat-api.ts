@@ -18,6 +18,7 @@ import { mapRawMessageToMessage } from '../../../shared/api/types';
 import type { Message, SessionT, RawMessage, Todo } from '../../../shared/api/types';
 import type { PermissionReply, PermissionRequest, QuestionRequest } from '../types';
 import { Agent } from '@/shared/types/agent';
+import { Model } from '@/shared/types/model';
 
 /**
  * Creates a new session.
@@ -138,9 +139,17 @@ export async function deleteMessage(sessionId: string, messageId: string): Promi
  * @param sessionId - The session to send the message to.
  * @param content - The message text content.
  */
-export async function sendMessage(sessionId: string, content: string): Promise<void> {
+export async function sendMessage(
+  sessionId: string,
+  content: string,
+  model?: { modelID?: string; providerID?: string },
+  agent?: string
+): Promise<void> {
+  console.log({ model, agent });
   await http.post(SEND_SESSION_MESSAGE(sessionId), {
     parts: [{ type: 'text', text: content }],
+    ...(model?.modelID ? model : {}),
+    ...(agent ? { agent } : {}),
   });
 }
 

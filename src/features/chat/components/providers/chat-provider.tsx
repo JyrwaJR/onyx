@@ -28,6 +28,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     return () => clearContext();
   }, [projectId, sessionId, setContext, dir, wrk, clearContext]);
 
+  console.log({ projectId, sessionId, dir, wrk });
   if (!sessionId || !projectId) return <Redirect href={'/'} />;
 
   return <>{children}</>;

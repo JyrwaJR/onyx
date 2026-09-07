@@ -100,7 +100,6 @@ export function MessageInput({ onSend, disabled }: MessageInputProps) {
     setText('');
   };
 
-  const canSend = text.trim().length > 0 && !disabled;
   const canRunShell = !disabled && !!sessionId;
 
   return (
@@ -176,7 +175,7 @@ export function MessageInput({ onSend, disabled }: MessageInputProps) {
           falsy={
             <TouchableOpacity
               onPress={handleSend}
-              disabled={!canSend}
+              onLongPress={handleAbortSession}
               activeOpacity={0.8}
               className="h-9 w-9 items-center justify-center rounded-xl bg-[#8f482f]"
               accessibilityLabel="Send message">

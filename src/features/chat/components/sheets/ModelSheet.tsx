@@ -1,10 +1,14 @@
 import { forwardRef, useMemo } from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
+import { View, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CustomBottomSheet } from '@/shared/components/ui/bottom-sheet';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useModel } from '@/shared/hooks/use-model';
+import { useChatStore } from '../../store/chat-store';
+import { Model } from '@/shared/types/model';
+import { cn } from '@/shared/lib/cn';
+import { useChangeModel } from '../../hooks/use-change-model';
 
 type ModelSheetProps = {};
 
@@ -22,6 +26,14 @@ export const ModelSheet = forwardRef<BottomSheetModal, ModelSheetProps>(
   function ModelSheet(_props, ref) {
     const { data: models, isLoading, isError } = useModel();
     const snapPoints = useMemo(() => ['22', '44', '88%'], []);
+    const setSettings = useChatStore((state) => state.setSettings);
+    const settings = useChatStore((state) => state.settings);
+    const { mutate, isPending } = useChangeModel();
+
+    const onModelPress = (model: Model) => {
+      setSettings({ selectedModel: model });
+      mutate();
+    };
 
     return (
       <CustomBottomSheet ref={ref} snapPoints={snapPoints}>
@@ -42,14 +54,21 @@ export const ModelSheet = forwardRef<BottomSheetModal, ModelSheetProps>(
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{ paddingBottom: 24, gap: 10 }}>
               {models?.map((model) => (
-                <View
+                <TouchableOpacity
                   key={model.id}
-                  className="flex-row items-center gap-3 rounded-md border border-[#eae6e1] bg-white p-3.5">
+                  onPress={() => onModelPress(model)}
+                  disabled={isPending}
+                  className={cn(
+                    'flex-row items-center gap-3 rounded-md border border-[#eae6e1] bg-white p-3.5',
+                    settings.selectedModel?.id === model.id && 'border-primary'
+                  )}>
                   <View className="flex-1">
                     <Text className="text-sm font-semibold text-[#1a1918]">{model.name}</Text>
-                    <Text className="text-xs text-[#6e6962]">{model.description}</Text>
+                    <Text className="text-xs text-[#6e6962]">
+                      {model.description ?? 'No description'}
+                    </Text>
                   </View>
-                </View>
+                </TouchableOpacity>
               ))}
             </BottomSheetScrollView>
           )}

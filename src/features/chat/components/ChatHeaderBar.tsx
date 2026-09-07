@@ -1,6 +1,5 @@
 import { memo } from 'react';
 import { View, Text } from 'react-native';
-import { useMcpStatus } from '@hooks/use-mcp-status';
 
 import { useSession } from '@/shared/hooks';
 import { useChatStore } from '../store/chat-store';
@@ -12,10 +11,7 @@ import { useChatStore } from '../store/chat-store';
  */
 export const ChatHeaderBar = memo(function ChatHeaderBar() {
   const sessionId = useChatStore((s) => s.context.activeSessionId);
-  const { data, isFetching } = useSession(sessionId ?? '');
-  const { data: mcpServers, isLoading } = useMcpStatus();
-  const totalServers = mcpServers?.length;
-  const activeServers = mcpServers?.filter((s) => s.status === 'connected').length;
+  const { data: session, isFetching } = useSession();
 
   if (!sessionId) return null;
 
@@ -26,16 +22,8 @@ export const ChatHeaderBar = memo(function ChatHeaderBar() {
         <Text className="text-xs font-medium text-[#54433e]" numberOfLines={1}>
           {isFetching
             ? 'Loading...'
-            : `${data?.agent ?? 'Onyx'} - ${data?.model?.id || '-'} - (${data?.model?.variant ?? '-'})`}
+            : `${session?.agent ?? 'Onyx'} - ${session?.model?.id || '-'} - (${session?.model?.variant ?? '-'})`}
         </Text>
-      </View>
-
-      <View className="flex-row items-center gap-2">
-        <View className="rounded bg-[#f0edeb] px-1.5 py-0.5">
-          <Text className="text-[11px] text-[#5e5c54]">
-            MCP: {isLoading ? '...' : `${activeServers}/${totalServers}`}
-          </Text>
-        </View>
       </View>
     </View>
   );

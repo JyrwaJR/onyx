@@ -1,16 +1,48 @@
 export interface Model {
-  /** The model identifier (e.g., "anthropic/claude-sonnet-4-6") */
   id: string;
-
-  /** Display name of the model */
+  providerID: string;
   name: string;
 
-  /** The provider identifier (e.g., "anthropic") */
-  provider: string;
+  api: {
+    id: string;
+    type: 'aisdk';
+    package: string;
+    url: string;
+  };
 
-  /** Model description */
-  description?: string;
+  capabilities: {
+    tools: boolean;
+    input: ('text' | 'image' | 'video')[];
+    output: ('text' | 'image' | 'video')[];
+  };
 
-  /** Indicates if the model is currently active/available */
-  active?: boolean;
+  request: {
+    headers: Record<string, string>;
+    body: {
+      apiKey: string;
+    };
+  };
+
+  variants: unknown[];
+
+  time: {
+    released: number;
+  };
+
+  cost: {
+    input: number;
+    output: number;
+    cache: {
+      read: number;
+      write: number;
+    };
+  }[];
+
+  status: 'active' | 'deprecated';
+  enabled: boolean;
+
+  limit: {
+    context: number;
+    output: number;
+  };
 }

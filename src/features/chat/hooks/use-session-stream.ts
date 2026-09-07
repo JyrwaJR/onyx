@@ -74,6 +74,8 @@ export function useSessionStream({
   const finishStreaming = useChatStore((state) => state.finishStreaming);
   const registerChildSession = useSubagentStore((state) => state.registerChildSession);
   const registerToolPartStatus = useSubagentStore((state) => state.registerToolPartStatus);
+  // TODO: calculate
+  // const setSettings = useChatStore((state) => state.setContext);
 
   // Stable callback references
   const onDeltaRef = useLatest(onDelta);
