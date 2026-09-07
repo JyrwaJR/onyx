@@ -7,13 +7,12 @@
  */
 
 import { Text, TouchableOpacity, Alert, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useSafeNavigation, useSessionStatus } from '@/shared/hooks';
 
 import type { SessionT } from '../../../shared/api/types';
 import { MaterialIcons } from '@expo/vector-icons';
 import { formatDate } from '@/shared/utils/helpers/format';
 import { useDeleteSession } from '../hooks';
-import { useSessionStatus } from '@/shared/hooks';
 
 interface SessionCardProps {
   session: SessionT;
@@ -30,13 +29,13 @@ interface SessionCardProps {
  */
 export function SessionCard({ session, projectId }: SessionCardProps) {
   const { isBusy } = useSessionStatus({ sessionId: session.id });
-  const router = useRouter();
+  const { push } = useSafeNavigation();
   const deleteSession = useDeleteSession(projectId);
 
   const handlePress = () => {
     const path =
       `/chat?sessionId=${session.id}&projectId=${projectId}&dir=${session.directory}` as never;
-    router.push(path);
+    push(path);
   };
 
   const handleLongPress = () => {

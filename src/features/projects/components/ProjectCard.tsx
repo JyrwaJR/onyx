@@ -6,7 +6,7 @@
  */
 
 import { Text, TouchableOpacity, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useSafeNavigation } from '@/shared/hooks';
 
 import type { Project } from '../types/project';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -34,13 +34,13 @@ function projectTitle(project: Project): string {
  * @param project - The project data to display.
  */
 export function ProjectCard({ project }: ProjectCardProps) {
-  const router = useRouter();
+  const { push } = useSafeNavigation();
 
   const handlePress = () => {
     // The worktree path is an absolute path that may contain spaces or
     // other reserved characters — encode it or the `dir` route param will
     // be truncated/mangled and sessions fall back to the server cwd.
-    router.push(
+    push(
       `/sessions?dir=${encodeURIComponent(project.worktree)}&projectId=${encodeURIComponent(project.id)}` as never
     );
   };
