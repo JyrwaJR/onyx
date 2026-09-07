@@ -16,7 +16,7 @@ import type { InternalAxiosRequestConfig } from 'axios';
  */
 export const createRequestInterceptor = () => {
   return async (config: InternalAxiosRequestConfig) => {
-    const baseUrl = useConnectionStore.getState().serverUrl || process.env.API_BASE_URL;
+    const baseUrl = useConnectionStore.getState().serverUrl;
     if (baseUrl) {
       config.baseURL = baseUrl;
     }

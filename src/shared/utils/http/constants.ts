@@ -6,7 +6,7 @@
  */
 
 /** Static fallback from environment variable. */
-const ENV_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:4096';
+const ENV_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 /** @deprecated Use getApiBaseUrl() instead. */
 export const API_BASE_URL = ENV_BASE_URL;
