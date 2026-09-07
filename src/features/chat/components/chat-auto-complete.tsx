@@ -8,7 +8,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { TextInput, View, type TextInputProps } from 'react-native';
+import { TextInput, TouchableOpacity, View, type TextInputProps } from 'react-native';
 
 import {
   ChatSuggestionModal,
@@ -16,6 +16,7 @@ import {
   type SuggestionItem,
 } from './chat-suggestion-modal';
 import { useFindFile } from '@/shared/hooks/use-find-file';
+import { ChatSentButton } from './chat-input/sent-button';
 
 export interface TriggerInputRef {
   focus: () => void;
@@ -26,6 +27,7 @@ export interface TriggerInputRef {
 interface TriggerInputProps extends Omit<TextInputProps, 'onChangeText' | 'value'> {
   value: string;
   onChangeText: (text: string) => void;
+  onSend: (content: string) => void;
 }
 
 interface ActiveTrigger {
@@ -37,7 +39,13 @@ interface ActiveTrigger {
 
 export const ChatAutocompleteInput = forwardRef<TriggerInputRef, TriggerInputProps>(
   function ChatAutocompleteInput(
-    { value, onChangeText, placeholder = "Ask Agenyx or type '/' for commands...", ...props },
+    {
+      value,
+      onSend,
+      onChangeText,
+      placeholder = "Ask Agenyx or type '/' for commands...",
+      ...props
+    },
     ref
   ) {
     const inputRef = useRef<TextInput>(null);
@@ -205,23 +213,32 @@ export const ChatAutocompleteInput = forwardRef<TriggerInputRef, TriggerInputPro
             }
             onSelect={handleSelect}
           />
-          <TextInput
-            ref={inputRef}
-            value={value}
-            onChangeText={(text) => {
-              onChangeText(text);
-              setCursor(text.length);
-            }}
-            onSelectionChange={(event) => {
-              setCursor(event.nativeEvent.selection.start);
-            }}
-            onFocus={() => setFocused(true)}
-            onBlur={() => setFocused(false)}
-            placeholder={placeholder}
-            placeholderTextColor="#5e5c54"
-            multiline
-            {...props}
-          />
+          <View className="relative">
+            <TextInput
+              ref={inputRef}
+              value={value}
+              onChangeText={(text) => {
+                onChangeText(text);
+                setCursor(text.length);
+              }}
+              onSelectionChange={(event) => {
+                setCursor(event.nativeEvent.selection.start);
+              }}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
+              placeholder={placeholder}
+              placeholderTextColor="#5e5c54"
+              multiline
+              autoCapitalize="none"
+              numberOfLines={10}
+              {...props}
+              className="min-h-14 pr-14"
+            />
+
+            <View className="absolute bottom-2 right-2">
+              <ChatSentButton onSend={onSend} />
+            </View>
+          </View>
         </View>
       </>
     );

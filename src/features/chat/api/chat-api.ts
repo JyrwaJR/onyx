@@ -17,8 +17,6 @@ import {
 import { mapRawMessageToMessage } from '../../../shared/api/types';
 import type { Message, SessionT, RawMessage, Todo } from '../../../shared/api/types';
 import type { PermissionReply, PermissionRequest, QuestionRequest } from '../types';
-import { Agent } from '@/shared/types/agent';
-import { Model } from '@/shared/types/model';
 
 /**
  * Creates a new session.

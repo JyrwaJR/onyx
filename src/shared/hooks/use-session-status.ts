@@ -8,13 +8,7 @@ type SessionStatus = Record<
   }
 >;
 
-export function useSessionStatus({
-  sessionId,
-  isStreaming,
-}: {
-  sessionId: string;
-  isStreaming?: boolean;
-}) {
+export function useSessionStatus({ sessionId }: { sessionId: string }) {
   const query = useQuery({
     queryKey: ['session', 'status', sessionId],
     queryFn: () => http.get<SessionStatus>(`/session/status`),
@@ -22,7 +16,7 @@ export function useSessionStatus({
     staleTime: 1000,
     // Slow while streaming: the SSE deltas already drive the busy state, so
     // a 1s poll would only add main-thread contention during the stream.
-    refetchInterval: isStreaming ? 3000 : false,
+    refetchInterval: 5000,
     refetchIntervalInBackground: false,
   });
 

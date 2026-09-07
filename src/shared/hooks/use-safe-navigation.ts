@@ -1,31 +1,49 @@
-import { useRef, useCallback } from 'react';
+import { useRef } from 'react';
 import { useRouter } from 'expo-router';
 
-/**
- * A safe wrapper around expo-router's useRouter to prevent rapid duplicate navigation calls.
- * @param cooldownMs - The time in milliseconds to wait between navigation calls. Defaults to 500ms.
- */
 export function useSafeNavigation(cooldownMs = 500) {
   const router = useRouter();
-  const lastNavTime = useRef(0);
+  const lastNavigationTime = useRef(0);
 
-  const safeNavigate = useCallback(
-    (navFn: (...args: any[]) => void) => {
-      return (...args: any[]) => {
-        const now = Date.now();
-        if (now - lastNavTime.current > cooldownMs) {
-          lastNavTime.current = now;
-          navFn(...args);
-        }
-      };
-    },
-    [cooldownMs]
-  );
+  const canNavigate = () => {
+    const now = Date.now();
+
+    if (now - lastNavigationTime.current < cooldownMs) {
+      return false;
+    }
+
+    lastNavigationTime.current = now;
+    return true;
+  };
+
+  const push = (...args: Parameters<typeof router.push>) => {
+    if (!canNavigate()) return;
+
+    router.push(...args);
+  };
+
+  const replace = (...args: Parameters<typeof router.replace>) => {
+    if (!canNavigate()) return;
+
+    router.replace(...args);
+  };
+
+  const back = () => {
+    if (!canNavigate()) return;
+
+    router.back();
+  };
+
+  const setParams = (...args: Parameters<typeof router.setParams>) => {
+    if (!canNavigate()) return;
+
+    router.setParams(...args);
+  };
 
   return {
-    push: safeNavigate(router.push),
-    replace: safeNavigate(router.replace),
-    back: safeNavigate(router.back),
-    setParams: safeNavigate(router.setParams),
+    push,
+    replace,
+    back,
+    setParams,
   };
 }

@@ -15,6 +15,8 @@ export interface CustomBottomSheetProps {
   enableDynamicSizing?: boolean;
   onClose?: () => void;
   containerClassName?: string;
+  keyboardBehavior?: 'interactive' | 'extend' | 'fillParent';
+  keyboardBlurBehavior?: 'none' | 'restore';
 }
 
 export const CustomBottomSheet = forwardRef<BottomSheetModal, CustomBottomSheetProps>(
@@ -25,6 +27,7 @@ export const CustomBottomSheet = forwardRef<BottomSheetModal, CustomBottomSheetP
       enableDynamicSizing = false,
       onClose,
       containerClassName = 'bg-surface',
+      ...props
     },
     ref
   ) => {
@@ -53,6 +56,7 @@ export const CustomBottomSheet = forwardRef<BottomSheetModal, CustomBottomSheetP
         backdropComponent={renderBackdrop}
         onDismiss={onClose}
         handleIndicatorStyle={{ backgroundColor: '#cc785c', width: 36 }}
+        {...props}
         backgroundStyle={{ backgroundColor: '#fcf9f6' }}>
         <BottomSheetScrollView className={cn('pb-10', containerClassName)}>
           {children}

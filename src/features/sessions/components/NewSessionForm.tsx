@@ -45,40 +45,41 @@ export const NewSessionForm = forwardRef<BottomSheetModal, NewSessionFormProps>(
     };
 
     return (
-      <CustomBottomSheet ref={ref} onClose={onClose} enableDynamicSizing>
-        <KeyboardStickyView className="flex-1">
-          <View className="flex-1 justify-end">
-            <View className="gap-4 p-6 pb-8">
-              <Text className="mb-4 text-headline-md font-semibold text-on-surface">
-                New Session
-              </Text>
+      <CustomBottomSheet
+        keyboardBehavior="extend"
+        keyboardBlurBehavior="none"
+        ref={ref}
+        snapPoints={['50%', '65%', '75%']}
+        onClose={onClose}>
+        <View className="flex-1 justify-end">
+          <View className="gap-4 p-6 pb-8">
+            <Text className="mb-4 text-headline-md font-semibold text-on-surface">New Session</Text>
 
-              <Controller
-                control={control}
-                name="title"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <Input
-                    label="Session title"
-                    placeholder="Optional"
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    autoFocus
-                    error={errors.title?.message}
-                  />
-                )}
-              />
+            <Controller
+              control={control}
+              name="title"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  label="Session title"
+                  placeholder="Optional"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  autoFocus
+                  error={errors.title?.message}
+                />
+              )}
+            />
 
-              <Button
-                title="Continue"
-                onPress={handleSubmit(onSubmit)}
-                variant="primary"
-                size="lg"
-                className="w-full flex-1"
-              />
-            </View>
+            <Button
+              title="Continue"
+              onPress={handleSubmit(onSubmit)}
+              variant="primary"
+              size="lg"
+              className="w-full flex-1"
+            />
           </View>
-        </KeyboardStickyView>
+        </View>
       </CustomBottomSheet>
     );
   }
