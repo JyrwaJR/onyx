@@ -21,7 +21,6 @@ interface ChatState {
   };
 
   chat: {
-    prompt: string;
     isStreaming: boolean;
     streamingMessageId: string | null;
     streamingContent: ContentBlock[];
@@ -33,6 +32,10 @@ interface ChatState {
     selectedModel: Model | null;
   };
 
+  prompt: string;
+
+  // Actions
+  setPrompt: (prompt: string) => void;
   // Actions
   setContext: (context: Partial<ChatState['context']>) => void;
   clearContext: () => void;
@@ -61,7 +64,6 @@ const initialContext: ChatState['context'] = {
 };
 
 const initialChat: ChatState['chat'] = {
-  prompt: '',
   isStreaming: false,
   streamingMessageId: null,
   streamingContent: [],
@@ -81,6 +83,9 @@ export const useChatStore = create<ChatState>()(
       chat: initialChat,
 
       settings: initialSettings,
+
+      prompt: '',
+      setPrompt: (prompt) => set({ prompt }),
 
       setContext: (context) =>
         set((state) => ({

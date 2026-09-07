@@ -18,7 +18,7 @@ interface MessageInputProps {
 export function MessageInput({ onSend, disabled }: MessageInputProps) {
   const sessionId = useChatStore((state) => state.context.activeSessionId);
   const isStreaming = useChatStore((s) => s.chat.isStreaming);
-  const [text, setText] = useState('');
+  const { prompt: text, setPrompt: setText } = useChatStore();
   const [isCommand, setIsCommand] = useState(false);
   const inputRef = useRef<TextInput>(null);
   const runShell = useRunShellCommand();
