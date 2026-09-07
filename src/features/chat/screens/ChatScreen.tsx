@@ -1,7 +1,6 @@
 import { useEffect, useRef, useCallback, useState, useMemo } from 'react';
-import { View, Platform, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import { View, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { FlashList, type ListRenderItemInfo } from '@shopify/flash-list';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KeyboardStickyView } from 'react-native-keyboard-controller';
 
 import { useMessages, useSendMessage } from '../hooks';
@@ -458,7 +457,9 @@ export default function ChatScreen() {
         <View className="gap-2 border-t border-[#dac1ba]/30 bg-[#fcf9f6] pb-2">
           <View className="flex-row pt-2">
             <ContextBar />
-            <SquareLoadingBar isLoading={isSessionBusy} />
+            <View className="items-center justify-center border-l border-[#dac1ba]">
+              <SquareLoadingBar isLoading={isSessionBusy} />
+            </View>
           </View>
           {activePermission ? (
             <View className="gap-2 px-4 pt-2">

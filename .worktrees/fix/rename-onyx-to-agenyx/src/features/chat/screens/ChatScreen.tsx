@@ -1,11 +1,6 @@
 import { useEffect, useRef, useCallback, useState, useMemo } from 'react';
-import {
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  NativeSyntheticEvent,
-  NativeScrollEvent,
-} from 'react-native';
+import { View, Platform, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import { KeyboardStickyView } from 'react-native-keyboard-controller';
 import { FlashList, type ListRenderItemInfo } from '@shopify/flash-list';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -69,6 +64,16 @@ function getUnconfirmedPending(
   return kept;
 }
 
+/**
+ * ChatScreen component responsible for rendering the chat interface.
+ * Handles message streaming, question/answer flows, and permission requests.
+ *
+ * Uses `KeyboardStickyView` for keyboard handling and `FlashList` for efficient
+ * message rendering.
+ *
+ * @example
+ * <ChatScreen />
+ */
 export default function ChatScreen() {
   const { projectId, activeSessionId } = useChatStore((state) => state.context);
 
@@ -424,7 +429,7 @@ export default function ChatScreen() {
   return (
     <>
       <StackHeader title={isFetching ? 'Loading…' : session?.title} />
-      <KeyboardAvoidingView
+      <KeyboardStickyView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={0}
         className="flex-1">
@@ -492,7 +497,7 @@ export default function ChatScreen() {
             ) : null}
           </View>
         </SafeAreaView>
-      </KeyboardAvoidingView>
+      </KeyboardStickyView>
     </>
   );
 }
