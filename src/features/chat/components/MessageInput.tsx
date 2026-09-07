@@ -1,8 +1,7 @@
-import { useState, useRef } from 'react';
+import { useRef } from 'react';
 import { View, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useAbortSession, useRunShellCommand } from '../hooks';
-import { useSendCommand } from '@/shared/hooks/use-send-command';
 import { Ternary } from '@/shared/components/ui/ternary';
 import { useSessionStatus } from '@/shared/hooks';
 import { useChatStore } from '../store/chat-store';
@@ -21,11 +20,9 @@ export function MessageInput({ onSend, disabled }: MessageInputProps) {
   const sessionId = useChatStore((state) => state.context.activeSessionId);
   const isStreaming = useChatStore((s) => s.chat.isStreaming);
   const { prompt: text, setPrompt: setText } = useChatStore();
-  const [isCommand, setIsCommand] = useState(false);
   const inputRef = useRef<TextInput>(null);
   const runShell = useRunShellCommand();
   const { isBusy } = useSessionStatus({ sessionId, isStreaming });
-  const { mutate: sendCommand, isPending: isPendingCommand } = useSendCommand();
   const { mutate } = useAbortSession();
   const handleAbortSession = () => {
     mutate();
@@ -40,21 +37,8 @@ export function MessageInput({ onSend, disabled }: MessageInputProps) {
     setText('');
   };
 
-  const toggleCommand = () => {
-    setIsCommand((prev) => !prev);
-  };
-
   const handleShellCommand = () => {
-    if (isPendingCommand) {
-      return;
-    }
-
     const trimmed = text.trim();
-
-    if (trimmed === '') {
-      toggleCommand();
-      return;
-    }
 
     if (!trimmed) {
       return;
@@ -70,38 +54,6 @@ export function MessageInput({ onSend, disabled }: MessageInputProps) {
     setText('');
   };
 
-  const handleCommand = () => {
-    const trimmed = text.trim();
-    if (!trimmed) {
-      toggleCommand();
-      return;
-    }
-
-    const contentWithoutSlash = trimmed.slice(1).trim();
-    const spaceIndex = contentWithoutSlash.indexOf(' ');
-
-    let command: string;
-    let args: string;
-
-    if (spaceIndex === -1) {
-      command = contentWithoutSlash;
-      args = '';
-    } else {
-      command = contentWithoutSlash.slice(0, spaceIndex);
-      args = contentWithoutSlash.slice(spaceIndex + 1).trim();
-    }
-
-    if (disabled) {
-      return;
-    }
-    if (!sessionId) {
-      return;
-    }
-
-    sendCommand({ agent: 'build', command: command, sessionId, args });
-    setText('');
-  };
-
   const canRunShell = !disabled && !!sessionId;
 
   return (
@@ -109,40 +61,16 @@ export function MessageInput({ onSend, disabled }: MessageInputProps) {
       <View className="flex-row items-end gap-1 rounded-md border border-primary-fixed bg-[#ebe8e5] p-1.5 ">
         <TouchableOpacity
           className="h-9 w-9 items-center justify-center rounded-md"
-          disabled
-          accessibilityLabel="Attach file">
-          <MaterialIcons name="attach-file" size={20} color="#5e5c54" />
+          onPress={handleShellCommand}
+          disabled={!canRunShell || runShell.isPending}
+          accessibilityLabel="Run as shell command">
+          {runShell.isPending ? (
+            <ActivityIndicator size="small" color="#5e5c54" />
+          ) : (
+            <MaterialIcons name="terminal" size={20} color="#5e5c54" />
+          )}
         </TouchableOpacity>
 
-        <Ternary
-          condition={isCommand}
-          truthy={
-            <TouchableOpacity
-              className="h-9 w-9 items-center justify-center rounded-md"
-              onPress={handleCommand}
-              disabled={!canRunShell || runShell.isPending}
-              accessibilityLabel="Run as shell command">
-              {isPendingCommand ? (
-                <ActivityIndicator size="small" color="#5e5c54" />
-              ) : (
-                <MaterialIcons name="keyboard-command-key" size={20} color="#5e5c54" />
-              )}
-            </TouchableOpacity>
-          }
-          falsy={
-            <TouchableOpacity
-              className="h-9 w-9 items-center justify-center rounded-md"
-              onPress={handleShellCommand}
-              disabled={!canRunShell || runShell.isPending}
-              accessibilityLabel="Run as shell command">
-              {runShell.isPending ? (
-                <ActivityIndicator size="small" color="#5e5c54" />
-              ) : (
-                <MaterialIcons name="terminal" size={20} color="#5e5c54" />
-              )}
-            </TouchableOpacity>
-          }
-        />
         <ChatAutocompleteInput
           className="max-h-[120px] min-h-[36px] flex-1 px-1 py-1.5 text-end text-sm text-[#1c1c1a]"
           placeholder="Ask Agenyx or type '/' for commands..."
@@ -154,13 +82,6 @@ export function MessageInput({ onSend, disabled }: MessageInputProps) {
           value={text}
           onChangeText={setText}
         />
-
-        <TouchableOpacity
-          className="h-9 w-9 items-center justify-center rounded-md"
-          disabled
-          accessibilityLabel="Voice input">
-          <MaterialIcons name="mic" size={20} color="#5e5c54" />
-        </TouchableOpacity>
 
         <Ternary
           condition={isBusy}
