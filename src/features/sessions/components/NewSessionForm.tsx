@@ -1,5 +1,6 @@
-import { View, Text, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text } from 'react-native';
 import { forwardRef } from 'react';
+import { KeyboardStickyView } from 'react-native-keyboard-controller';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '@/shared/components/ui/input';
@@ -45,10 +46,7 @@ export const NewSessionForm = forwardRef<BottomSheetModal, NewSessionFormProps>(
 
     return (
       <CustomBottomSheet ref={ref} onClose={onClose} enableDynamicSizing>
-        <KeyboardAvoidingView
-          className="flex-1"
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={0}>
+        <KeyboardStickyView className="flex-1">
           <View className="flex-1 justify-end">
             <View className="gap-4 p-6 pb-8">
               <Text className="mb-4 text-headline-md font-semibold text-on-surface">
@@ -80,7 +78,7 @@ export const NewSessionForm = forwardRef<BottomSheetModal, NewSessionFormProps>(
               />
             </View>
           </View>
-        </KeyboardAvoidingView>
+        </KeyboardStickyView>
       </CustomBottomSheet>
     );
   }
