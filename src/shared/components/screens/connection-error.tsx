@@ -15,7 +15,9 @@ interface ConnectionErrorScreenProps {
   targetUrl?: string;
   targetPort?: string;
   errorCode?: string;
-  onRetry?: () => Promise<boolean>;
+  logs?: string;
+  connectionStatus?: string;
+  onRetry?: () => void;
   onOpenTroubleshooting?: () => void;
   onOpenNetworkSettings?: () => void;
 }
@@ -29,12 +31,15 @@ export function ConnectionErrorScreen({
   onOpenNetworkSettings,
 }: ConnectionErrorScreenProps) {
   // Interactive States
-  const { disconnect, error: storeError, serverUrl: storeServerUrl } = useConnectionStore();
+  const {
+    disconnect,
+    error: storeError,
+    serverUrl: storeServerUrl,
+    connectionStatus,
+  } = useConnectionStore();
   const [isRetrying, setIsRetrying] = useState(false);
   const [retryFailed, setRetryFailed] = useState(false);
   const [lastPingTime, setLastPingTime] = useState('Just now');
-  const [showLogs, setShowLogs] = useState(false);
-  const [isCopied, setIsCopied] = useState(false);
 
   const displayError = storeError || errorCode;
   const displayUrl = storeServerUrl || targetUrl;
@@ -49,7 +54,7 @@ export function ConnectionErrorScreen({
     setTimeout(async () => {
       let success = false;
       if (onRetry) {
-        success = await onRetry();
+        onRetry();
       }
 
       const now = new Date();
@@ -73,11 +78,6 @@ export function ConnectionErrorScreen({
       }
     }, 1200);
   }, [isRetrying, onRetry]);
-
-  const handleCopyLogs = useCallback(() => {
-    setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 1500);
-  }, []);
 
   return (
     <Container>
@@ -137,8 +137,9 @@ export function ConnectionErrorScreen({
               {/* Telemetry Key-Value Matrix */}
               <View className="gap-1.5">
                 <View className="flex-row items-center justify-between rounded bg-surface-container-lowest px-3 py-2">
-                  <Text className="font-mono text-xs text-secondary">Error Code</Text>
-                  <Text className="font-mono text-xs font-medium text-error">{displayError}</Text>
+                  <Text className="text-center font-mono text-xs font-medium text-error">
+                    {displayError}
+                  </Text>
                 </View>
 
                 <View className="flex-row items-center justify-between rounded bg-surface-container-lowest px-3 py-2">
@@ -151,7 +152,7 @@ export function ConnectionErrorScreen({
                 <View className="flex-row items-center justify-between rounded bg-surface-container-lowest px-3 py-2">
                   <Text className="font-mono text-xs text-secondary">Process Status</Text>
                   <Text className="font-mono text-xs text-on-surface-variant">
-                    Inactive / Terminated
+                    {connectionStatus || 'Inactive / Terminated'}
                   </Text>
                 </View>
 
@@ -209,50 +210,7 @@ export function ConnectionErrorScreen({
                 <MaterialIcons name="power-settings-new" size={18} color="#ffffff" />
                 <Text className="text-sm font-semibold text-white">Disconnect</Text>
               </Button>
-              {/* Toggle Diagnostic Logs */}
-              <TouchableOpacity
-                onPress={() => setShowLogs((prev) => !prev)}
-                className="h-12 w-full flex-row items-center justify-center gap-2 rounded-md bg-surface-container active:bg-surface-container-high"
-                activeOpacity={0.8}>
-                <MaterialIcons name="assignment-late" size={20} color="#605e58" />
-                <Text className="text-sm font-semibold text-on-surface">
-                  {showLogs ? 'Hide Diagnostic Logs' : 'View Diagnostic Logs'}
-                </Text>
-              </TouchableOpacity>
             </View>
-
-            {/* Collapsible Log Drawer Preview */}
-            {showLogs && (
-              <View className="mb-6 rounded-md bg-inverse-surface p-4 shadow-sm">
-                <View className="mb-2 flex-row items-center justify-between">
-                  <View className="flex-row items-center gap-2">
-                    <View className="h-2 w-2 rounded-full bg-error" />
-                    <Text className="font-mono text-xs font-semibold text-inverse-on-surface">
-                      stderr.log — agenyx-daemon
-                    </Text>
-                  </View>
-
-                  <TouchableOpacity
-                    onPress={handleCopyLogs}
-                    className="flex-row items-center gap-1 active:opacity-70">
-                    <MaterialIcons name="content-copy" size={14} color="#ffb59d" />
-                    <Text className="text-inverse-primary font-mono text-[11px] font-medium">
-                      {isCopied ? 'Copied!' : 'Copy'}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-
-                {/* Log Output Code Block */}
-                <View className="rounded bg-surface-variant/10 p-2">
-                  <Text className="font-mono text-[11px] leading-relaxed text-inverse-on-surface">
-                    [12:44:02.112] INF Starting Agenyx runtime v0.9.4{'\n'}
-                    [12:44:02.115] DBG Attempting socket bind on 127.0.0.1:4096{'\n'}
-                    [12:44:02.188] ERR SocketException: OS Error 111 (Connection refused){'\n'}
-                    [12:44:02.190] FTL Host loopback unreachable. Terminating service host.
-                  </Text>
-                </View>
-              </View>
-            )}
 
             {/* Warm Minimalist Helpful Guidance Links */}
             <View className="items-center justify-center gap-2 pt-2 text-center">

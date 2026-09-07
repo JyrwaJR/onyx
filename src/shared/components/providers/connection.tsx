@@ -5,7 +5,7 @@ import { router } from 'expo-router';
 import { useHealthCheck } from '@/features/connection';
 
 export const ConnectionProvider = ({ children }: { children: React.ReactNode }) => {
-  const { connectionStatus, serverUrl } = useConnectionStore();
+  const { connectionStatus, serverUrl, connect } = useConnectionStore();
 
   const { isHealthy } = useHealthCheck(connectionStatus === 'connected' ? serverUrl : '');
 
@@ -20,7 +20,15 @@ export const ConnectionProvider = ({ children }: { children: React.ReactNode }) 
   }
 
   if (connectionStatus === 'error') {
-    return <ConnectionErrorScreen />;
+    return (
+      <ConnectionErrorScreen
+        targetUrl={serverUrl}
+        targetPort={serverUrl.split(':').pop()}
+        onRetry={() => connect()}
+        errorCode={'N/A'}
+        connectionStatus={connectionStatus}
+      />
+    );
   }
 
   return <>{children}</>;

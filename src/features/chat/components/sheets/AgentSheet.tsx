@@ -19,8 +19,6 @@ export const AgentSheet = forwardRef<BottomSheetModal, AgentSheetProps>(
     const snapPoints = useMemo(() => ['22', '44', '88%'], []);
 
     const onAgentPress = (agent: Agent) => {
-      console.log(agent.id);
-      console.log(settings.selectedAgent?.id);
       setSettings({ selectedAgent: agent });
     };
 

@@ -145,7 +145,6 @@ export async function sendMessage(
   model?: { modelID?: string; providerID?: string },
   agent?: string
 ): Promise<void> {
-  console.log({ model, agent });
   await http.post(SEND_SESSION_MESSAGE(sessionId), {
     parts: [{ type: 'text', text: content }],
     ...(model?.modelID ? model : {}),
