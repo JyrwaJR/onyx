@@ -6,6 +6,7 @@ import { useSendCommand } from '@/shared/hooks/use-send-command';
 import { Ternary } from '@/shared/components/ui/ternary';
 import { useSessionStatus } from '@/shared/hooks';
 import { useChatStore } from '../store/chat-store';
+import { ChatAutocompleteInput } from './chat-auto-complete';
 
 interface MessageInputProps {
   onSend: (content: string) => void;
@@ -15,6 +16,7 @@ interface MessageInputProps {
 /**
  * Text input with auto-grow and send button.
  */
+
 export function MessageInput({ onSend, disabled }: MessageInputProps) {
   const sessionId = useChatStore((state) => state.context.activeSessionId);
   const isStreaming = useChatStore((s) => s.chat.isStreaming);
@@ -141,8 +143,7 @@ export function MessageInput({ onSend, disabled }: MessageInputProps) {
             </TouchableOpacity>
           }
         />
-
-        <TextInput
+        <ChatAutocompleteInput
           className="max-h-[120px] min-h-[36px] flex-1 px-1 py-1.5 text-end text-sm text-[#1c1c1a]"
           placeholder="Ask Agenyx or type '/' for commands..."
           placeholderTextColor="#5e5c54"
