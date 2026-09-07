@@ -21,6 +21,7 @@ interface ChatState {
   };
 
   chat: {
+    prompt: string;
     isStreaming: boolean;
     streamingMessageId: string | null;
     streamingContent: ContentBlock[];
@@ -60,6 +61,7 @@ const initialContext: ChatState['context'] = {
 };
 
 const initialChat: ChatState['chat'] = {
+  prompt: '',
   isStreaming: false,
   streamingMessageId: null,
   streamingContent: [],
