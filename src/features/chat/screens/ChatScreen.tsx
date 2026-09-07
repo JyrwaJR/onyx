@@ -1,13 +1,8 @@
 import { useEffect, useRef, useCallback, useState, useMemo } from 'react';
-import {
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  NativeSyntheticEvent,
-  NativeScrollEvent,
-} from 'react-native';
+import { View, Platform, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { FlashList, type ListRenderItemInfo } from '@shopify/flash-list';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { KeyboardStickyView } from 'react-native-keyboard-controller';
 
 import { useMessages, useSendMessage } from '../hooks';
 import { useSessionStream } from '../hooks/use-session-stream';
@@ -93,7 +88,6 @@ export default function ChatScreen() {
   useEffect(() => {
     activeQuestionRef.current = activeQuestion;
   }, [activeQuestion]);
-  const insets = useSafeAreaInsets();
   const {
     data: messages,
     isLoading,
@@ -424,75 +418,72 @@ export default function ChatScreen() {
   return (
     <>
       <StackHeader title={isFetching ? 'Loading…' : session?.title} />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={0}
-        className="flex-1">
-        <SafeAreaView edges={['right', 'left', 'bottom']} className="flex-1 bg-[#fcf9f6]">
-          <ChatHeaderBar />
-          <Ternary
-            condition={!!session?.parentID}
-            truthy={
-              <ParentSessionNotice
-                parentSessionId={session?.parentID || ''}
-                projectId={projectId}
-              />
-            }
-            falsy={null}
-          />
+      <KeyboardStickyView
+        offset={{ closed: 0, opened: 0 }}
+        className="flex-1 border-t border-[#dac1ba]/30 bg-[#fcf9f6]">
+        <ChatHeaderBar />
+        <Ternary
+          condition={!!session?.parentID}
+          truthy={
+            <ParentSessionNotice parentSessionId={session?.parentID || ''} projectId={projectId} />
+          }
+          falsy={null}
+        />
 
-          {allMessages.length === 0 ? (
-            <View className="flex-1 px-4 py-3">
-              <EmptyChat />
-            </View>
-          ) : (
-            <FlashList
-              ref={listRef}
-              style={{ flex: 1 }}
-              data={allMessages}
-              keyExtractor={keyExtractor}
-              getItemType={getItemType}
-              renderItem={renderMessage}
-              extraData={streamingIds}
-              contentContainerStyle={{
-                paddingHorizontal: 16,
-                paddingVertical: 12,
-                paddingBottom: insets.bottom,
-              }}
-              showsVerticalScrollIndicator={false}
-              onScroll={handleScroll}
-              scrollEventThrottle={16}
-              keyboardShouldPersistTaps="handled"
-            />
-          )}
-          <View className="gap-2 border-t border-[#dac1ba]/30 bg-[#fcf9f6] pb-2">
-            <View className="flex-row pt-2">
-              <ContextBar />
-              <SquareLoadingBar isLoading={isSessionBusy} />
-            </View>
-            {activePermission ? (
-              <View className="gap-2 px-4 pt-2">
-                <PermissionRequestCard
-                  request={activePermission}
-                  onResolved={removePermissionRequest}
-                />
-              </View>
-            ) : activeQuestion && currentQuestionIndex < activeQuestion.questions.length ? (
-              <View className="gap-2 px-4 pt-2">
-                <ChatSelection
-                  key={`${activeQuestion.id}-${currentQuestionIndex}`}
-                  question={activeQuestion.questions[currentQuestionIndex]}
-                  stepLabel={`Question ${currentQuestionIndex + 1} of ${activeQuestion.questions.length}`}
-                  onSelect={(labels) => handleQuestionSelect(currentQuestionIndex, labels)}
-                  onReject={handleRejectQuestion}
-                />
-              </View>
-            ) : !activeQuestion ? (
-              <MessageInput disabled={sendMessage.isPaused} onSend={handleSend} />
-            ) : null}
+        {allMessages.length === 0 ? (
+          <View className="flex-1 px-4 py-3">
+            <EmptyChat />
           </View>
-        </SafeAreaView>
-      </KeyboardAvoidingView>
+        ) : (
+          <FlashList
+            ref={listRef}
+            style={{ flex: 1 }}
+            data={allMessages}
+            keyExtractor={keyExtractor}
+            getItemType={getItemType}
+            renderItem={renderMessage}
+            keyboardDismissMode="on-drag"
+            extraData={streamingIds}
+            contentContainerStyle={{
+              paddingHorizontal: 16,
+              paddingVertical: 12,
+              // paddingBottom: insets.bottom,
+            }}
+            showsVerticalScrollIndicator={false}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
+            keyboardShouldPersistTaps="handled"
+          />
+        )}
+        <View className="gap-2 border-t border-[#dac1ba]/30 bg-[#fcf9f6] pb-2">
+          <View className="flex-row pt-2">
+            <ContextBar />
+            <SquareLoadingBar isLoading={isSessionBusy} />
+          </View>
+          {activePermission ? (
+            <View className="gap-2 px-4 pt-2">
+              <PermissionRequestCard
+                request={activePermission}
+                onResolved={removePermissionRequest}
+              />
+            </View>
+          ) : activeQuestion && currentQuestionIndex < activeQuestion.questions.length ? (
+            <View className="gap-2 px-4 pt-2">
+              <ChatSelection
+                key={`${activeQuestion.id}-${currentQuestionIndex}`}
+                question={activeQuestion.questions[currentQuestionIndex]}
+                stepLabel={`Question ${currentQuestionIndex + 1} of ${activeQuestion.questions.length}`}
+                onSelect={(labels) => handleQuestionSelect(currentQuestionIndex, labels)}
+                onReject={handleRejectQuestion}
+              />
+            </View>
+          ) : !activeQuestion ? (
+            <View className="gap-2 border-t border-[#dac1ba]/30 bg-[#fcf9f6] pb-2">
+              <MessageInput disabled={sendMessage.isPaused} onSend={handleSend} />
+            </View>
+          ) : null}
+        </View>
+      </KeyboardStickyView>
     </>
   );
 }

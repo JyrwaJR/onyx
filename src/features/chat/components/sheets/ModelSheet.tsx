@@ -65,7 +65,7 @@ export const ModelSheet = forwardRef<BottomSheetModal, ModelSheetProps>(
                   <View className="flex-1">
                     <Text className="text-sm font-semibold text-[#1a1918]">{model.name}</Text>
                     <Text className="text-xs text-[#6e6962]">
-                      {model.description ?? 'No description'}
+                      {model.variants.join(', ') ?? 'No description'}
                     </Text>
                   </View>
                 </TouchableOpacity>
